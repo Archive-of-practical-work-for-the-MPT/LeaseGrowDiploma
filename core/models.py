@@ -46,6 +46,11 @@ class Account(models.Model):
     def __str__(self):
         return self.username
 
+    @property
+    def is_authenticated(self):
+        """Для совместимости с DRF permission IsAuthenticated."""
+        return True
+
 
 class UserProfile(models.Model):
     """Профили пользователей (1 к 1 с аккаунтом)."""
@@ -71,6 +76,25 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class AccountToken(models.Model):
+    """Токен для авторизации через API (привязка к Account)."""
+    key = models.CharField(max_length=64, unique=True, db_index=True)
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='api_tokens',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'account_token'
+        verbose_name = 'токен API'
+        verbose_name_plural = 'токены API'
+
+    def __str__(self):
+        return f'{self.account.username} — {self.key[:8]}...'
 
 
 # --- Компании и клиенты ---

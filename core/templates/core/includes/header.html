@@ -5,6 +5,7 @@
             <a href="{% url 'home' %}#uslugi">Услуги</a>
             <a href="{% url 'home' %}#tekhnika">Техника</a>
             <a href="{% url 'home' %}#kontakt">Контакты</a>
+            <a href="/api/">API</a>
             {% if current_account %}
             <span class="nav-user">{{ current_account.username }}</span>
             <a href="{% url 'logout' %}">Выйти</a>

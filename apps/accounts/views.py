@@ -18,7 +18,7 @@ def get_current_account(request):
 
 def login_view(request):
     if get_current_account(request):
-        return redirect('home')
+        return redirect('core:home')
     form = LoginForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         username = form.cleaned_data['username'].strip()
@@ -32,14 +32,14 @@ def login_view(request):
             account.last_login = timezone.now()
             account.save(update_fields=['last_login'])
             messages.success(request, f'Добро пожаловать, {account.username}!')
-            return redirect('home')
+            return redirect('core:home')
         form.add_error(None, 'Неверный email/логин или пароль.')
     return render(request, 'accounts/auth/login.html', {'form': form})
 
 
 def register_view(request):
     if get_current_account(request):
-        return redirect('home')
+        return redirect('core:home')
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         role_client, _ = Role.objects.get_or_create(
@@ -61,11 +61,11 @@ def register_view(request):
         )
         request.session['account_id'] = account.id
         messages.success(request, 'Регистрация прошла успешно. Добро пожаловать!')
-        return redirect('home')
+        return redirect('core:home')
     return render(request, 'accounts/auth/register.html', {'form': form})
 
 
 def logout_view(request):
     request.session.flush()
     messages.info(request, 'Вы вышли из аккаунта.')
-    return redirect('home')
+    return redirect('core:home')

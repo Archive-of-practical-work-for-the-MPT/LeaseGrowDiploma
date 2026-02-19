@@ -24,30 +24,30 @@
             </div>
             <div class="resource-list">
                 <a href="{% url 'control_panel:dashboard' %}" class="resource-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <span class="label">Обзор</span>
+                    <span class="label">📊 Обзор</span>
                     <span class="badge">crud</span>
                 </a>
                 <div class="resource-group">Учётные записи</div>
-                <a href="{% url 'control_panel:role_list' %}" class="resource-item {% if '/roles/' in request.path %}active{% endif %}"><span class="label">Роли</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:account_list' %}" class="resource-item {% if '/accounts/' in request.path %}active{% endif %}"><span class="label">Аккаунты</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:userprofile_list' %}" class="resource-item {% if '/profiles/' in request.path %}active{% endif %}"><span class="label">Профили</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:accounttoken_list' %}" class="resource-item {% if '/tokens/' in request.path %}active{% endif %}"><span class="label">Токены API</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:role_list' %}" class="resource-item {% if '/roles/' in request.path %}active{% endif %}"><span class="label">👤 Роли</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:account_list' %}" class="resource-item {% if '/accounts/' in request.path %}active{% endif %}"><span class="label">🔐 Аккаунты</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:userprofile_list' %}" class="resource-item {% if '/profiles/' in request.path %}active{% endif %}"><span class="label">📋 Профили</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:accounttoken_list' %}" class="resource-item {% if '/tokens/' in request.path %}active{% endif %}"><span class="label">🔑 Токены API</span><span class="badge">crud</span></a>
                 <div class="resource-group">Каталог</div>
-                <a href="{% url 'control_panel:equipmentcategory_list' %}" class="resource-item {% if '/categories/' in request.path %}active{% endif %}"><span class="label">Категории техники</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:manufacturer_list' %}" class="resource-item {% if '/manufacturers/' in request.path %}active{% endif %}"><span class="label">Производители</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:equipment_list' %}" class="resource-item {% if '/equipment/' in request.path %}active{% endif %}"><span class="label">Техника</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:equipmentcategory_list' %}" class="resource-item {% if '/categories/' in request.path %}active{% endif %}"><span class="label">📁 Категории техники</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:manufacturer_list' %}" class="resource-item {% if '/manufacturers/' in request.path %}active{% endif %}"><span class="label">🏭 Производители</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:equipment_list' %}" class="resource-item {% if '/equipment/' in request.path %}active{% endif %}"><span class="label">🚜 Техника</span><span class="badge">crud</span></a>
                 <div class="resource-group">Лизинг</div>
-                <a href="{% url 'control_panel:company_list' %}" class="resource-item {% if '/companies/' in request.path %}active{% endif %}"><span class="label">Компании</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:companycontact_list' %}" class="resource-item {% if '/company-contacts/' in request.path %}active{% endif %}"><span class="label">Контакты компаний</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:leasecontract_list' %}" class="resource-item {% if '/contracts/' in request.path %}active{% endif %}"><span class="label">Договоры лизинга</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:paymentschedule_list' %}" class="resource-item {% if '/payments/' in request.path %}active{% endif %}"><span class="label">Графики платежей</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:maintenance_list' %}" class="resource-item {% if '/maintenance/' in request.path and '/maintenance-requests/' not in request.path %}active{% endif %}"><span class="label">Обслуживание</span><span class="badge">crud</span></a>
-                <a href="{% url 'control_panel:maintenancerequest_list' %}" class="resource-item {% if '/maintenance-requests/' in request.path %}active{% endif %}"><span class="label">Заявки на обслуживание</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:company_list' %}" class="resource-item {% if '/companies/' in request.path %}active{% endif %}"><span class="label">🏢 Компании</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:companycontact_list' %}" class="resource-item {% if '/company-contacts/' in request.path %}active{% endif %}"><span class="label">📞 Контакты компаний</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:leasecontract_list' %}" class="resource-item {% if '/contracts/' in request.path %}active{% endif %}"><span class="label">📄 Договоры лизинга</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:paymentschedule_list' %}" class="resource-item {% if '/payments/' in request.path %}active{% endif %}"><span class="label">💰 Графики платежей</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:maintenance_list' %}" class="resource-item {% if '/maintenance/' in request.path and '/maintenance-requests/' not in request.path %}active{% endif %}"><span class="label">🔧 Обслуживание</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:maintenancerequest_list' %}" class="resource-item {% if '/maintenance-requests/' in request.path %}active{% endif %}"><span class="label">📝 Заявки на обслуживание</span><span class="badge">crud</span></a>
                 <div class="resource-group">Система</div>
-                <a href="{% url 'control_panel:audit_list' %}" class="resource-item {% if '/audit/' in request.path %}active{% endif %}"><span class="label">Журнал аудита</span><span class="badge">read</span></a>
+                <a href="{% url 'control_panel:audit_list' %}" class="resource-item {% if '/audit/' in request.path %}active{% endif %}"><span class="label">📜 Журнал аудита</span><span class="badge">read</span></a>
             </div>
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-                <a href="{% url 'core:home' %}" class="console-back">← На сайт</a>
+            <div class="sidebar-footer">
+                <a href="{% url 'core:home' %}" class="console-back-btn">Назад</a>
             </div>
         </aside>
 

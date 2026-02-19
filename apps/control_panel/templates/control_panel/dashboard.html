@@ -7,16 +7,18 @@
         <div class="console-main-meta">Выберите таблицу для управления данными</div>
     </div>
 </div>
-<div class="dashboard-grid">
+<div class="dashboard-cards">
     {% for key, model, title, url_name in models %}
-    <a href="{% url url_name %}" class="resource-item">
-        <span class="label">{{ title }}</span>
-        <span class="badge">crud</span>
+    <a href="{% url url_name %}" class="dashboard-card">
+        <span class="dashboard-card-icon">{% if 'role' in key %}👤{% elif 'account' in key and 'token' not in key %}🔐{% elif 'profile' in key %}📋{% elif 'token' in key %}🔑{% elif 'category' in key %}📁{% elif 'manufacturer' in key %}🏭{% elif 'equipment' in key %}🚜{% elif 'company' in key and 'contact' not in key %}🏢{% elif 'contact' in key %}📞{% elif 'contract' in key %}📄{% elif 'payment' in key %}💰{% elif 'maintenance' in key and 'request' not in key %}🔧{% elif 'request' in key %}📝{% else %}📊{% endif %}</span>
+        <span class="dashboard-card-title">{{ title }}</span>
+        <span class="dashboard-card-badge">crud</span>
     </a>
     {% endfor %}
-    <a href="{% url 'control_panel:audit_list' %}" class="resource-item">
-        <span class="label">Журнал аудита</span>
-        <span class="badge">read</span>
+    <a href="{% url 'control_panel:audit_list' %}" class="dashboard-card">
+        <span class="dashboard-card-icon">📜</span>
+        <span class="dashboard-card-title">Журнал аудита</span>
+        <span class="dashboard-card-badge">read</span>
     </a>
 </div>
 {% endblock %}

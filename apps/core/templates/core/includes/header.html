@@ -5,18 +5,15 @@
             <a href="{% url 'core:home' %}#uslugi">Услуги</a>
             <a href="{% url 'core:home' %}#tekhnika">Техника</a>
             <a href="{% url 'core:home' %}#kontakt">Контакты</a>
-            <a href="/api/">API</a>
             {% if current_account %}
             {% if is_admin %}
             <a href="{% url 'control_panel:dashboard' %}">Панель управления</a>
             {% endif %}
-            <span class="nav-user">{{ current_account.username }}</span>
+            <a href="{% url 'core:home' %}">Профиль</a>
             <a href="{% url 'accounts:logout' %}">Выйти</a>
-            <a href="{% url 'core:home' %}#zayavka" class="btn-nav">Оставить заявку</a>
             {% else %}
             <a href="{% url 'accounts:register' %}">Регистрация</a>
             <a href="{% url 'accounts:login' %}" class="btn-nav">Вход</a>
-            <a href="{% url 'core:home' %}#zayavka">Оставить заявку</a>
             {% endif %}
         </nav>
     </div>

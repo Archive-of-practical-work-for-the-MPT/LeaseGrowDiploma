@@ -9,7 +9,7 @@
             {% if is_admin %}
             <a href="{% url 'control_panel:dashboard' %}">Панель управления</a>
             {% endif %}
-            <a href="{% url 'core:home' %}">Профиль</a>
+            <a href="{% url 'accounts:profile' %}">Профиль</a>
             <a href="{% url 'accounts:logout' %}">Выйти</a>
             {% else %}
             <a href="{% url 'accounts:register' %}">Регистрация</a>

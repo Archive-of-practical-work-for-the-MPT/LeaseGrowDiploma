@@ -69,3 +69,44 @@ def logout_view(request):
     request.session.flush()
     messages.info(request, 'Вы вышли из аккаунта.')
     return redirect('core:home')
+
+
+def profile_view(request):
+    account = get_current_account(request)
+    if not account:
+        messages.error(request, 'Для просмотра профиля необходимо войти.')
+        return redirect('accounts:login')
+
+    profile = None
+    stats = None
+    try:
+        profile = account.profile
+    except UserProfile.DoesNotExist:
+        pass
+
+    if account.role and account.role.name == 'admin':
+        from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
+        from apps.leasing.models import Company, LeaseContract, PaymentSchedule, Maintenance, MaintenanceRequest
+
+        stats = {
+            'accounts': Account.objects.count(),
+            'roles': Role.objects.count(),
+            'companies': Company.objects.count(),
+            'equipment': Equipment.objects.count(),
+            'categories': EquipmentCategory.objects.count(),
+            'manufacturers': Manufacturer.objects.count(),
+            'contracts': LeaseContract.objects.count(),
+            'contracts_active': LeaseContract.objects.filter(status='active').count(),
+            'payments': PaymentSchedule.objects.count(),
+            'payments_pending': PaymentSchedule.objects.filter(status='pending').count(),
+            'maintenance': Maintenance.objects.count(),
+            'maintenance_requests': MaintenanceRequest.objects.count(),
+            'maintenance_requests_new': MaintenanceRequest.objects.filter(status='new').count(),
+        }
+
+    return render(request, 'accounts/profile.html', {
+        'account': account,
+        'profile': profile,
+        'stats': stats,
+        'is_admin': account.role and account.role.name == 'admin',
+    })

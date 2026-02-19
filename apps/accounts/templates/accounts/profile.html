@@ -1,0 +1,113 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Профиль — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-hero">
+        <div class="profile-hero-content">
+            <div class="profile-hero-top">
+                <h1 class="profile-title">Профиль</h1>
+                {% if account.role %}
+                <span class="profile-role-badge">{{ account.role.name }}</span>
+                {% endif %}
+            </div>
+            <p class="profile-name">{% if profile %}{{ profile.first_name }} {{ profile.last_name }}{% else %}{{ account.username }}{% endif %}</p>
+            <p class="profile-username">{{ account.username }}</p>
+            <p class="profile-subtitle">
+                {% if is_admin %}Админ Системы{% elif account.role %}{{ account.role.description|default:account.role.name }}{% else %}Пользователь{% endif %}
+            </p>
+            <div class="profile-info-row">
+                <div class="profile-info-item">
+                    <span class="profile-info-icon">@</span>
+                    <span class="profile-info-value">{{ account.email }}</span>
+                </div>
+                {% if profile and profile.phone %}
+                <div class="profile-info-item">
+                    <span class="profile-info-icon profile-info-icon-phone">📞</span>
+                    <span class="profile-info-value">{{ profile.phone }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <a href="/api/" class="profile-btn profile-btn-api">
+            <span class="profile-btn-icon">🔌</span>
+            <span class="profile-btn-text">REST API</span>
+            <span class="profile-btn-desc">Документация и доступ к данным</span>
+        </a>
+        {% if is_admin %}
+        <a href="{% url 'control_panel:dashboard' %}" class="profile-btn profile-btn-panel">
+            <span class="profile-btn-icon">📊</span>
+            <span class="profile-btn-text">Панель управления</span>
+            <span class="profile-btn-desc">CRUD всех таблиц системы</span>
+        </a>
+        {% endif %}
+    </div>
+
+    {% if stats %}
+    <section class="profile-stats">
+        <h2>Статистика системы</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">👥</span>
+                <span class="stat-value">{{ stats.accounts }}</span>
+                <span class="stat-label">Аккаунты</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🏢</span>
+                <span class="stat-value">{{ stats.companies }}</span>
+                <span class="stat-label">Компании</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🚜</span>
+                <span class="stat-value">{{ stats.equipment }}</span>
+                <span class="stat-label">Техника</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📄</span>
+                <span class="stat-value">{{ stats.contracts }}</span>
+                <span class="stat-label">Договоры</span>
+            </div>
+            <div class="stat-card stat-highlight">
+                <span class="stat-icon">✓</span>
+                <span class="stat-value">{{ stats.contracts_active }}</span>
+                <span class="stat-label">Активные договоры</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💰</span>
+                <span class="stat-value">{{ stats.payments }}</span>
+                <span class="stat-label">Платежи</span>
+            </div>
+            <div class="stat-card stat-warning">
+                <span class="stat-icon">⏳</span>
+                <span class="stat-value">{{ stats.payments_pending }}</span>
+                <span class="stat-label">Ожидают оплаты</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🔧</span>
+                <span class="stat-value">{{ stats.maintenance }}</span>
+                <span class="stat-label">Обслуживание</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📝</span>
+                <span class="stat-value">{{ stats.maintenance_requests }}</span>
+                <span class="stat-label">Заявки на ТО</span>
+            </div>
+            <div class="stat-card stat-warning">
+                <span class="stat-icon">🆕</span>
+                <span class="stat-value">{{ stats.maintenance_requests_new }}</span>
+                <span class="stat-label">Новые заявки</span>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

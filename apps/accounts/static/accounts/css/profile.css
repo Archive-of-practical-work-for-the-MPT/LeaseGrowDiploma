@@ -1,42 +1,100 @@
-/* Profile page */
-.profile-page {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem 4rem;
+/* Profile — в стиле панели управления */
+.profile-header .console-subtitle {
+    margin-bottom: 0;
 }
 
-.profile-hero {
-    position: relative;
-    margin-bottom: 2rem;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    background: var(--white);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+/* Аккаунт слева (узкий), кнопки и статистика справа */
+.profile-layout {
+    grid-template-columns: 260px 1fr;
 }
 
-.profile-hero-content {
-    padding: 2.5rem 2.5rem;
+@media (max-width: 900px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
-.profile-hero-top {
+.profile-account-sidebar {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+}
+
+.profile-account-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 1rem 0;
+}
+
+.profile-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Блок аккаунта — узкий вытянутый */
+.profile-hero-content {
+    padding: 0;
+}
+
+.profile-field {
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.profile-field:last-of-type {
     margin-bottom: 1rem;
 }
 
-.profile-title {
-    font-size: 0.8rem;
+.profile-field-label {
     font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    color: var(--text);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.profile-field-value {
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.profile-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.profile-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--green-25);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+}
+
+.profile-info-icon {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green-500);
+    opacity: 0.9;
+}
+
+.profile-info-icon-phone {
+    font-size: 0.8rem;
+    filter: sepia(1) saturate(5) hue-rotate(70deg);
+}
+
+.profile-info-value {
+    font-size: 0.82rem;
+    color: var(--text);
+    font-weight: 500;
 }
 
 .profile-role-badge {
-    padding: 0.3rem 1rem;
-    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.65rem;
     font-weight: 600;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
     color: var(--white);
@@ -44,68 +102,12 @@
     letter-spacing: 0.05em;
 }
 
-.profile-name {
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-    margin-bottom: 0.25rem;
-}
-
-.profile-username {
-    font-size: 1rem;
-    font-weight: 400;
-    color: var(--text-muted);
-    margin-bottom: 0.35rem;
-}
-
-.profile-subtitle {
-    font-size: 1.05rem;
-    color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-}
-
-.profile-info-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-}
-
-.profile-info-item {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 0.9rem;
-    background: var(--green-25);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-}
-
-.profile-info-icon {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--green-500);
-    opacity: 0.9;
-}
-
-.profile-info-icon-phone {
-    font-size: 0.85rem;
-    filter: sepia(1) saturate(5) hue-rotate(70deg);
-}
-
-.profile-info-value {
-    font-size: 0.95rem;
-    color: var(--text);
-    font-weight: 500;
-}
-
+/* Кнопки — как было изначально */
 .profile-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .profile-btn {
@@ -162,7 +164,12 @@
     color: var(--text-muted);
 }
 
-.profile-stats h2 {
+/* Статистика — сетка карточек как было изначально */
+.profile-stats {
+    margin-top: 0;
+}
+
+.profile-stats-title {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--text);
@@ -177,11 +184,14 @@
 }
 
 .stat-card {
+    display: block;
     padding: 1.25rem;
     background: var(--white);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
     text-align: center;
+    text-decoration: none;
+    color: inherit;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 

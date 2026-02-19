@@ -78,6 +78,9 @@ DATABASES = {
     }
 }
 
+# Путь к bin PostgreSQL (pg_dump, psql) — для Windows, если не в PATH
+PG_BIN_PATH = env('PG_BIN_PATH', default='')
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},

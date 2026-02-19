@@ -60,6 +60,11 @@
                     <span class="profile-btn-text">Панель управления</span>
                     <span class="profile-btn-desc">CRUD всех таблиц системы</span>
                 </a>
+                <a href="{% url 'accounts:backup' %}" class="profile-btn profile-btn-backup">
+                    <span class="profile-btn-icon">💾</span>
+                    <span class="profile-btn-text">Бэкап БД</span>
+                    <span class="profile-btn-desc">Создать или загрузить резервную копию PostgreSQL</span>
+                </a>
                 {% endif %}
             </div>
 

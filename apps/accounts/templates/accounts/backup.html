@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Бэкап БД — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/backup.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="console-root backup-page">
+    <div class="console-card profile-header" style="margin-bottom: 1.25rem;">
+        <div class="console-title">Бэкап базы данных</div>
+        <div class="console-subtitle">
+            Создайте резервную копию PostgreSQL или восстановите данные из ранее сохранённого файла.
+            Бэкапы создаются в кодировке UTF-8 для корректного отображения кириллицы.
+        </div>
+    </div>
+
+    <div class="backup-cards">
+        <div class="backup-card">
+            <span class="backup-card-icon">📤</span>
+            <h2 class="backup-card-title">Создать бэкап</h2>
+            <p class="backup-card-desc">
+                Скачайте полный дамп базы данных в формате SQL (UTF-8).
+            </p>
+            <form method="post" action="{% url 'accounts:backup' %}" class="backup-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <button type="submit" class="backup-btn backup-btn-create">
+                    Создать и скачать
+                </button>
+            </form>
+        </div>
+
+        <div class="backup-card">
+            <span class="backup-card-icon">📥</span>
+            <h2 class="backup-card-title">Восстановить из бэкапа</h2>
+            <p class="backup-card-desc">
+                Загрузите файл .sql — текущие данные будут заменены. Действие необратимо.
+            </p>
+            <form method="post" action="{% url 'accounts:backup' %}" enctype="multipart/form-data" class="backup-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="restore">
+                <div class="backup-file-wrap">
+                    <input type="file" name="backup_file" accept=".sql" required class="backup-file-input" id="backup-file">
+                    <label for="backup-file" class="backup-file-btn">Выбрать файл .sql</label>
+                    <span class="backup-file-name" id="backup-file-name"></span>
+                </div>
+                <button type="submit" class="backup-btn backup-btn-restore">
+                    Загрузить и восстановить
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('backup-file').addEventListener('change', function() {
+    var nameEl = document.getElementById('backup-file-name');
+    nameEl.textContent = this.files.length ? this.files[0].name : '';
+});
+</script>
+{% endblock %}

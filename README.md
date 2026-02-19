@@ -2,6 +2,29 @@
 
 Django-проект для лизинга агротехники.
 
+## Структура проекта
+
+```
+LeaseGrow/
+├── manage.py
+├── config/                      # Конфигурация проекта
+│   ├── settings/
+│   │   ├── base.py              # Базовые настройки
+│   │   ├── local.py             # Разработка
+│   │   └── production.py        # Продакшен
+│   ├── urls.py
+│   ├── api_urls.py              # Объединённый API
+│   └── wsgi.py
+├── apps/                        # Приложения
+│   ├── accounts/                # Пользователи, роли, профили, токены API
+│   ├── catalog/                 # Каталог техники (категории, производители, техника)
+│   ├── leasing/                 # Компании, договоры, платежи, обслуживание
+│   └── core/                    # Главная страница, аудит, общие компоненты
+├── static/
+├── media/
+└── requirements.txt
+```
+
 ## Установка
 
 ```bash
@@ -21,20 +44,21 @@ pip install -r requirements.txt
    ```bash
    python scripts/run_db_setup.py
    ```
-   Скрипт читает параметры из `.env` (DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT), создаёт БД (если нет), схему и заполняет тестовыми данными.  
-   **Админ:** `admin@gmail.com` / `adminadmin`  
-   При необходимости можно выполнить SQL вручную: `scripts/create_db.sql` — схема, `scripts/seed_db.sql` — данные.  
-   После скрипта выполните `python manage.py migrate --fake`, чтобы Django зафиксировал миграции (схема уже создана).
+   Скрипт читает параметры из `.env`, создаёт БД, схему и заполняет тестовыми данными.  
+   **Админ:** `admin@gmail.com` / `adminadmin`
+
+3. Примените миграции Django (схема уже создана скриптом):
+   ```bash
+   python manage.py migrate --fake-initial
+   ```
 
 ## Запуск
 
 ```bash
-# Если БД создавали через run_db_setup.py:
-python manage.py migrate --fake
-
 # Если БД пустая и создаёте через Django:
 python manage.py migrate
 
+# Запуск сервера
 python manage.py runserver
 ```
 
@@ -42,14 +66,14 @@ python manage.py runserver
 
 ## API
 
-API построен только по таблицам БД — у каждого ресурса все поля модели, CRUD (list, create, retrieve, update, destroy).
+API построен по таблицам БД — CRUD (list, create, retrieve, update, destroy).
 
 Корень: **http://127.0.0.1:8000/api/**
 
 Ресурсы: `roles`, `accounts`, `user_profiles`, `account_tokens`, `companies`, `company_contacts`, `equipment_categories`, `manufacturers`, `equipment`, `lease_contracts`, `payment_schedules`, `maintenances`, `maintenance_requests`, `audit_logs`.
 
-**Авторизация через API таблиц:**
-- Вход: `POST /api/account-tokens/` с телом `{"username": "логин или email", "password": "пароль"}` — в ответе создаётся запись токена (поле `key`).
-- Дальше в заголовке запросов: `Authorization: Token <key>`.
+**Авторизация через API:**
+- Вход: `POST /api/account-tokens/` с телом `{"username": "логин или email", "password": "пароль"}` — в ответе создаётся токен (поле `key`).
+- В заголовке запросов: `Authorization: Token <key>`.
 - Выход: `DELETE /api/account-tokens/<id>/` (удаление своего токена).
-- Регистрация: `POST /api/accounts/` (поля таблицы account, при создании передать `password`), затем `POST /api/user-profiles/` (привязать профиль к account).
+- Регистрация: `POST /api/accounts/` (при создании передать `password`), затем `POST /api/user-profiles/`.

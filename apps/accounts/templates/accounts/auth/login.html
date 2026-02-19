@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Вход — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Вход в аккаунт</h1>
+        <p class="subtitle">Введите email или логин и пароль</p>
+        <form class="auth-form" method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="nonfield">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="field">
+                <label for="id_username">{{ form.username.label }}</label>
+                {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div class="field">
+                <label for="id_password">{{ form.password.label }}</label>
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+        <p class="footer-link">Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
+    </div>
+</div>
+{% endblock %}

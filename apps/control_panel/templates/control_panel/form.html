@@ -1,0 +1,46 @@
+{% extends 'control_panel/base.html' %}
+
+{% block control_content %}
+<div class="control-page">
+    <div class="control-page-header control-page-header-row">
+        <div>
+            <h1>{{ title }}</h1>
+            <a href="{% url list_url %}" class="control-back">← К списку</a>
+        </div>
+        {% if delete_url and obj %}
+        <form method="post" action="{% url delete_url obj.pk %}" class="form-delete" onsubmit="return confirm('Удалить запись? Действие необратимо.');">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete-page">Удалить</button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="control-form-card">
+        <form method="post" class="control-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="form-errors">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            <div class="form-grid">
+                {% for field in form %}
+                <div class="form-group {% if field.field.widget.input_type == 'checkbox' %}form-group-checkbox{% endif %} {% if field.errors %}has-error{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <span class="form-help">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                    <span class="form-error">{{ field.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">{{ submit_label }}</button>
+                <a href="{% url list_url %}" class="btn-cancel">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

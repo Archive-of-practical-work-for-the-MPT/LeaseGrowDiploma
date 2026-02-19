@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="control-panel">
+    <aside class="control-sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'control_panel:dashboard' %}" class="sidebar-logo">Панель управления</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'control_panel:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">📊</span> Обзор
+            </a>
+            <div class="sidebar-group">Учётные записи</div>
+            <a href="{% url 'control_panel:role_list' %}" class="sidebar-link">Роли</a>
+            <a href="{% url 'control_panel:account_list' %}" class="sidebar-link">Аккаунты</a>
+            <a href="{% url 'control_panel:userprofile_list' %}" class="sidebar-link">Профили</a>
+            <a href="{% url 'control_panel:accounttoken_list' %}" class="sidebar-link">Токены API</a>
+            <div class="sidebar-group">Каталог</div>
+            <a href="{% url 'control_panel:equipmentcategory_list' %}" class="sidebar-link">Категории техники</a>
+            <a href="{% url 'control_panel:manufacturer_list' %}" class="sidebar-link">Производители</a>
+            <a href="{% url 'control_panel:equipment_list' %}" class="sidebar-link">Техника</a>
+            <div class="sidebar-group">Лизинг</div>
+            <a href="{% url 'control_panel:company_list' %}" class="sidebar-link">Компании</a>
+            <a href="{% url 'control_panel:companycontact_list' %}" class="sidebar-link">Контакты компаний</a>
+            <a href="{% url 'control_panel:leasecontract_list' %}" class="sidebar-link">Договоры лизинга</a>
+            <a href="{% url 'control_panel:paymentschedule_list' %}" class="sidebar-link">Графики платежей</a>
+            <a href="{% url 'control_panel:maintenance_list' %}" class="sidebar-link">Обслуживание</a>
+            <a href="{% url 'control_panel:maintenancerequest_list' %}" class="sidebar-link">Заявки на обслуживание</a>
+            <div class="sidebar-group">Система</div>
+            <a href="{% url 'control_panel:audit_list' %}" class="sidebar-link">Журнал аудита</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{% url 'core:home' %}" class="sidebar-back">← На сайт</a>
+        </div>
+    </aside>
+    <div class="control-main">
+        {% block control_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

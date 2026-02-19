@@ -1,0 +1,26 @@
+{% extends 'control_panel/base.html' %}
+
+{% block control_content %}
+<div class="control-page">
+    <div class="control-page-header">
+        <h1>Панель управления</h1>
+        <p class="control-subtitle">Добро пожаловать. Выберите раздел для управления данными.</p>
+    </div>
+    <div class="dashboard-grid">
+        {% for key, model, title, url_name in models %}
+        <a href="{% url url_name %}" class="dashboard-card">
+            <span class="dashboard-card-icon">
+                {% if 'role' in key %}👤{% elif 'account' in key and 'token' not in key %}🔐{% elif 'profile' in key %}📋{% elif 'token' in key %}🔑{% elif 'category' in key %}📁{% elif 'manufacturer' in key %}🏭{% elif 'equipment' in key %}🚜{% elif 'company' in key and 'contact' not in key %}🏢{% elif 'contact' in key %}📞{% elif 'contract' in key %}📄{% elif 'payment' in key %}💰{% elif 'maintenance' in key and 'request' not in key %}🔧{% elif 'request' in key %}📝{% else %}📊{% endif %}
+            </span>
+            <h3>{{ title }}</h3>
+            <span class="dashboard-card-arrow">→</span>
+        </a>
+        {% endfor %}
+        <a href="{% url 'control_panel:audit_list' %}" class="dashboard-card dashboard-card-audit">
+            <span class="dashboard-card-icon">📜</span>
+            <h3>Журнал аудита</h3>
+            <span class="dashboard-card-arrow">→</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

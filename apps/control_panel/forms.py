@@ -1,0 +1,350 @@
+"""Формы для панели управления."""
+import json
+import secrets
+from django import forms
+from django.contrib.auth.hashers import make_password
+
+from apps.accounts.models import Role, Account, UserProfile, AccountToken
+from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
+from apps.leasing.models import (
+    Company, CompanyContact, LeaseContract, PaymentSchedule,
+    Maintenance, MaintenanceRequest,
+)
+
+
+class RoleForm(forms.ModelForm):
+    permissions = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-input', 'rows': 2,
+            'placeholder': '["all"] или ["contracts","companies"]',
+        }),
+    )
+
+    class Meta:
+        model = Role
+        fields = ['name', 'description', 'permissions']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.permissions:
+            self.initial['permissions'] = json.dumps(
+                self.instance.permissions, ensure_ascii=False
+            )
+
+    def clean_permissions(self):
+        val = self.cleaned_data.get('permissions')
+        if isinstance(val, str) and val.strip():
+            try:
+                return json.loads(val)
+            except json.JSONDecodeError:
+                raise forms.ValidationError('Некорректный JSON')
+        return []
+
+
+class AccountForm(forms.ModelForm):
+    password = forms.CharField(
+        required=False,
+        label='Пароль (оставьте пустым, чтобы не менять)',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input', 'autocomplete': 'new-password'
+        }),
+    )
+
+    class Meta:
+        model = Account
+        fields = ['email', 'username', 'role', 'is_active', 'is_verified']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'username': forms.TextInput(attrs={'class': 'form-input'}),
+            'role': forms.Select(attrs={'class': 'form-select'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+            'is_verified': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['password'].required = True
+            self.fields['password'].label = 'Пароль'
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        pwd = self.cleaned_data.get('password')
+        if pwd:
+            obj.password_hash = make_password(pwd)
+        if commit:
+            obj.save()
+        return obj
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'account', 'first_name', 'last_name', 'phone',
+            'avatar_url', 'birth_date', 'preferred_language',
+        ]
+        widgets = {
+            'account': forms.Select(attrs={'class': 'form-select'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'phone': forms.TextInput(attrs={'class': 'form-input'}),
+            'avatar_url': forms.URLInput(attrs={'class': 'form-input'}),
+            'birth_date': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date'
+            }),
+            'preferred_language': forms.TextInput(attrs={'class': 'form-input'}),
+        }
+
+
+class AccountTokenForm(forms.ModelForm):
+    class Meta:
+        model = AccountToken
+        fields = ['account']
+        widgets = {'account': forms.Select(attrs={'class': 'form-select'})}
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if not obj.key:
+            obj.key = secrets.token_hex(32)
+        if commit:
+            obj.save()
+        return obj
+
+
+class EquipmentCategoryForm(forms.ModelForm):
+    class Meta:
+        model = EquipmentCategory
+        fields = ['name', 'parent', 'description', 'icon_url']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-input'}),
+            'parent': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'icon_url': forms.URLInput(attrs={'class': 'form-input'}),
+        }
+
+
+class ManufacturerForm(forms.ModelForm):
+    class Meta:
+        model = Manufacturer
+        fields = ['name', 'country', 'website', 'description', 'logo_url']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-input'}),
+            'country': forms.TextInput(attrs={'class': 'form-input'}),
+            'website': forms.URLInput(attrs={'class': 'form-input'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'logo_url': forms.URLInput(attrs={'class': 'form-input'}),
+        }
+
+
+class EquipmentForm(forms.ModelForm):
+    class Meta:
+        model = Equipment
+        fields = [
+            'name', 'model', 'category', 'manufacturer', 'specifications',
+            'year', 'vin', 'condition', 'status', 'price', 'residual_value',
+            'monthly_lease_rate', 'location', 'images_urls',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-input'}),
+            'model': forms.TextInput(attrs={'class': 'form-input'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            'manufacturer': forms.Select(attrs={'class': 'form-select'}),
+            'specifications': forms.Textarea(attrs={
+                'class': 'form-input', 'rows': 3,
+                'placeholder': '{"power": "150 л.с.", "weight": "5000 кг"}',
+            }),
+            'year': forms.NumberInput(attrs={'class': 'form-input'}),
+            'vin': forms.TextInput(attrs={'class': 'form-input'}),
+            'condition': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'price': forms.NumberInput(attrs={'class': 'form-input'}),
+            'residual_value': forms.NumberInput(attrs={'class': 'form-input'}),
+            'monthly_lease_rate': forms.NumberInput(attrs={'class': 'form-input'}),
+            'location': forms.TextInput(attrs={'class': 'form-input'}),
+            'images_urls': forms.Textarea(attrs={
+                'class': 'form-input', 'rows': 2,
+                'placeholder': '["url1", "url2"]',
+            }),
+        }
+
+    def clean_specifications(self):
+        val = self.cleaned_data.get('specifications')
+        if isinstance(val, str):
+            try:
+                return json.loads(val) if val.strip() else {}
+            except json.JSONDecodeError:
+                raise forms.ValidationError('Некорректный JSON')
+        return val or {}
+
+    def clean_images_urls(self):
+        val = self.cleaned_data.get('images_urls')
+        if isinstance(val, str):
+            try:
+                return json.loads(val) if val.strip() else []
+            except json.JSONDecodeError:
+                raise forms.ValidationError('Некорректный JSON (массив URL)')
+        return val or []
+
+
+class CompanyForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        fields = [
+            'name', 'legal_name', 'inn', 'kpp', 'ogrn',
+            'legal_address', 'actual_address', 'phone', 'email',
+            'bank_details', 'status', 'account',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-input'}),
+            'legal_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'inn': forms.TextInput(attrs={'class': 'form-input'}),
+            'kpp': forms.TextInput(attrs={'class': 'form-input'}),
+            'ogrn': forms.TextInput(attrs={'class': 'form-input'}),
+            'legal_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'actual_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'phone': forms.TextInput(attrs={'class': 'form-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'bank_details': forms.Textarea(attrs={
+                'class': 'form-input', 'rows': 3,
+                'placeholder': '{"bik": "...", "account": "..."}',
+            }),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'account': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def clean_bank_details(self):
+        val = self.cleaned_data.get('bank_details')
+        if isinstance(val, str):
+            try:
+                return json.loads(val) if val.strip() else {}
+            except json.JSONDecodeError:
+                raise forms.ValidationError('Некорректный JSON')
+        return val or {}
+
+
+class CompanyContactForm(forms.ModelForm):
+    class Meta:
+        model = CompanyContact
+        fields = ['company', 'full_name', 'position', 'phone', 'email', 'is_main']
+        widgets = {
+            'company': forms.Select(attrs={'class': 'form-select'}),
+            'full_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'position': forms.TextInput(attrs={'class': 'form-input'}),
+            'phone': forms.TextInput(attrs={'class': 'form-input'}),
+            'email': forms.EmailInput(attrs={'class': 'form-input'}),
+            'is_main': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+        }
+
+
+class LeaseContractForm(forms.ModelForm):
+    class Meta:
+        model = LeaseContract
+        fields = [
+            'contract_number', 'company', 'equipment',
+            'start_date', 'end_date', 'lease_term_months',
+            'total_amount', 'advance_payment', 'monthly_payment', 'payment_day',
+            'status', 'signed_at', 'signed_by', 'created_by',
+        ]
+        widgets = {
+            'contract_number': forms.TextInput(attrs={'class': 'form-input'}),
+            'company': forms.Select(attrs={'class': 'form-select'}),
+            'equipment': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date'
+            }),
+            'lease_term_months': forms.NumberInput(attrs={'class': 'form-input'}),
+            'total_amount': forms.NumberInput(attrs={'class': 'form-input'}),
+            'advance_payment': forms.NumberInput(attrs={'class': 'form-input'}),
+            'monthly_payment': forms.NumberInput(attrs={'class': 'form-input'}),
+            'payment_day': forms.NumberInput(attrs={'class': 'form-input'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'signed_at': forms.DateTimeInput(attrs={
+                'class': 'form-input', 'type': 'datetime-local',
+            }),
+            'signed_by': forms.Select(attrs={'class': 'form-select'}),
+            'created_by': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class PaymentScheduleForm(forms.ModelForm):
+    class Meta:
+        model = PaymentSchedule
+        fields = [
+            'contract', 'payment_number', 'due_date', 'amount',
+            'status', 'paid_at', 'penalty_amount',
+        ]
+        widgets = {
+            'contract': forms.Select(attrs={'class': 'form-select'}),
+            'payment_number': forms.NumberInput(attrs={'class': 'form-input'}),
+            'due_date': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date'
+            }),
+            'amount': forms.NumberInput(attrs={'class': 'form-input'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'paid_at': forms.DateTimeInput(attrs={
+                'class': 'form-input', 'type': 'datetime-local',
+            }),
+            'penalty_amount': forms.NumberInput(attrs={'class': 'form-input'}),
+        }
+
+
+class MaintenanceForm(forms.ModelForm):
+    class Meta:
+        model = Maintenance
+        fields = [
+            'equipment', 'type', 'description', 'cost',
+            'performed_at', 'next_maintenance_date',
+            'service_company', 'documents_urls', 'created_by',
+        ]
+        widgets = {
+            'equipment': forms.Select(attrs={'class': 'form-select'}),
+            'type': forms.TextInput(attrs={'class': 'form-input'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'cost': forms.NumberInput(attrs={'class': 'form-input'}),
+            'performed_at': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date'
+            }),
+            'next_maintenance_date': forms.DateInput(attrs={
+                'class': 'form-input', 'type': 'date',
+            }),
+            'service_company': forms.TextInput(attrs={'class': 'form-input'}),
+            'documents_urls': forms.Textarea(attrs={
+                'class': 'form-input', 'rows': 2,
+                'placeholder': '["url1", "url2"]',
+            }),
+            'created_by': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def clean_documents_urls(self):
+        val = self.cleaned_data.get('documents_urls')
+        if isinstance(val, str):
+            try:
+                return json.loads(val) if val.strip() else []
+            except json.JSONDecodeError:
+                raise forms.ValidationError('Некорректный JSON')
+        return val or []
+
+
+class MaintenanceRequestForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceRequest
+        fields = [
+            'equipment', 'company', 'description', 'urgency',
+            'status', 'assigned_to', 'completed_at',
+        ]
+        widgets = {
+            'equipment': forms.Select(attrs={'class': 'form-select'}),
+            'company': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'urgency': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'assigned_to': forms.Select(attrs={'class': 'form-select'}),
+            'completed_at': forms.DateTimeInput(attrs={
+                'class': 'form-input', 'type': 'datetime-local',
+            }),
+        }

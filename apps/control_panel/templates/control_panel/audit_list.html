@@ -1,0 +1,51 @@
+{% extends 'control_panel/base.html' %}
+
+{% block control_content %}
+<div class="control-page">
+    <div class="control-page-header">
+        <h1>{{ title }}</h1>
+        <p class="control-subtitle">Всего записей: {{ items.paginator.count }}</p>
+    </div>
+    <div class="control-table-wrap">
+        <table class="control-table control-table-audit">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Действие</th>
+                    <th>Таблица</th>
+                    <th>ID записи</th>
+                    <th>Пользователь</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.pk }}</td>
+                    <td><span class="audit-action">{{ item.action }}</span></td>
+                    <td>{{ item.table_name }}</td>
+                    <td>{{ item.record_id }}</td>
+                    <td>{{ item.performed_by|default:"—" }}</td>
+                    <td>{{ item.performed_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="control-empty">Записей нет</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if items.has_other_pages %}
+    <div class="control-pagination">
+        {% if items.has_previous %}
+        <a href="?page={{ items.previous_page_number }}" class="btn-pagination">← Назад</a>
+        {% endif %}
+        <span class="pagination-info">Стр. {{ items.number }} из {{ items.paginator.num_pages }}</span>
+        {% if items.has_next %}
+        <a href="?page={{ items.next_page_number }}" class="btn-pagination">Вперёд →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

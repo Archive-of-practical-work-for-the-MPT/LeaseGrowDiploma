@@ -1,54 +1,58 @@
 {% extends 'control_panel/base.html' %}
 
 {% block control_content %}
-<div class="control-page">
-    <div class="control-page-header control-page-header-row">
-        <div>
-            <h1>{{ title }}</h1>
-            <p class="control-subtitle">Всего записей: {{ items.paginator.count }}</p>
-        </div>
-        <a href="{% url create_url %}" class="btn-create">+ Добавить</a>
+<div class="console-main-header">
+    <div>
+        <div class="console-main-title">{{ title }}</div>
+        <div class="console-main-meta">Всего записей: {{ items.paginator.count }}</div>
     </div>
-    <div class="control-table-wrap">
-        <table class="control-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Объект</th>
-                    <th class="control-th-actions">Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td class="control-td-id">{{ item.pk }}</td>
-                    <td>{{ item }}</td>
-                    <td class="control-td-actions">
-                        <a href="{% url edit_url_name item.pk %}" class="btn-action btn-edit" title="Редактировать">✏️</a>
-                        <form method="post" action="{% url delete_url_name item.pk %}" class="btn-action-form" onsubmit="return confirm('Удалить запись?');">
+    <a href="{% url create_url %}" class="btn-xs primary">+ Добавить</a>
+</div>
+<div class="console-table-wrap">
+    <table class="console-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Объект</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.pk }}</td>
+                <td>{{ item }}</td>
+                <td>
+                    <div class="console-actions">
+                        <a href="{% url edit_url_name item.pk %}" class="btn-xs">Редактировать</a>
+                        <form method="post" action="{% url delete_url_name item.pk %}" style="display: inline;" onsubmit="return confirm('Удалить запись?');">
                             {% csrf_token %}
-                            <button type="submit" class="btn-action btn-delete" title="Удалить">🗑️</button>
+                            <button type="submit" class="btn-xs danger">Удалить</button>
                         </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="control-empty">Записей пока нет. <a href="{% url create_url %}">Добавить первую</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% if items.has_other_pages %}
-    <div class="control-pagination">
-        {% if items.has_previous %}
-        <a href="?page={{ items.previous_page_number }}" class="btn-pagination">← Назад</a>
-        {% endif %}
-        <span class="pagination-info">Стр. {{ items.number }} из {{ items.paginator.num_pages }}</span>
-        {% if items.has_next %}
-        <a href="?page={{ items.next_page_number }}" class="btn-pagination">Вперёд →</a>
-        {% endif %}
-    </div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">
+                    <div class="console-table-empty">
+                        Записей пока нет. <a href="{% url create_url %}">Добавить первую</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if items.has_other_pages %}
+<div class="console-pagination">
+    {% if items.has_previous %}
+    <a href="?page={{ items.previous_page_number }}" class="btn-pagination">← Назад</a>
+    {% endif %}
+    <span class="pagination-info">Стр. {{ items.number }} из {{ items.paginator.num_pages }}</span>
+    {% if items.has_next %}
+    <a href="?page={{ items.next_page_number }}" class="btn-pagination">Вперёд →</a>
     {% endif %}
 </div>
+{% endif %}
 {% endblock %}

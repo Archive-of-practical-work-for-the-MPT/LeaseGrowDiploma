@@ -1,45 +1,59 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
+{% block title %}Панель управления — LeaseGrow{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="control-panel">
-    <aside class="control-sidebar">
-        <div class="sidebar-header">
-            <a href="{% url 'control_panel:dashboard' %}" class="sidebar-logo">Панель управления</a>
+<div class="console-root">
+    <div class="console-card" style="margin-bottom: 1.25rem;">
+        <div class="console-title">Консоль данных</div>
+        <div class="console-subtitle">
+            Управляйте всеми таблицами LeaseGrow. CRUD выполняется через формы.
         </div>
-        <nav class="sidebar-nav">
-            <a href="{% url 'control_panel:dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <span class="sidebar-icon">📊</span> Обзор
-            </a>
-            <div class="sidebar-group">Учётные записи</div>
-            <a href="{% url 'control_panel:role_list' %}" class="sidebar-link">Роли</a>
-            <a href="{% url 'control_panel:account_list' %}" class="sidebar-link">Аккаунты</a>
-            <a href="{% url 'control_panel:userprofile_list' %}" class="sidebar-link">Профили</a>
-            <a href="{% url 'control_panel:accounttoken_list' %}" class="sidebar-link">Токены API</a>
-            <div class="sidebar-group">Каталог</div>
-            <a href="{% url 'control_panel:equipmentcategory_list' %}" class="sidebar-link">Категории техники</a>
-            <a href="{% url 'control_panel:manufacturer_list' %}" class="sidebar-link">Производители</a>
-            <a href="{% url 'control_panel:equipment_list' %}" class="sidebar-link">Техника</a>
-            <div class="sidebar-group">Лизинг</div>
-            <a href="{% url 'control_panel:company_list' %}" class="sidebar-link">Компании</a>
-            <a href="{% url 'control_panel:companycontact_list' %}" class="sidebar-link">Контакты компаний</a>
-            <a href="{% url 'control_panel:leasecontract_list' %}" class="sidebar-link">Договоры лизинга</a>
-            <a href="{% url 'control_panel:paymentschedule_list' %}" class="sidebar-link">Графики платежей</a>
-            <a href="{% url 'control_panel:maintenance_list' %}" class="sidebar-link">Обслуживание</a>
-            <a href="{% url 'control_panel:maintenancerequest_list' %}" class="sidebar-link">Заявки на обслуживание</a>
-            <div class="sidebar-group">Система</div>
-            <a href="{% url 'control_panel:audit_list' %}" class="sidebar-link">Журнал аудита</a>
-        </nav>
-        <div class="sidebar-footer">
-            <a href="{% url 'core:home' %}" class="sidebar-back">← На сайт</a>
-        </div>
-    </aside>
-    <div class="control-main">
-        {% block control_content %}{% endblock %}
+    </div>
+
+    <div class="console-layout">
+        <aside class="console-card">
+            <div class="console-title" style="font-size: 1rem;">Таблицы</div>
+            <div class="console-subtitle" style="margin-bottom: 0.75rem;">
+                Выберите ресурс для управления.
+            </div>
+            <div class="resource-list">
+                <a href="{% url 'control_panel:dashboard' %}" class="resource-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span class="label">Обзор</span>
+                    <span class="badge">crud</span>
+                </a>
+                <div class="resource-group">Учётные записи</div>
+                <a href="{% url 'control_panel:role_list' %}" class="resource-item {% if '/roles/' in request.path %}active{% endif %}"><span class="label">Роли</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:account_list' %}" class="resource-item {% if '/accounts/' in request.path %}active{% endif %}"><span class="label">Аккаунты</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:userprofile_list' %}" class="resource-item {% if '/profiles/' in request.path %}active{% endif %}"><span class="label">Профили</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:accounttoken_list' %}" class="resource-item {% if '/tokens/' in request.path %}active{% endif %}"><span class="label">Токены API</span><span class="badge">crud</span></a>
+                <div class="resource-group">Каталог</div>
+                <a href="{% url 'control_panel:equipmentcategory_list' %}" class="resource-item {% if '/categories/' in request.path %}active{% endif %}"><span class="label">Категории техники</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:manufacturer_list' %}" class="resource-item {% if '/manufacturers/' in request.path %}active{% endif %}"><span class="label">Производители</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:equipment_list' %}" class="resource-item {% if '/equipment/' in request.path %}active{% endif %}"><span class="label">Техника</span><span class="badge">crud</span></a>
+                <div class="resource-group">Лизинг</div>
+                <a href="{% url 'control_panel:company_list' %}" class="resource-item {% if '/companies/' in request.path %}active{% endif %}"><span class="label">Компании</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:companycontact_list' %}" class="resource-item {% if '/company-contacts/' in request.path %}active{% endif %}"><span class="label">Контакты компаний</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:leasecontract_list' %}" class="resource-item {% if '/contracts/' in request.path %}active{% endif %}"><span class="label">Договоры лизинга</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:paymentschedule_list' %}" class="resource-item {% if '/payments/' in request.path %}active{% endif %}"><span class="label">Графики платежей</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:maintenance_list' %}" class="resource-item {% if '/maintenance/' in request.path and '/maintenance-requests/' not in request.path %}active{% endif %}"><span class="label">Обслуживание</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:maintenancerequest_list' %}" class="resource-item {% if '/maintenance-requests/' in request.path %}active{% endif %}"><span class="label">Заявки на обслуживание</span><span class="badge">crud</span></a>
+                <div class="resource-group">Система</div>
+                <a href="{% url 'control_panel:audit_list' %}" class="resource-item {% if '/audit/' in request.path %}active{% endif %}"><span class="label">Журнал аудита</span><span class="badge">read</span></a>
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                <a href="{% url 'core:home' %}" class="console-back">← На сайт</a>
+            </div>
+        </aside>
+
+        <section class="console-card" style="flex: 1;">
+            {% block control_content %}{% endblock %}
+        </section>
     </div>
 </div>
 {% endblock %}

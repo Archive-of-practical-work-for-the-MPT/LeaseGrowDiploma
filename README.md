@@ -17,15 +17,24 @@ pip install -r requirements.txt
      `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
    - **DB_PASSWORD** — пароль пользователя PostgreSQL
 
-2. Создайте базу данных в PostgreSQL:
-   ```sql
-   CREATE DATABASE greenquality;
+2. Создайте и заполните базу данных одной командой:
+   ```bash
+   python scripts/run_db_setup.py
    ```
+   Скрипт читает параметры из `.env` (DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT), создаёт БД (если нет), схему и заполняет тестовыми данными.  
+   **Админ:** `admin@gmail.com` / `adminadmin`  
+   При необходимости можно выполнить SQL вручную: `scripts/create_db.sql` — схема, `scripts/seed_db.sql` — данные.  
+   После скрипта выполните `python manage.py migrate --fake`, чтобы Django зафиксировал миграции (схема уже создана).
 
 ## Запуск
 
 ```bash
+# Если БД создавали через run_db_setup.py:
+python manage.py migrate --fake
+
+# Если БД пустая и создаёте через Django:
 python manage.py migrate
+
 python manage.py runserver
 ```
 

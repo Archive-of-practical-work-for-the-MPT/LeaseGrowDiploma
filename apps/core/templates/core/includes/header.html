@@ -2,6 +2,10 @@
     <div class="header-inner">
         <a href="{% url 'core:home' %}" class="logo">Lease<span>Grow</span></a>
         <nav class="nav">
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
+                <span class="theme-icon theme-icon-sun" title="Светлая тема">☀</span>
+                <span class="theme-icon theme-icon-moon" title="Тёмная тема">🌙</span>
+            </button>
             <a href="{% url 'core:home' %}#uslugi">Услуги</a>
             <a href="{% url 'core:home' %}#tekhnika">Техника</a>
             <a href="{% url 'core:home' %}#kontakt">Контакты</a>

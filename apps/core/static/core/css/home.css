@@ -4,7 +4,7 @@
         radial-gradient(ellipse 120% 100% at 50% -20%, var(--green-100) 0%, transparent 50%),
         radial-gradient(ellipse 80% 60% at 90% 50%, var(--green-50) 0%, transparent 45%),
         radial-gradient(ellipse 60% 80% at 10% 80%, var(--green-50) 0%, transparent 45%),
-        var(--white);
+        var(--bg);
     color: var(--text);
     padding: 6rem 1.5rem 7rem;
     text-align: center;
@@ -64,7 +64,7 @@
     align-items: center;
     gap: 0.5rem;
     background: var(--green-500);
-    color: var(--white);
+    color: var(--on-primary);
     padding: 1rem 1.75rem;
     border-radius: var(--radius-full);
     font-weight: 600;
@@ -206,7 +206,7 @@
 
 .cta-block .btn {
     background: var(--green-500);
-    color: var(--white);
+    color: var(--on-primary);
     padding: 0.875rem 1.75rem;
     border-radius: var(--radius-full);
     font-weight: 600;
@@ -231,4 +231,16 @@
 
 .contact-section .section-header p {
     margin-top: 0.5rem;
+}
+
+/* Тёмная тема — hero и секции */
+[data-theme="dark"] .hero {
+    background:
+        radial-gradient(ellipse 120% 100% at 50% -20%, rgba(34, 197, 94, 0.12) 0%, transparent 50%),
+        var(--bg);
+}
+
+[data-theme="dark"] .hero h1 span {
+    -webkit-text-fill-color: var(--green-400);
+    background: none;
 }

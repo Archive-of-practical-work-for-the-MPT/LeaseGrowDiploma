@@ -113,7 +113,7 @@
 
 .backup-btn-create {
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
-    color: var(--white);
+    color: var(--on-primary);
 }
 
 .backup-btn-create:hover {

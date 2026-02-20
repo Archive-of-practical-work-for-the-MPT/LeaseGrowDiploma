@@ -97,7 +97,7 @@
     font-size: 0.65rem;
     font-weight: 600;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
-    color: var(--white);
+    color: var(--on-primary);
     border-radius: var(--radius-full);
     letter-spacing: 0.05em;
 }

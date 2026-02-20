@@ -244,14 +244,14 @@ table.console-table tbody tr:hover {
 
 .btn-xs.primary {
     background: var(--green-500);
-    color: var(--white);
+    color: var(--on-primary);
     border-color: var(--green-500);
 }
 
 .btn-xs.primary:hover {
     background: var(--green-600);
     border-color: var(--green-600);
-    color: var(--white);
+    color: var(--on-primary);
 }
 
 .btn-xs.danger {

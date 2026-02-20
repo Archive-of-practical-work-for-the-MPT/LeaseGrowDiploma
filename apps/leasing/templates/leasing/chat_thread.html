@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Чат — {{ lease_request.equipment.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<style>
+.chat-thread-root { max-width: 700px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.chat-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.chat-header h1 { font-size: 1.25rem; margin: 0 0 0.25rem 0; }
+.chat-header .meta { font-size: 0.9rem; color: var(--text-muted); }
+.chat-messages { min-height: 300px; max-height: 450px; overflow-y: auto; margin-bottom: 1rem; }
+.msg { padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 12px; max-width: 85%; }
+.msg.sent { margin-left: auto; background: var(--green-100); border: 1px solid var(--green-200); }
+.msg.received { background: var(--green-25); border: 1px solid var(--border); }
+.msg-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.chat-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.chat-form input { flex: 1; padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; }
+.chat-form button { padding: 0.6rem 1.25rem; background: var(--green-500); color: #fff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+.chat-form button:hover { background: var(--green-600); }
+.chat-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+.chat-actions .btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
+.chat-actions .btn-confirm { background: #22c55e; color: #fff; border: none; }
+.chat-actions .btn-reject { background: #fee2e2; color: #b91c1c; border: none; }
+.back-link { display: inline-block; margin-top: 1rem; color: var(--text-muted); text-decoration: none; }
+.back-link:hover { color: var(--green-600); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-thread-root">
+    <div class="chat-header">
+        <h1>{{ lease_request.equipment.name }} ({{ lease_request.equipment.model }})</h1>
+        <div class="meta">
+            {% if lease_request.account.profile %}{{ lease_request.account.profile.first_name }} {{ lease_request.account.profile.last_name }}{% else %}{{ lease_request.account.username }}{% endif %}
+            · {{ lease_request.account.email }} · {{ lease_request.created_at|date:"d.m.Y" }}
+        </div>
+    </div>
+
+    <div class="chat-messages">
+        {% for msg in messages_list %}
+        <div class="msg {% if msg.sender_id == current_account.id %}sent{% else %}received{% endif %}">
+            <div class="msg-meta">
+                {% if msg.sender.profile %}{{ msg.sender.profile.first_name }}{% else %}{{ msg.sender.username }}{% endif %}
+                · {{ msg.created_at|date:"d.m.Y H:i" }}
+            </div>
+            {{ msg.text }}
+        </div>
+        {% empty %}
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Пока нет сообщений. Напишите первым.</p>
+        {% endfor %}
+    </div>
+
+    <form method="post" action="{% url 'chat:thread' lease_request.id %}" class="chat-form">
+        {% csrf_token %}
+        <input type="text" name="text" placeholder="Введите сообщение..." required autocomplete="off">
+        <button type="submit">Отправить</button>
+    </form>
+
+    {% if is_manager and lease_request.status == 'pending' %}
+    <div class="chat-actions">
+        <form method="post" action="{% url 'chat:thread' lease_request.id %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="confirm">
+            <button type="submit" class="btn btn-confirm">Подтвердить заявку</button>
+        </form>
+        <form method="post" action="{% url 'chat:thread' lease_request.id %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <input type="text" name="manager_notes" placeholder="Причина отклонения" style="padding: 0.4rem; margin-right: 0.5rem; border-radius: 6px; border: 1px solid var(--border);">
+            <button type="submit" class="btn btn-reject">Отклонить</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <a href="{% if is_manager %}{% url 'manager:chat' %}{% else %}{% url 'core:leasing' %}{% endif %}" class="back-link">← Назад</a>
+</div>
+{% endblock %}

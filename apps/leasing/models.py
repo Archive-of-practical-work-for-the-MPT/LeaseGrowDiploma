@@ -228,3 +228,67 @@ class MaintenanceRequest(models.Model):
 
     def __str__(self):
         return f'Заявка #{self.id} — {self.equipment}'
+
+
+class LeaseRequest(models.Model):
+    """Заявка пользователя на аренду техники. Подтверждается менеджером."""
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает подтверждения'),
+        ('confirmed', 'Подтверждена'),
+        ('rejected', 'Отклонена'),
+    ]
+    equipment = models.ForeignKey(
+        Equipment,
+        on_delete=models.CASCADE,
+        related_name='lease_requests',
+    )
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='lease_requests',
+    )
+    status = models.CharField(max_length=50, default='pending', choices=STATUS_CHOICES)
+    message = models.TextField(blank=True)
+    manager_notes = models.TextField(blank=True)
+    confirmed_by = models.ForeignKey(
+        Account,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='confirmed_lease_requests',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'lease_request'
+        verbose_name = 'заявка на лизинг'
+        verbose_name_plural = 'заявки на лизинг'
+
+    def __str__(self):
+        return f'Заявка #{self.id} — {self.equipment} (пользователь: {self.account.username})'
+
+
+class ChatMessage(models.Model):
+    """Сообщение в чате по заявке на лизинг."""
+    lease_request = models.ForeignKey(
+        LeaseRequest,
+        on_delete=models.CASCADE,
+        related_name='messages',
+    )
+    sender = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='chat_messages',
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'chat_message'
+        verbose_name = 'сообщение чата'
+        verbose_name_plural = 'сообщения чата'
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'{self.sender.username}: {self.text[:50]}...'

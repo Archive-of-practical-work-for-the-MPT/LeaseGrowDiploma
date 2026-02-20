@@ -3,8 +3,9 @@ import json
 from decimal import Decimal
 
 from django.db.models import Count, Sum
+from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views import View
 
@@ -378,7 +379,13 @@ class StatisticsExportPdfView(ManagerRequiredMixin, View):
 
 
 class ChatView(ManagerRequiredMixin, View):
-    """Заготовка страницы чата с клиентами."""
+    """Чат с клиентами — список заявок с переходом в чат."""
 
     def get(self, request):
-        return render(request, 'manager/chat.html')
+        from apps.leasing.models import LeaseRequest
+        lease_requests = LeaseRequest.objects.select_related(
+            'equipment', 'account', 'account__profile'
+        ).order_by('-created_at')
+        return render(request, 'manager/chat.html', {
+            'lease_requests': lease_requests,
+        })

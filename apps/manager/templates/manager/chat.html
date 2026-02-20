@@ -6,31 +6,62 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
 <style>
-.chat-placeholder-root { max-width: 700px; margin: 3rem auto; padding: 0 1.5rem; }
-.chat-placeholder-card {
+.chat-root { max-width: 700px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.chat-header { margin-bottom: 1.5rem; }
+.chat-title { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+.chat-subtitle { color: var(--text-muted); font-size: 0.95rem; }
+.conv-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.conv-item {
+    display: block;
+    padding: 1rem 1.25rem;
     background: var(--white);
-    border: 1px dashed var(--border);
-    border-radius: 16px;
-    padding: 3rem 2rem;
-    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.chat-placeholder-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
-.chat-placeholder-title { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem; }
-.chat-placeholder-desc { color: var(--text-muted); margin-bottom: 1.5rem; }
-.chat-placeholder-back { display: inline-block; padding: 0.5rem 1rem; border-radius: 8px; background: var(--border); color: var(--text-secondary); text-decoration: none; font-weight: 500; }
-.chat-placeholder-back:hover { opacity: 0.9; }
+.conv-item:hover { border-color: var(--green-200); box-shadow: var(--shadow-sm); }
+.conv-item h3 { font-size: 1.1rem; margin: 0 0 0.25rem 0; }
+.conv-item .meta { font-size: 0.85rem; color: var(--text-muted); }
+.conv-item .status { font-size: 0.8rem; font-weight: 600; margin-top: 0.5rem; }
+.conv-item .status.pending { color: var(--amber-500); }
+.conv-item .status.confirmed { color: var(--green-600); }
+.conv-item .status.rejected { color: #b91c1c; }
+.empty-state { text-align: center; padding: 3rem 2rem; background: var(--green-50); border-radius: var(--radius-lg); }
+.back-link { display: inline-block; margin-top: 1rem; color: var(--text-muted); text-decoration: none; }
+.back-link:hover { color: var(--green-600); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="console-root chat-placeholder-root">
-    <div class="chat-placeholder-card">
-        <div class="chat-placeholder-icon">💬</div>
-        <h1 class="chat-placeholder-title">Чат с клиентами</h1>
-        <p class="chat-placeholder-desc">
-            Здесь будет реализован чат для общения менеджера с клиентами. Сейчас — заготовка.
-        </p>
-        <a href="{% url 'accounts:profile' %}" class="chat-placeholder-back">← Назад в профиль</a>
+<div class="chat-root">
+    <div class="chat-header">
+        <h1 class="chat-title">Чат с клиентами</h1>
+        <p class="chat-subtitle">Выберите заявку, чтобы открыть чат и переписываться с клиентом. Подтверждайте заявки после обсуждения.</p>
     </div>
+
+    {% if lease_requests %}
+    <div class="conv-list">
+        {% for req in lease_requests %}
+        <a href="{% url 'chat:thread' req.id %}" class="conv-item">
+            <h3>{{ req.equipment.name }} ({{ req.equipment.model }})</h3>
+            <div class="meta">
+                {% if req.account.profile %}{{ req.account.profile.first_name }} {{ req.account.profile.last_name }}{% else %}{{ req.account.username }}{% endif %}
+                · {{ req.account.email }} · {{ req.created_at|date:"d.m.Y H:i" }}
+            </div>
+            <div class="status {{ req.status }}">
+                {% if req.status == 'pending' %}Ожидает подтверждения{% endif %}
+                {% if req.status == 'confirmed' %}Подтверждена{% endif %}
+                {% if req.status == 'rejected' %}Отклонена{% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">Нет заявок на лизинг.</div>
+    {% endif %}
+
+    <a href="{% url 'accounts:profile' %}" class="back-link">← Назад в профиль</a>
 </div>
 {% endblock %}

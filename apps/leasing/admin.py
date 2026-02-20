@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import (
     Company, CompanyContact, LeaseContract,
     PaymentSchedule, Maintenance, MaintenanceRequest,
+    LeaseRequest, ChatMessage,
 )
 
 
@@ -34,3 +35,14 @@ class MaintenanceAdmin(admin.ModelAdmin):
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
     list_display = ('equipment', 'company', 'urgency', 'status')
+
+
+@admin.register(LeaseRequest)
+class LeaseRequestAdmin(admin.ModelAdmin):
+    list_display = ('equipment', 'account', 'status', 'created_at')
+    list_filter = ('status',)
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('lease_request', 'sender', 'created_at')

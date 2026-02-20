@@ -11,7 +11,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 
 from .models import Account, UserProfile, Role
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, ProfileEditForm
 
 
 def get_current_account(request):
@@ -88,7 +88,43 @@ def profile_view(request):
     try:
         profile = account.profile
     except UserProfile.DoesNotExist:
-        pass
+        profile = None
+
+    form = ProfileEditForm(
+        account=account,
+        initial={
+            'username': account.username,
+            'email': account.email,
+            'first_name': profile.first_name if profile else '',
+            'last_name': profile.last_name if profile else '',
+            'phone': profile.phone if profile else '',
+        } if request.method != 'POST' else None,
+        data=request.POST if request.method == 'POST' else None,
+    )
+
+    is_client = not (account.role and account.role.name in ('admin', 'manager'))
+    if is_client and request.method == 'POST' and form.is_valid():
+        account.username = form.cleaned_data['username'].strip()
+        account.email = form.cleaned_data['email'].strip().lower()
+        account.save(update_fields=['username', 'email', 'updated_at'])
+        if form.cleaned_data.get('new_password'):
+            account.password_hash = make_password(form.cleaned_data['new_password'])
+            account.save(update_fields=['password_hash'])
+
+        if profile:
+            profile.first_name = form.cleaned_data['first_name'].strip()
+            profile.last_name = form.cleaned_data['last_name'].strip()
+            profile.phone = (form.cleaned_data.get('phone') or '').strip()
+            profile.save(update_fields=['first_name', 'last_name', 'phone', 'updated_at'])
+        else:
+            UserProfile.objects.create(
+                account=account,
+                first_name=form.cleaned_data['first_name'].strip(),
+                last_name=form.cleaned_data['last_name'].strip(),
+                phone=(form.cleaned_data.get('phone') or '').strip(),
+            )
+        messages.success(request, 'Профиль обновлён.')
+        return redirect('accounts:profile')
 
     if account.role and account.role.name == 'admin':
         from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
@@ -114,6 +150,7 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {
         'account': account,
         'profile': profile,
+        'form': form,
         'stats': stats,
         'is_admin': account.role and account.role.name == 'admin',
         'is_manager': is_manager,

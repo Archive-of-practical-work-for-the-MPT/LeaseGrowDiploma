@@ -1,4 +1,0 @@
-# Тестирование LeaseGrow
-pytest>=7.0
-pytest-django>=4.5
-locust>=2.20

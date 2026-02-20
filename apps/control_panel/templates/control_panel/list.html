@@ -1,4 +1,5 @@
 {% extends 'control_panel/base.html' %}
+{% load control_panel_extras %}
 
 {% block control_content %}
 <div class="console-main-header">
@@ -6,23 +7,35 @@
         <div class="console-main-title">{{ title }}</div>
         <div class="console-main-meta">Всего записей: {{ items.paginator.count }}</div>
     </div>
-    <a href="{% url create_url %}" class="btn-xs primary">+ Добавить</a>
+    <div class="console-header-actions">
+        <div class="view-toggle" role="group" aria-label="Режим отображения">
+            <button type="button" class="view-toggle-btn active" data-mode="brief" title="Кратко">Кратко</button>
+            <button type="button" class="view-toggle-btn" data-mode="full" title="Полностью">Полностью</button>
+        </div>
+        <a href="{% url create_url %}" class="btn-xs primary">+ Добавить</a>
+    </div>
 </div>
 <div class="console-table-wrap">
-    <table class="console-table">
+    <table class="console-table" id="list-table">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Объект</th>
-                <th>Действия</th>
+                <th class="col-id">#</th>
+                <th class="col-brief">Объект</th>
+                {% for name, verbose in full_fields %}
+                <th class="col-full col-hidden">{{ verbose }}</th>
+                {% endfor %}
+                <th class="col-actions">Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{ item.pk }}</td>
-                <td>{{ item }}</td>
-                <td>
+                <td class="col-id">{{ item.pk }}</td>
+                <td class="col-brief">{{ item }}</td>
+                {% for name, verbose in full_fields %}
+                <td class="col-full col-hidden">{% with val=item|get_field:name %}{% if val != None %}{{ val }}{% else %}—{% endif %}{% endwith %}</td>
+                {% endfor %}
+                <td class="col-actions">
                     <div class="console-actions">
                         <a href="{% url edit_url_name item.pk %}" class="btn-xs">Редактировать</a>
                         <form method="post" action="{% url delete_url_name item.pk %}" style="display: inline;" onsubmit="return confirm('Удалить запись?');">
@@ -34,7 +47,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="3">
+                <td colspan="100" class="col-actions">
                     <div class="console-table-empty">
                         Записей пока нет. <a href="{% url create_url %}">Добавить первую</a>
                     </div>
@@ -55,4 +68,46 @@
     {% endif %}
 </div>
 {% endif %}
+<script>
+(function() {
+    var toggle = document.querySelector('.view-toggle');
+    var table = document.getElementById('list-table');
+    if (!toggle || !table) return;
+
+    function setMode(mode) {
+        var brief = table.querySelectorAll('.col-brief');
+        var full = table.querySelectorAll('.col-full');
+        var root = document.querySelector('.console-root');
+        if (mode === 'brief') {
+            brief.forEach(function(el) { el.classList.remove('col-hidden'); });
+            full.forEach(function(el) { el.classList.add('col-hidden'); });
+            if (root) root.classList.remove('view-mode-full');
+        } else {
+            brief.forEach(function(el) { el.classList.add('col-hidden'); });
+            full.forEach(function(el) { el.classList.remove('col-hidden'); });
+            if (root) root.classList.add('view-mode-full');
+        }
+        toggle.querySelectorAll('.view-toggle-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        try { localStorage.setItem('control_panel_view_mode', mode); } catch(e) {}
+    }
+
+    var saved = localStorage.getItem('control_panel_view_mode');
+    if (saved === 'full') {
+        var root = document.querySelector('.console-root');
+        if (root) root.classList.add('suppress-transition');
+        setMode('full');
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                if (root) root.classList.remove('suppress-transition');
+            });
+        });
+    }
+
+    toggle.querySelectorAll('.view-toggle-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { setMode(this.dataset.mode); });
+    });
+})();
+</script>
 {% endblock %}

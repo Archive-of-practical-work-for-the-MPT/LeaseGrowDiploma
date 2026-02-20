@@ -27,15 +27,21 @@ PANEL_MODELS = [
     ('account', Account, 'Аккаунты', 'control_panel:account_list'),
     ('userprofile', UserProfile, 'Профили', 'control_panel:userprofile_list'),
     ('accounttoken', AccountToken, 'Токены API', 'control_panel:accounttoken_list'),
-    ('equipmentcategory', EquipmentCategory, 'Категории техники', 'control_panel:equipmentcategory_list'),
-    ('manufacturer', Manufacturer, 'Производители', 'control_panel:manufacturer_list'),
+    ('equipmentcategory', EquipmentCategory, 'Категории техники',
+     'control_panel:equipmentcategory_list'),
+    ('manufacturer', Manufacturer, 'Производители',
+     'control_panel:manufacturer_list'),
     ('equipment', Equipment, 'Техника', 'control_panel:equipment_list'),
     ('company', Company, 'Компании', 'control_panel:company_list'),
-    ('companycontact', CompanyContact, 'Контакты компаний', 'control_panel:companycontact_list'),
-    ('leasecontract', LeaseContract, 'Договоры лизинга', 'control_panel:leasecontract_list'),
-    ('paymentschedule', PaymentSchedule, 'Графики платежей', 'control_panel:paymentschedule_list'),
+    ('companycontact', CompanyContact, 'Контакты компаний',
+     'control_panel:companycontact_list'),
+    ('leasecontract', LeaseContract, 'Договоры лизинга',
+     'control_panel:leasecontract_list'),
+    ('paymentschedule', PaymentSchedule, 'Графики платежей',
+     'control_panel:paymentschedule_list'),
     ('maintenance', Maintenance, 'Обслуживание', 'control_panel:maintenance_list'),
-    ('maintenancerequest', MaintenanceRequest, 'Заявки на обслуживание', 'control_panel:maintenancerequest_list'),
+    ('maintenancerequest', MaintenanceRequest,
+     'Заявки на обслуживание', 'control_panel:maintenancerequest_list'),
 ]
 
 
@@ -64,6 +70,12 @@ def _make_list_view(model, model_key, title, form_class=None):
             ctx['create_url'] = f'control_panel:{_model_key}_create'
             ctx['edit_url_name'] = f'control_panel:{_model_key}_edit'
             ctx['delete_url_name'] = f'control_panel:{_model_key}_delete'
+            pk_name = _model._meta.pk.name
+            ctx['full_fields'] = [
+                (f.name, f.verbose_name or f.name)
+                for f in _model._meta.fields
+                if f.name != pk_name
+            ]
             return ctx
     return V
 

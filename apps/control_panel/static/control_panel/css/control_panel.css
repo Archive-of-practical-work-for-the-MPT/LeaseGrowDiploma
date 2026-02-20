@@ -3,6 +3,16 @@
     max-width: 1200px;
     margin: 2rem auto 3rem;
     padding: 0 1.5rem;
+    transition: max-width 0.35s ease, padding 0.35s ease;
+}
+
+.console-root.view-mode-full {
+    max-width: 98%;
+    padding: 0 1rem;
+}
+
+.console-root.suppress-transition {
+    transition: none !important;
 }
 
 .console-layout {
@@ -120,6 +130,48 @@
 .console-main-meta {
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.console-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.view-toggle {
+    display: inline-flex;
+    background: var(--green-50);
+    border-radius: var(--radius-full);
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+}
+
+.view-toggle-btn {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s;
+}
+
+.view-toggle-btn:hover {
+    color: var(--text-secondary);
+}
+
+.view-toggle-btn.active {
+    background: var(--white);
+    color: var(--green-600);
+    box-shadow: var(--shadow-xs);
+}
+
+/* Переключатель Кратко / Полностью — скрытые колонки не участвуют в раскладке */
+.col-full.col-hidden, .col-brief.col-hidden {
+    display: none;
 }
 
 .console-table-wrap {

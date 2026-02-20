@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.leasing',
     'apps.core',
     'apps.control_panel',
+    'apps.manager',
 ]
 
 MIDDLEWARE = [

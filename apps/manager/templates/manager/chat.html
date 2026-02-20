@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Чат с клиентами — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<style>
+.chat-placeholder-root { max-width: 700px; margin: 3rem auto; padding: 0 1.5rem; }
+.chat-placeholder-card {
+    background: var(--white);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+.chat-placeholder-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+.chat-placeholder-title { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem; }
+.chat-placeholder-desc { color: var(--text-muted); margin-bottom: 1.5rem; }
+.chat-placeholder-back { display: inline-block; padding: 0.5rem 1rem; border-radius: 8px; background: var(--border); color: var(--text-secondary); text-decoration: none; font-weight: 500; }
+.chat-placeholder-back:hover { opacity: 0.9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="console-root chat-placeholder-root">
+    <div class="chat-placeholder-card">
+        <div class="chat-placeholder-icon">💬</div>
+        <h1 class="chat-placeholder-title">Чат с клиентами</h1>
+        <p class="chat-placeholder-desc">
+            Здесь будет реализован чат для общения менеджера с клиентами. Сейчас — заготовка.
+        </p>
+        <a href="{% url 'accounts:profile' %}" class="chat-placeholder-back">← Назад в профиль</a>
+    </div>
+</div>
+{% endblock %}

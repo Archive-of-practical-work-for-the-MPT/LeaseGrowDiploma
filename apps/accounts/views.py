@@ -110,11 +110,13 @@ def profile_view(request):
             'maintenance_requests_new': MaintenanceRequest.objects.filter(status='new').count(),
         }
 
+    is_manager = account.role and account.role.name == 'manager'
     return render(request, 'accounts/profile.html', {
         'account': account,
         'profile': profile,
         'stats': stats,
         'is_admin': account.role and account.role.name == 'admin',
+        'is_manager': is_manager,
     })
 
 

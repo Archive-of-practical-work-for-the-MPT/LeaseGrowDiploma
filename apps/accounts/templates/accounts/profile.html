@@ -49,11 +49,31 @@
 
         <section class="profile-main">
             <div class="profile-actions">
+                {% if is_manager %}
+                <a href="{% url 'control_panel:dashboard' %}" class="profile-btn profile-btn-panel">
+                    <span class="profile-btn-icon">📊</span>
+                    <span class="profile-btn-text">Панель управления</span>
+                    <span class="profile-btn-desc">CRUD таблиц: компании, техника, договоры, платежи</span>
+                </a>
+                {% else %}
                 <a href="/api/" class="profile-btn profile-btn-api">
                     <span class="profile-btn-icon">🔌</span>
                     <span class="profile-btn-text">REST API</span>
                     <span class="profile-btn-desc">Документация и доступ к данным</span>
                 </a>
+                {% endif %}
+                {% if is_manager %}
+                <a href="{% url 'manager:statistics' %}" class="profile-btn profile-btn-panel">
+                    <span class="profile-btn-icon">📊</span>
+                    <span class="profile-btn-text">Статистика</span>
+                    <span class="profile-btn-desc">Диаграммы, сводки и экспорт в PDF/Excel</span>
+                </a>
+                <a href="{% url 'manager:chat' %}" class="profile-btn profile-btn-api">
+                    <span class="profile-btn-icon">💬</span>
+                    <span class="profile-btn-text">Чат с клиентами</span>
+                    <span class="profile-btn-desc">Общение с клиентами (в разработке)</span>
+                </a>
+                {% endif %}
                 {% if is_admin %}
                 <a href="{% url 'control_panel:dashboard' %}" class="profile-btn profile-btn-panel">
                     <span class="profile-btn-icon">📊</span>

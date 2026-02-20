@@ -15,10 +15,12 @@
         <span class="dashboard-card-badge">crud</span>
     </a>
     {% endfor %}
+    {% if show_audit %}
     <a href="{% url 'control_panel:audit_list' %}" class="dashboard-card">
         <span class="dashboard-card-icon">📜</span>
         <span class="dashboard-card-title">Журнал аудита</span>
         <span class="dashboard-card-badge">read</span>
     </a>
+    {% endif %}
 </div>
 {% endblock %}

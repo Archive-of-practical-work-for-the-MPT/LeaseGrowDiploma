@@ -1,0 +1,166 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Статистика — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<style>
+.statistics-root { max-width: 1100px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.statistics-header { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+.statistics-title { font-size: 1.5rem; font-weight: 600; margin: 0; }
+.statistics-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.statistics-actions .btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem; text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+.statistics-actions .btn:hover { opacity: 0.9; }
+.statistics-actions .btn-excel { background: #217346; color: white; border: none; }
+.statistics-actions .btn-pdf { background: #c0392b; color: white; border: none; }
+.statistics-actions .btn-back { background: var(--border, #e0e0e0); color: var(--text-secondary, #444); }
+.stat-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-summary .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.stat-summary .card-value { font-size: 1.5rem; font-weight: 700; color: var(--primary, #2563eb); }
+.stat-summary .card-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; }
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+.chart-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.chart-card h3 { font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; }
+.chart-wrapper { position: relative; height: 280px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="console-root statistics-root">
+    <div class="console-card" style="margin-bottom: 1.25rem;">
+        <div class="statistics-header">
+            <div>
+                <h1 class="statistics-title">Статистика LeaseGrow</h1>
+                <div class="console-subtitle">Диаграммы и сводные данные по договорам, технике и платежам</div>
+            </div>
+            <div class="statistics-actions">
+                <a href="{% url 'accounts:profile' %}" class="btn btn-back">← Профиль</a>
+                <a href="{% url 'manager:statistics_export_excel' %}" class="btn btn-excel">📊 Excel</a>
+                <a href="{% url 'manager:statistics_export_pdf' %}" class="btn btn-pdf">📄 PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-summary">
+        <div class="card">
+            <div class="card-value">{{ companies_count }}</div>
+            <div class="card-label">Компаний</div>
+        </div>
+        <div class="card">
+            <div class="card-value">{{ equipment_count }}</div>
+            <div class="card-label">Техники (ед.)</div>
+        </div>
+        <div class="card">
+            <div class="card-value">{{ contracts_count }}</div>
+            <div class="card-label">Договоров</div>
+        </div>
+        <div class="card">
+            <div class="card-value">{{ total_amount|floatformat:0 }}</div>
+            <div class="card-label">Сумма активных договоров (руб.)</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Договоры по статусам</h3>
+            <div class="chart-wrapper">
+                <canvas id="chart-contracts"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Платежи по статусам</h3>
+            <div class="chart-wrapper">
+                <canvas id="chart-payments"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Заявки на обслуживание</h3>
+            <div class="chart-wrapper">
+                <canvas id="chart-maintenance"></canvas>
+            </div>
+        </div>
+        <div class="chart-card" style="grid-column: 1 / -1;">
+            <h3>Техника по категориям</h3>
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="chart-equipment"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+function pieConfig(labels, data, id) {
+    return {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: COLORS.slice(0, data.length),
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    };
+}
+
+function barConfig(labels, data, id) {
+    return {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Количество',
+                data: data,
+                backgroundColor: COLORS[0],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    new Chart(document.getElementById('chart-contracts'), pieConfig(
+        {{ pie_contracts_labels_json|safe }},
+        {{ pie_contracts_data_json|safe }},
+        'chart-contracts'
+    ));
+    new Chart(document.getElementById('chart-payments'), pieConfig(
+        {{ pie_payments_labels_json|safe }},
+        {{ pie_payments_data_json|safe }},
+        'chart-payments'
+    ));
+    new Chart(document.getElementById('chart-maintenance'), pieConfig(
+        {{ pie_maintenance_labels_json|safe }},
+        {{ pie_maintenance_data_json|safe }},
+        'chart-maintenance'
+    ));
+    new Chart(document.getElementById('chart-equipment'), barConfig(
+        {{ bar_equipment_labels_json|safe }},
+        {{ bar_equipment_data_json|safe }},
+        'chart-equipment'
+    ));
+});
+</script>
+{% endblock %}

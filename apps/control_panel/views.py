@@ -13,7 +13,7 @@ from apps.leasing.models import (
 )
 from apps.core.models import AuditLog
 
-from .mixins import AdminRequiredMixin
+from .mixins import AdminOrManagerRequiredMixin
 from .forms import (
     RoleForm, AccountForm, UserProfileForm, AccountTokenForm,
     EquipmentCategoryForm, ManufacturerForm, EquipmentForm,
@@ -45,19 +45,26 @@ PANEL_MODELS = [
 ]
 
 
-class DashboardView(AdminRequiredMixin, View):
+class DashboardView(AdminOrManagerRequiredMixin, View):
     """Главная страница панели управления."""
 
     def get(self, request):
+        account = getattr(request, 'current_account', None)
+        if account and account.role and account.role.name == 'manager':
+            from .mixins import MANAGER_ALLOWED_KEYS
+            models = [m for m in PANEL_MODELS if m[0] in MANAGER_ALLOWED_KEYS]
+        else:
+            models = PANEL_MODELS
         return render(request, 'control_panel/dashboard.html', {
-            'models': PANEL_MODELS,
+            'models': models,
+            'show_audit': account and account.role and account.role.name == 'admin',
         })
 
 
 def _make_list_view(model, model_key, title, form_class=None):
     _model, _model_key, _title = model, model_key, title
 
-    class V(AdminRequiredMixin, ListView):
+    class V(AdminOrManagerRequiredMixin, ListView):
         model = _model
         template_name = 'control_panel/list.html'
         context_object_name = 'items'
@@ -83,7 +90,7 @@ def _make_list_view(model, model_key, title, form_class=None):
 def _make_create_view(model, model_key, title, form_class):
     _model, _model_key, _title, _form_class = model, model_key, title, form_class
 
-    class V(AdminRequiredMixin, CreateView):
+    class V(AdminOrManagerRequiredMixin, CreateView):
         model = _model
         form_class = _form_class
         template_name = 'control_panel/form.html'
@@ -105,7 +112,7 @@ def _make_create_view(model, model_key, title, form_class):
 def _make_update_view(model, model_key, title, form_class):
     _model, _model_key, _title, _form_class = model, model_key, title, form_class
 
-    class V(AdminRequiredMixin, UpdateView):
+    class V(AdminOrManagerRequiredMixin, UpdateView):
         model = _model
         form_class = _form_class
         template_name = 'control_panel/form.html'
@@ -130,7 +137,7 @@ def _make_update_view(model, model_key, title, form_class):
 def _make_delete_view(model, model_key, title):
     _model, _model_key = model, model_key
 
-    class V(AdminRequiredMixin, View):
+    class V(AdminOrManagerRequiredMixin, View):
         def post(self, request, pk):
             obj = get_object_or_404(_model, pk=pk)
             obj.delete()
@@ -369,7 +376,7 @@ class MaintenanceRequestDeleteView(_make_delete_view(MaintenanceRequest, 'mainte
     pass
 
 
-class AuditLogListView(AdminRequiredMixin, ListView):
+class AuditLogListView(AdminOrManagerRequiredMixin, ListView):
     """Журнал аудита — только чтение."""
     model = AuditLog
     template_name = 'control_panel/audit_list.html'

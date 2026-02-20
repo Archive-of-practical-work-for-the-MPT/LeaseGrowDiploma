@@ -100,6 +100,9 @@ STATICFILES_DIRS = []  # Добавляются в local/production при не�
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Кастомный тест-раннер с подробным выводом на русском
+TEST_RUNNER = 'tests.test_runner.RussianDiscoverRunner'
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

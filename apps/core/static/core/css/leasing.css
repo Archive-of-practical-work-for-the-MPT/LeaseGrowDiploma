@@ -1,0 +1,254 @@
+/* Leasing page — каталог техники */
+.leasing-hero {
+    background:
+        radial-gradient(ellipse 120% 100% at 50% -20%, var(--green-100) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 60% at 90% 50%, var(--green-50) 0%, transparent 45%),
+        var(--bg);
+    padding: 3rem 1.5rem 3.5rem;
+    text-align: center;
+}
+
+.leasing-hero h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.leasing-hero p {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.leasing-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.leasing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.eq-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.eq-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+.eq-card-image {
+    height: 180px;
+    background: linear-gradient(135deg, var(--green-50) 0%, var(--green-100) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.eq-card-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.eq-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.eq-card-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.eq-card-price {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--green-600);
+    margin-bottom: 0.25rem;
+}
+
+.eq-card-rate {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+}
+
+.eq-card-actions {
+    margin-top: auto;
+}
+
+.eq-card .btn-leasing {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--green-500);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.eq-card .btn-leasing:hover {
+    background: var(--green-600);
+    transform: translateY(-1px);
+}
+
+.eq-card .btn-leasing.sent {
+    background: var(--green-100);
+    color: var(--green-700);
+    cursor: default;
+    border: 1px solid var(--green-200);
+}
+
+.eq-card .btn-leasing.sent:hover {
+    transform: none;
+}
+
+.eq-card .btn-leasing.guest {
+    background: var(--green-50);
+    color: var(--text);
+    border: 1px solid var(--green-200);
+}
+
+.eq-card .btn-leasing.guest:hover {
+    background: var(--green-100);
+}
+
+/* Мои заявки */
+.my-requests-section {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.my-requests-section h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+}
+
+.request-card-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.request-card-item:hover {
+    border-color: var(--green-200);
+    box-shadow: var(--shadow-xs);
+}
+
+.request-card-item strong {
+    font-size: 1rem;
+}
+
+.request-card-item .req-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+}
+
+.request-card-item .req-status.pending {
+    background: var(--amber-100);
+    color: var(--amber-500);
+}
+
+.request-card-item .req-status.confirmed {
+    background: var(--green-100);
+    color: var(--green-600);
+}
+
+.request-card-item .req-status.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.request-card-item .req-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.request-card-item .chat-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--green-600);
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    background: var(--green-50);
+    transition: background 0.2s;
+}
+
+.request-card-item .chat-link:hover {
+    background: var(--green-100);
+}
+
+/* Логин подсказка */
+.leasing-login-box {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--green-50) 0%, var(--green-100) 100%);
+    border: 1px solid var(--green-200);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    font-size: 1rem;
+}
+
+.leasing-login-box a {
+    color: var(--green-600);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.leasing-login-box a:hover {
+    text-decoration: underline;
+}
+
+/* Пусто */
+.leasing-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}

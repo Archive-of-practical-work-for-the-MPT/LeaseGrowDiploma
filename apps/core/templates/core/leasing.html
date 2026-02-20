@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Лизинг техники — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/leasing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="leasing-hero">
+    <h1>Техника в лизинг</h1>
+    <p>Тракторы, комбайны и сельхозтехника от проверенных производителей. Оформите заявку — менеджер свяжется с вами для обсуждения условий.</p>
+</section>
+
+<div class="leasing-section">
+    {% if equipment_list %}
+    <div class="leasing-grid">
+        {% for eq in equipment_list %}
+        <article class="eq-card">
+            <div class="eq-card-image">🚜</div>
+            <div class="eq-card-body">
+                <h3 class="eq-card-title">{{ eq.name }} — {{ eq.model }}</h3>
+                <p class="eq-card-meta">{{ eq.category.name }}{% if eq.manufacturer %} · {{ eq.manufacturer.name }}{% endif %}</p>
+                {% if eq.price %}
+                <div class="eq-card-price">{{ eq.price|floatformat:0 }} ₽</div>
+                {% endif %}
+                {% if eq.monthly_lease_rate %}
+                <div class="eq-card-rate">От {{ eq.monthly_lease_rate|floatformat:0 }} ₽/мес</div>
+                {% endif %}
+                <div class="eq-card-actions">
+                    {% if current_account %}
+                        {% if eq.id in pending_equipment_ids %}
+                        <span class="btn-leasing sent">Заявка отправлена</span>
+                        {% else %}
+                        <form method="post" action="{% url 'core:leasing_request_create' eq.id %}" onsubmit="return confirm('Оформить заявку на {{ eq.name }}?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="message" value="">
+                            <button type="submit" class="btn-leasing">Оформить заявку</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}?next={% url 'core:leasing' %}" class="btn-leasing guest">Войдите, чтобы оформить заявку</a>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="leasing-empty">Сейчас нет техники, доступной для лизинга. Свяжитесь с нами для индивидуального подбора.</p>
+    {% endif %}
+
+    {% if current_account and my_requests %}
+    <section class="my-requests-section">
+        <h2>Мои заявки</h2>
+        {% for req in my_requests %}
+        <div class="request-card-item">
+            <div>
+                <strong>{{ req.equipment.name }} ({{ req.equipment.model }})</strong>
+                <span class="req-status {{ req.status }}">
+                    {% if req.status == 'pending' %}Ожидает подтверждения{% endif %}
+                    {% if req.status == 'confirmed' %}Подтверждена{% endif %}
+                    {% if req.status == 'rejected' %}Отклонена{% endif %}
+                </span>
+            </div>
+            <div>
+                <a href="{% url 'chat:thread' req.id %}" class="chat-link">💬 Открыть чат</a>
+                <span class="req-date">{{ req.created_at|date:"d.m.Y" }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if not current_account %}
+    <p class="leasing-login-box">Чтобы оформить заявку, <a href="{% url 'accounts:login' %}?next={% url 'core:leasing' %}">войдите</a> или <a href="{% url 'accounts:register' %}">зарегистрируйтесь</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -90,3 +90,134 @@ class RegisterForm(forms.Form):
         if p1 and len(p1) < 8:
             raise ValidationError({'password1': 'Пароль должен быть не менее 8 символов.'})
         return data
+
+
+class ProfileEditForm(forms.Form):
+    """Форма редактирования профиля и аккаунта пользователем."""
+
+    username = forms.CharField(
+        max_length=100,
+        label='Логин',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Логин для входа',
+        }),
+    )
+    email = forms.EmailField(
+        label='Email',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'example@mail.ru',
+        }),
+    )
+    first_name = forms.CharField(
+        max_length=100,
+        label='Имя',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Иван',
+        }),
+    )
+    last_name = forms.CharField(
+        max_length=100,
+        label='Фамилия',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Иванов',
+        }),
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        label='Телефон',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': '+7 (999) 123-45-67',
+        }),
+    )
+    current_password = forms.CharField(
+        required=False,
+        label='Текущий пароль (для сохранения изменений)',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Введите пароль для подтверждения',
+            'autocomplete': 'current-password',
+        }),
+    )
+    new_password = forms.CharField(
+        required=False,
+        label='Новый пароль (оставьте пустым, чтобы не менять)',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Не менее 8 символов',
+            'autocomplete': 'new-password',
+        }),
+    )
+    new_password_confirm = forms.CharField(
+        required=False,
+        label='Повторите новый пароль',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Повторите новый пароль',
+            'autocomplete': 'new-password',
+        }),
+    )
+
+    def __init__(self, account=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.account = account
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise ValidationError('Логин обязателен.')
+        qs = Account.objects.filter(username__iexact=username)
+        if self.account:
+            qs = qs.exclude(id=self.account.id)
+        if qs.exists():
+            raise ValidationError('Этот логин уже занят.')
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email:
+            raise ValidationError('Email обязателен.')
+        qs = Account.objects.filter(email__iexact=email)
+        if self.account:
+            qs = qs.exclude(id=self.account.id)
+        if qs.exists():
+            raise ValidationError('Этот email уже зарегистрирован.')
+        return email
+
+    def clean(self):
+        data = super().clean()
+        current = data.get('current_password')
+        new_pwd = data.get('new_password')
+        new_pwd_confirm = data.get('new_password_confirm')
+
+        # Текущий пароль нужен только при смене логина, email или пароля
+        needs_password = False
+        if self.account:
+            needs_password = (
+                data.get('username', '').strip() != self.account.username
+                or data.get('email', '').strip().lower() != self.account.email
+                or bool(new_pwd)
+            )
+        if self.account and needs_password:
+            if not current:
+                raise ValidationError({
+                    'current_password': 'Введите текущий пароль для подтверждения изменений.',
+                })
+            from django.contrib.auth.hashers import check_password
+            if not check_password(current, self.account.password_hash):
+                raise ValidationError({
+                    'current_password': 'Неверный текущий пароль.',
+                })
+
+        if new_pwd or new_pwd_confirm:
+            if new_pwd != new_pwd_confirm:
+                raise ValidationError({'new_password_confirm': 'Пароли не совпадают.'})
+            if len(new_pwd or '') < 8:
+                raise ValidationError({'new_password': 'Пароль должен быть не менее 8 символов.'})
+
+        return data

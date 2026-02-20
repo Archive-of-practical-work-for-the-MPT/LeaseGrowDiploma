@@ -3,12 +3,14 @@
         <a href="{% url 'core:home' %}" class="logo">Lease<span>Grow</span></a>
         <div class="header-right">
             <nav class="nav">
-                <a href="{% url 'core:home' %}#uslugi">Услуги</a>
-                <a href="{% url 'core:home' %}#tekhnika">Техника</a>
-                <a href="{% url 'core:home' %}#kontakt">Контакты</a>
+                <a href="{% url 'core:home' %}">Главная</a>
+                <a href="{% url 'core:leasing' %}">Лизинг</a>
                 {% if current_account %}
-                {% if is_admin %}
+                {% if is_admin or is_manager %}
                 <a href="{% url 'control_panel:dashboard' %}">Панель управления</a>
+                {% endif %}
+                {% if is_manager %}
+                <a href="{% url 'manager:chat' %}">Чат</a>
                 {% endif %}
                 <a href="{% url 'accounts:profile' %}">Профиль</a>
                 <a href="{% url 'accounts:logout' %}">Выйти</a>

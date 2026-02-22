@@ -66,17 +66,48 @@
         </div>
     </section>
 
-    <section class="cta-block" id="zayavka">
-        <h2>Готовы обсудить условия?</h2>
-        <p>Оставьте заявку — мы перезвоним и подберём технику и программу лизинга под ваши задачи.</p>
-        <a href="{% url 'core:leasing' %}" class="btn">Оставить заявку</a>
-    </section>
-
-    <section class="section contact-section" id="kontakt">
+    <section class="section section-faq" id="faq">
         <div class="section-header">
-            <h2>Контакты</h2>
+            <h2>Частые вопросы</h2>
             <div class="section-line"></div>
-            <p>Свяжитесь с нами по телефону или почте. Работаем по всей России и поможем подобрать технику в вашем регионе.</p>
+        </div>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary class="faq-question">Как оформить заявку на лизинг?</summary>
+                <div class="faq-answer">
+                    <p>Выберите технику в <a href="{% url 'core:leasing' %}">каталоге</a>, нажмите «Оформить заявку» и войдите в аккаунт (или зарегистрируйтесь). Менеджер свяжется с вами в течение 24 часов, чтобы обсудить условия и подобрать программу лизинга под ваши задачи.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">Какие документы нужны для лизинга?</summary>
+                <div class="faq-answer">
+                    <p>Для физических лиц: паспорт, ИНН. Для юридических: учредительные документы, выписка из ЕГРЮЛ, бухгалтерская отчётность. Точный перечень зависит от суммы сделки — мы подскажем после рассмотрения заявки.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">Сколько времени занимает рассмотрение заявки?</summary>
+                <div class="faq-answer">
+                    <p>Обычно 1–2 рабочих дня. После одобрения оформление договора и поставка техники занимают от нескольких дней до 2–3 недель в зависимости от наличия на складе.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">Какие виды техники доступны?</summary>
+                <div class="faq-answer">
+                    <p>Тракторы (колёсные и гусеничные), комбайны зерноуборочные и кормоуборочные, посевная и уборочная техника, навесное оборудование. В каталоге — актуальные предложения, по запросу подберём технику под ваши потребности.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">Работаете ли вы в моём регионе?</summary>
+                <div class="faq-answer">
+                    <p>Да, работаем по всей России. Оформление и доставка возможны в любой регион. Свяжитесь с нами по телефону <a href="tel:+79299169663">+7 (929) 916-96-63</a> или почте info@leasegrow.ru — уточним условия для вашего региона.</p>
+                </div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">Как с вами связаться?</summary>
+                <div class="faq-answer">
+                    <p>Телефон: <a href="tel:+79299169663">+7 (929) 916-96-63</a>, email: <a href="mailto:info@leasegrow.ru">info@leasegrow.ru</a>. Адрес офиса и карта — на странице <a href="{% url 'core:about' %}">О компании</a>.</p>
+                </div>
+            </details>
         </div>
     </section>
 {% endblock %}

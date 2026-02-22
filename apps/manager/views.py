@@ -5,13 +5,13 @@ from decimal import Decimal
 from django.db.models import Count, Sum
 from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views import View
 
 from apps.leasing.models import Company, LeaseContract, PaymentSchedule, MaintenanceRequest
 from apps.catalog.models import Equipment, EquipmentCategory
-from apps.control_panel.mixins import AdminRequiredMixin
+from apps.control_panel.mixins import AdminRequiredMixin, AdminOrManagerRequiredMixin
 from .mixins import ManagerRequiredMixin
 
 
@@ -409,6 +409,48 @@ class StatisticsExportPdfView(ManagerRequiredMixin, View):
         return response
 
 
+class LeaseRequestCreateContractView(AdminOrManagerRequiredMixin, View):
+    """Оформление договора из подтверждённой заявки."""
+
+    def get(self, request, pk):
+        from apps.leasing.models import LeaseRequest
+        from apps.leasing.forms import ContractFromRequestForm
+        lease_req = get_object_or_404(LeaseRequest, pk=pk)
+        if lease_req.status != 'confirmed':
+            messages.error(request, 'Можно оформить договор только по подтверждённой заявке.')
+            return redirect('chat:thread', request_id=pk)
+        form = ContractFromRequestForm(lease_request=lease_req)
+        return render(request, 'manager/lease_request_create_contract.html', {
+            'lease_request': lease_req,
+            'form': form,
+        })
+
+    def post(self, request, pk):
+        from apps.leasing.models import LeaseRequest
+        from apps.leasing.forms import ContractFromRequestForm
+        lease_req = get_object_or_404(LeaseRequest, pk=pk)
+        if lease_req.status != 'confirmed':
+            messages.error(request, 'Можно оформить договор только по подтверждённой заявке.')
+            return redirect('chat:thread', request_id=pk)
+        form = ContractFromRequestForm(request.POST, lease_request=lease_req)
+        if form.is_valid():
+            contract = form.save(commit=False)
+            contract.equipment = lease_req.equipment
+            contract.created_by = request.current_account
+            contract.lease_request = lease_req
+            contract.save()
+            # Привязываем компанию к клиенту, если ещё не привязана
+            if not contract.company.account_id:
+                contract.company.account = lease_req.account
+                contract.company.save(update_fields=['account'])
+            messages.success(request, f'Договор {contract.contract_number} создан. Техника появится в «Моя техника» у клиента.')
+            return redirect('chat:thread', request_id=pk)
+        return render(request, 'manager/lease_request_create_contract.html', {
+            'lease_request': lease_req,
+            'form': form,
+        })
+
+
 class ChatView(ManagerRequiredMixin, View):
     """Чат с клиентами — список заявок с переходом в чат."""
 
@@ -419,4 +461,16 @@ class ChatView(ManagerRequiredMixin, View):
         ).order_by('-created_at')
         return render(request, 'manager/chat.html', {
             'lease_requests': lease_requests,
+        })
+
+
+class MaintenanceChatView(ManagerRequiredMixin, View):
+    """Заявки на ТО — список с переходом в чат."""
+
+    def get(self, request):
+        maintenance_requests = MaintenanceRequest.objects.select_related(
+            'equipment', 'equipment__category', 'company', 'company__account', 'company__account__profile'
+        ).order_by('-created_at')
+        return render(request, 'manager/maintenance_chat.html', {
+            'maintenance_requests': maintenance_requests,
         })

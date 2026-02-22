@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Заявка на ТО — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="console-root" style="max-width: 500px; margin: 2rem auto 3rem; padding: 0 1.5rem;">
+    <div class="console-card">
+        <h2>Отправить на ТО</h2>
+        <p class="console-subtitle">{{ contract.equipment.name }} ({{ contract.equipment.model }})</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="console-field">
+                <label for="description">Описание проблемы *</label>
+                <textarea name="description" id="description" rows="4" class="form-input" required placeholder="Опишите, что нужно сделать..."></textarea>
+            </div>
+            <div class="console-field">
+                <label for="urgency">Срочность</label>
+                <select name="urgency" id="urgency" class="form-select">
+                    <option value="low">Низкий</option>
+                    <option value="normal" selected>Обычный</option>
+                    <option value="high">Высокий</option>
+                    <option value="critical">Критичный</option>
+                </select>
+            </div>
+            <div style="margin-top: 1rem;">
+                <button type="submit" class="btn-xs primary">Отправить заявку</button>
+                <a href="{% url 'core:my_equipment' %}" class="btn-xs">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

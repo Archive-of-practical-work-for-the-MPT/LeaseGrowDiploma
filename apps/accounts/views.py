@@ -16,7 +16,11 @@ from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from .models import Account, UserProfile, Role
-from .forms import LoginForm, RegisterForm, ProfileEditForm, PasswordResetRequestForm, PasswordResetConfirmForm
+from .forms import (
+    LoginForm, RegisterForm, ProfileEditForm,
+    PasswordResetRequestForm, PasswordResetConfirmForm,
+    ClientCompanyForm,
+)
 
 
 def get_current_account(request):
@@ -214,12 +218,61 @@ def profile_view(request):
         return redirect('accounts:profile')
 
     is_manager = account.role and account.role.name == 'manager'
+    is_client = not (account.role and account.role.name in ('admin', 'manager'))
+
+    # Компания клиента (для заявок на лизинг)
+    from apps.leasing.models import Company
+    user_company = Company.objects.filter(account=account).first()
+    company_form = None
+    if is_client:
+        initial_company = None
+        if user_company and request.method != 'POST':
+            initial_company = {
+                'name': user_company.name,
+                'inn': user_company.inn,
+                'legal_address': user_company.legal_address or '',
+                'phone': user_company.phone or '',
+                'email': user_company.email or '',
+            }
+        company_form = ClientCompanyForm(
+            instance=user_company,
+            data=request.POST if request.method == 'POST' and request.POST.get('form_type') == 'company' else None,
+            initial=initial_company,
+        )
+        if request.method == 'POST' and request.POST.get('form_type') == 'company' and company_form.is_valid():
+            data = company_form.cleaned_data
+            if user_company:
+                user_company.name = data['name'].strip()
+                user_company.inn = data['inn'].strip()
+                user_company.legal_address = (data.get('legal_address') or '').strip()
+                user_company.phone = (data.get('phone') or '').strip()
+                user_company.email = (data.get('email') or '').strip()
+                user_company.save()
+                messages.success(request, 'Данные компании обновлены.')
+            else:
+                Company.objects.create(
+                    name=data['name'].strip(),
+                    inn=data['inn'].strip(),
+                    legal_address=(data.get('legal_address') or '').strip(),
+                    phone=(data.get('phone') or '').strip(),
+                    email=(data.get('email') or '').strip(),
+                    status='active',
+                    account=account,
+                )
+                messages.success(request, 'Компания добавлена. Теперь вы можете оформить заявку на лизинг.')
+            return redirect('accounts:profile')
+
+    need_company = request.GET.get('need_company') == '1'
     return render(request, 'accounts/profile.html', {
         'account': account,
         'profile': profile,
         'form': form,
+        'company_form': company_form,
+        'user_company': user_company,
+        'need_company': need_company,
         'is_admin': account.role and account.role.name == 'admin',
         'is_manager': is_manager,
+        'is_client': is_client,
     })
 
 

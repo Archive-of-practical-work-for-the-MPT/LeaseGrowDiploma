@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load static %}
+{% load static core_extras %}
 
 {% block title %}Лизинг техники — LeaseGrow{% endblock %}
 
@@ -72,7 +72,7 @@
                 <div class="eq-card-actions">
                     {% if current_account %}
                         {% if eq.id in pending_equipment_ids %}
-                        <span class="btn-leasing sent">Заявка отправлена</span>
+                        <a href="{% url 'chat:thread' pending_lease_requests|get_item:eq.id %}" class="btn-leasing sent">Заявка отправлена</a>
                         {% else %}
                         <form method="post" action="{% url 'core:leasing_request_create' eq.id %}" onsubmit="return confirm('Оформить заявку на {{ eq.name }}?');">
                             {% csrf_token %}
@@ -129,10 +129,18 @@
                     {% if req.status == 'pending' %}Ожидает подтверждения{% endif %}
                     {% if req.status == 'confirmed' %}Подтверждена{% endif %}
                     {% if req.status == 'rejected' %}Отклонена{% endif %}
+                    {% if req.status == 'cancelled' %}Отменена{% endif %}
                 </span>
             </div>
-            <div>
+            <div class="req-actions">
                 <a href="{% url 'chat:thread' req.id %}" class="chat-link">💬 Открыть чат</a>
+                {% if req.id in can_cancel_ids %}
+                <form method="post" action="{% url 'chat:thread' req.id %}" style="display: inline;" onsubmit="return confirm('Отменить заявку на {{ req.equipment.name }}?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="cancel">
+                    <button type="submit" class="btn-cancel-req">Отмена заявки</button>
+                </form>
+                {% endif %}
                 <span class="req-date">{{ req.created_at|date:"d.m.Y" }}</span>
             </div>
         </div>

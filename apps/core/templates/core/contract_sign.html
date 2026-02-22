@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Подписать договор — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<style>
+.sign-root { max-width: 560px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.sign-card { padding: 1.5rem; }
+.sign-card h2 { margin-bottom: 1.25rem; font-size: 1.35rem; }
+.contract-details { border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin: 1.25rem 0; background: var(--white); }
+.contract-details dl { margin: 0; display: grid; gap: 0.6rem; }
+.contract-details dt { font-weight: 600; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.15rem; }
+.contract-details dd { margin: 0 0 0.75rem 0; font-size: 1rem; }
+.contract-details dd:last-child { margin-bottom: 0; }
+.contract-details .amount-row { font-size: 1.1rem; font-weight: 600; }
+.sign-note { font-size: 0.95rem; color: var(--text-muted); margin-top: 1.25rem; line-height: 1.5; }
+.sign-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="console-root sign-root">
+    <div class="console-card sign-card">
+        <h2>Подписание договора {{ contract.contract_number }}</h2>
+
+        <div class="contract-details">
+            <dl>
+                <dt>Техника</dt>
+                <dd>{{ contract.equipment.name }} ({{ contract.equipment.model }}){% if contract.equipment.manufacturer %} · {{ contract.equipment.manufacturer.name }}{% endif %}</dd>
+
+                <dt>Арендатор (компания)</dt>
+                <dd>{{ contract.company.name }}{% if contract.company.legal_name %} — {{ contract.company.legal_name }}{% endif %}{% if contract.company.inn %} · ИНН {{ contract.company.inn }}{% endif %}</dd>
+
+                <dt>Период действия</dt>
+                <dd>{{ contract.start_date|date:"d.m.Y" }} — {{ contract.end_date|date:"d.m.Y" }} ({{ contract.lease_term_months }} мес.)</dd>
+
+                <dt>Общая сумма договора</dt>
+                <dd class="amount-row">{{ contract.total_amount|floatformat:0 }} ₽</dd>
+
+                {% if contract.advance_payment %}
+                <dt>Авансовый платёж</dt>
+                <dd>{{ contract.advance_payment|floatformat:0 }} ₽</dd>
+                {% endif %}
+
+                <dt>Ежемесячный платёж</dt>
+                <dd class="amount-row">{{ contract.monthly_payment|floatformat:0 }} ₽/мес</dd>
+
+                <dt>День платежа</dt>
+                <dd>{{ contract.payment_day }}-е число каждого месяца</dd>
+            </dl>
+        </div>
+
+        <p class="sign-note">Нажимая «Подписать», вы подтверждаете, что ознакомились с условиями договора и принимаете их в полном объёме.</p>
+
+        <form method="post" class="sign-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-xs primary">Подписать договор</button>
+            <a href="{% url 'core:my_equipment' %}" class="btn-xs">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

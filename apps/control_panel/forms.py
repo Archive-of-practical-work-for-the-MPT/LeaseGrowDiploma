@@ -462,7 +462,19 @@ class MaintenanceRequestForm(forms.ModelForm):
             'urgency': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'assigned_to': forms.Select(attrs={'class': 'form-select'}),
-            'completed_at': forms.DateTimeInput(attrs={
-                'class': 'form-input', 'type': 'datetime-local',
-            }),
+            'completed_at': forms.DateTimeInput(
+                format='%Y-%m-%dT%H:%M',
+                attrs={'class': 'form-input', 'type': 'datetime-local'},
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['completed_at'].input_formats = ['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']
+
+    def clean(self):
+        from django.utils import timezone
+        data = super().clean()
+        if data.get('status') == 'completed' and not data.get('completed_at'):
+            data['completed_at'] = timezone.now()
+        return data

@@ -4,6 +4,54 @@ from django.core.exceptions import ValidationError
 from .models import Account, UserProfile
 
 
+class ClientCompanyForm(forms.Form):
+    """Форма добавления/редактирования компании клиентом (для оформления заявок на лизинг)."""
+    name = forms.CharField(
+        max_length=255,
+        label='Название компании',
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'ООО «Ромашка»'}),
+    )
+    inn = forms.CharField(
+        max_length=12,
+        label='ИНН',
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '1234567890'}),
+    )
+    legal_address = forms.CharField(
+        required=False,
+        label='Юридический адрес',
+        widget=forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        label='Телефон',
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+7 (999) 123-45-67'}),
+    )
+    email = forms.EmailField(
+        required=False,
+        label='Email компании',
+        widget=forms.EmailInput(attrs={'class': 'form-input'}),
+    )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance = instance
+
+    def clean_inn(self):
+        from apps.leasing.models import Company
+        inn = (self.cleaned_data.get('inn') or '').strip()
+        if len(inn) < 10:
+            raise ValidationError('ИНН должен содержать 10 или 12 цифр.')
+        if not inn.isdigit():
+            raise ValidationError('ИНН должен содержать только цифры.')
+        qs = Company.objects.filter(inn=inn)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise ValidationError('Компания с таким ИНН уже зарегистрирована.')
+        return inn
+
+
 class PasswordResetRequestForm(forms.Form):
     """Форма запроса сброса пароля — email или логин."""
     email_or_username = forms.CharField(

@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Мои заявки на ТО — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/leasing.css' %}">
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<style>
+.maint-hero {
+    background:
+        radial-gradient(ellipse 120% 100% at 50% -20%, var(--green-100) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 60% at 90% 50%, var(--green-50) 0%, transparent 45%),
+        var(--bg);
+    padding: 3rem 1.5rem 3.5rem;
+    text-align: center;
+}
+.maint-hero h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; color: var(--text); }
+.maint-hero p { font-size: 1.0625rem; color: var(--text-muted); max-width: 540px; margin: 0 auto; line-height: 1.6; }
+.maint-section { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.maint-card {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1.25rem; background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); margin-bottom: 1rem; flex-wrap: wrap;
+}
+.maint-card-body { flex: 1; min-width: 0; }
+.maint-card-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.35rem; }
+.maint-card-meta { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.maint-card-desc { font-size: 0.95rem; line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.maint-status {
+    display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500;
+}
+.maint-status.new { background: #fef3c7; color: #b45309; }
+.maint-status.in_progress { background: #dbeafe; color: #1d4ed8; }
+.maint-status.completed { background: var(--green-100); color: var(--green-600); }
+.maint-status.cancelled { background: #f3f4f6; color: #6b7280; }
+.maint-empty { text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text-muted); }
+.maint-empty a { color: var(--green-600); text-decoration: none; }
+.maint-empty a:hover { text-decoration: underline; }
+.maint-link-back {
+    display: inline-flex; align-items: center; margin-top: 1.5rem;
+    padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 500;
+    color: var(--text-secondary); text-decoration: none;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--white); transition: background 0.2s, border-color 0.2s;
+}
+.maint-link-back:hover { background: var(--green-50, #f0fdf4); border-color: var(--green-200); color: var(--green-700); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="maint-hero">
+    <h1>Мои заявки на ТО</h1>
+    <p>Заявки на техническое обслуживание техники по вашим договорам лизинга.</p>
+</section>
+
+<div class="maint-section">
+    {% if maintenance_requests %}
+    {% for req in maintenance_requests %}
+    <div class="maint-card">
+        <div class="maint-card-body">
+            <div class="maint-card-title">{{ req.equipment.name }} ({{ req.equipment.model }})</div>
+            <div class="maint-card-meta">
+                <span class="maint-status {{ req.status }}">
+                    {% if req.status == 'new' %}Новая{% endif %}
+                    {% if req.status == 'in_progress' %}В работе{% endif %}
+                    {% if req.status == 'completed' %}Выполнена{% endif %}
+                    {% if req.status == 'cancelled' %}Отменена{% endif %}
+                </span>
+                · {{ req.created_at|date:"d.m.Y H:i" }}
+                {% if req.urgency == 'high' or req.urgency == 'critical' %} · Срочность: {% if req.urgency == 'critical' %}Критичная{% else %}Высокая{% endif %}{% endif %}
+            </div>
+            {% if req.description %}
+            <div class="maint-card-desc">{{ req.description }}</div>
+            {% endif %}
+        </div>
+        <a href="{% url 'chat:maintenance_thread' req.id %}" class="btn-xs primary">Чат</a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="maint-empty">
+        <p>У вас пока нет заявок на ТО.</p>
+        <p style="margin-top: 1rem;">Заявки создаются в разделе <a href="{% url 'core:my_equipment' %}">Моя техника</a> — нажмите кнопку «ТО» у нужной техники.</p>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'core:my_equipment' %}" class="maint-link-back">Моя техника</a>
+</div>
+{% endblock %}

@@ -290,8 +290,16 @@
     border: 1px solid var(--green-200);
 }
 
+.eq-card a.btn-leasing.sent {
+    cursor: pointer;
+}
+
 .eq-card .btn-leasing.sent:hover {
     transform: none;
+}
+
+.eq-card a.btn-leasing.sent:hover {
+    background: var(--green-200);
 }
 
 .eq-card .btn-leasing.guest {
@@ -361,6 +369,35 @@
 .request-card-item .req-status.rejected {
     background: #fee2e2;
     color: #b91c1c;
+}
+
+.request-card-item .req-status.cancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.request-card-item .req-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.request-card-item .btn-cancel-req {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #f59e0b;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+
+.request-card-item .btn-cancel-req:hover {
+    background: #fde68a;
 }
 
 .request-card-item .req-date {

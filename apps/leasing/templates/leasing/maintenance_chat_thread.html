@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Чат — {{ lease_request.equipment.name }}{% endblock %}
+{% block title %}Чат — Заявка на ТО {{ maintenance_request.equipment.name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
@@ -10,6 +10,11 @@
 .chat-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
 .chat-header h1 { font-size: 1.25rem; margin: 0 0 0.25rem 0; }
 .chat-header .meta { font-size: 0.9rem; color: var(--text-muted); }
+.maint-status { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 500; }
+.maint-status.new { background: #fef3c7; color: #b45309; }
+.maint-status.in_progress { background: #dbeafe; color: #1d4ed8; }
+.maint-status.completed { background: var(--green-100); color: var(--green-600); }
+.maint-status.cancelled { background: #f3f4f6; color: #6b7280; }
 .chat-messages { min-height: 300px; max-height: 450px; overflow-y: auto; margin-bottom: 1rem; }
 .msg { padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 12px; max-width: 85%; }
 .msg.sent { margin-left: auto; background: var(--green-100); border: 1px solid var(--green-200); }
@@ -21,11 +26,9 @@
 .chat-form button:hover { background: var(--green-600); }
 .chat-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 .chat-actions .btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-family: inherit; }
-.chat-actions .btn-confirm { background: #22c55e; color: #fff; border: none; }
-.chat-actions .btn-reject { background: #fee2e2; color: #b91c1c; border: none; }
-.chat-actions .btn-cancel { background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; }
-.chat-actions .btn-contract { background: var(--green-500); color: #fff; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; }
-.chat-actions .btn-contract:hover { background: var(--green-600); color: #fff; }
+.chat-actions .btn-progress { background: #dbeafe; color: #1d4ed8; border: none; }
+.chat-actions .btn-completed { background: #22c55e; color: #fff; border: none; }
+.chat-actions .btn-cancelled { background: #fee2e2; color: #b91c1c; border: none; }
 .back-link { display: inline-block; margin-top: 1rem; color: var(--text-muted); text-decoration: none; }
 .back-link:hover { color: var(--green-600); }
 </style>
@@ -34,11 +37,21 @@
 {% block content %}
 <div class="chat-thread-root">
     <div class="chat-header">
-        <h1>{{ lease_request.equipment.name }} ({{ lease_request.equipment.model }})</h1>
+        <h1>Заявка на ТО — {{ maintenance_request.equipment.name }} ({{ maintenance_request.equipment.model }})</h1>
         <div class="meta">
-            {% if lease_request.account.profile %}{{ lease_request.account.profile.first_name }} {{ lease_request.account.profile.last_name }}{% else %}{{ lease_request.account.username }}{% endif %}
-            · {{ lease_request.account.email }} · {{ lease_request.created_at|date:"d.m.Y" }}
+            {{ maintenance_request.company.name }}
+            {% if maintenance_request.company.account %}{% with acc=maintenance_request.company.account %}{% if acc.profile %}{{ acc.profile.first_name }} {{ acc.profile.last_name }}{% else %}{{ acc.username }}{% endif %} · {{ acc.email }}{% endwith %}{% endif %}
+            · {{ maintenance_request.created_at|date:"d.m.Y" }}
+            · <span class="maint-status {{ maintenance_request.status }}">
+                {% if maintenance_request.status == 'new' %}Новая{% endif %}
+                {% if maintenance_request.status == 'in_progress' %}В работе{% endif %}
+                {% if maintenance_request.status == 'completed' %}Выполнена{% endif %}
+                {% if maintenance_request.status == 'cancelled' %}Отменена{% endif %}
+            </span>
         </div>
+        {% if maintenance_request.description %}
+        <p style="margin-top: 0.5rem; font-size: 0.95rem;">{{ maintenance_request.description }}</p>
+        {% endif %}
     </div>
 
     <div class="chat-messages" id="chat-messages">
@@ -55,56 +68,51 @@
         {% endfor %}
     </div>
 
-    {% if lease_request.status not in 'cancelled,rejected' %}
-    <form method="post" action="{% url 'chat:thread' lease_request.id %}" class="chat-form" id="chat-form">
+    {% if maintenance_request.status != 'cancelled' %}
+    <form method="post" action="{% url 'chat:maintenance_thread' maintenance_request.id %}" class="chat-form" id="chat-form">
         {% csrf_token %}
         <input type="text" name="text" id="chat-input" placeholder="Введите сообщение..." required autocomplete="off">
         <button type="submit">Отправить</button>
     </form>
     {% else %}
-    <p class="chat-closed" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Чат закрыт — заявка {% if lease_request.status == 'cancelled' %}отменена{% else %}отклонена{% endif %}.</p>
+    <p class="chat-closed" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Чат закрыт — заявка отменена.</p>
     {% endif %}
 
-    {% if is_manager and lease_request.status == 'confirmed' %}
+    {% if is_manager %}
     <div class="chat-actions">
-        {% if related_contract %}
-        <a href="{% url 'control_panel:leasecontract_edit' related_contract.id %}" class="btn btn-contract">✏️ Изменить договор</a>
-        {% else %}
-        <a href="{% url 'manager:lease_request_create_contract' lease_request.id %}" class="btn btn-contract">📄 Оформить договор</a>
+        <a href="{% url 'control_panel:maintenancerequest_edit' maintenance_request.id %}" class="btn btn-progress" style="text-decoration: none;">Редактировать заявку</a>
+    </div>
+    {% endif %}
+    {% if is_manager and maintenance_request.status != 'cancelled' and maintenance_request.status != 'completed' %}
+    <div class="chat-actions">
+        {% if maintenance_request.status == 'new' %}
+        <form method="post" action="{% url 'chat:maintenance_thread' maintenance_request.id %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="in_progress">
+            <button type="submit" class="btn btn-progress">Взять в работу</button>
+        </form>
         {% endif %}
-    </div>
-    {% endif %}
-    {% if is_manager and lease_request.status == 'pending' %}
-    <div class="chat-actions">
-        <form method="post" action="{% url 'chat:thread' lease_request.id %}" style="display: inline;">
+        {% if maintenance_request.status == 'in_progress' %}
+        <form method="post" action="{% url 'chat:maintenance_thread' maintenance_request.id %}" style="display: inline;">
             {% csrf_token %}
-            <input type="hidden" name="action" value="confirm">
-            <button type="submit" class="btn btn-confirm">Подтвердить заявку</button>
+            <input type="hidden" name="action" value="completed">
+            <button type="submit" class="btn btn-completed">Выполнена</button>
         </form>
-        <form method="post" action="{% url 'chat:thread' lease_request.id %}" style="display: inline;">
+        {% endif %}
+        <form method="post" action="{% url 'chat:maintenance_thread' maintenance_request.id %}" style="display: inline;" onsubmit="return confirm('Отменить заявку?');">
             {% csrf_token %}
-            <input type="hidden" name="action" value="reject">
-            <input type="text" name="manager_notes" placeholder="Причина отклонения" style="padding: 0.4rem; margin-right: 0.5rem; border-radius: 6px; border: 1px solid var(--border);">
-            <button type="submit" class="btn btn-reject">Отклонить</button>
-        </form>
-    </div>
-    {% endif %}
-    {% if can_cancel %}
-    <div class="chat-actions">
-        <form method="post" action="{% url 'chat:thread' lease_request.id %}" style="display: inline;" onsubmit="return confirm('Отменить заявку на {{ lease_request.equipment.name }}?');">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="cancel">
-            <button type="submit" class="btn btn-cancel">Отмена заявки</button>
+            <input type="hidden" name="action" value="cancelled">
+            <button type="submit" class="btn btn-cancelled">Отменить заявку</button>
         </form>
     </div>
     {% endif %}
 
-    <a href="{% if is_manager %}{% url 'manager:chat' %}{% else %}{% url 'core:leasing' %}{% endif %}" class="back-link">Назад</a>
+    <a href="{% if is_manager %}{% url 'manager:maintenance_chat' %}{% else %}{% url 'core:my_maintenance_requests' %}{% endif %}" class="back-link">Назад</a>
 </div>
 
 <script>
 (function() {
-    const requestId = {{ lease_request.id }};
+    const requestId = {{ maintenance_request.id }};
     const currentAccountId = {{ current_account.id }};
     const form = document.getElementById('chat-form');
     const input = document.getElementById('chat-input');
@@ -154,7 +162,7 @@
     }
 
     const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = wsProto + '//' + window.location.host + '/ws/chat/' + requestId + '/';
+    const wsUrl = wsProto + '//' + window.location.host + '/ws/maintenance-chat/' + requestId + '/';
     const ws = new WebSocket(wsUrl);
     ws.onmessage = function(event) {
         try {

@@ -6,7 +6,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 from apps.accounts.views import get_current_account
-from .models import LeaseRequest, ChatMessage
+from .models import LeaseRequest, ChatMessage, LeaseContract
 
 
 def chat_list(request):
@@ -68,9 +68,21 @@ def chat_thread(request, request_id):
                 lease_req.save()
                 messages.success(request, 'Заявка отклонена.')
                 return redirect('chat:thread', request_id=lease_req.id)
+        elif action == 'cancel' and lease_req.account_id == account.id:
+            if lease_req.status in ('pending', 'confirmed'):
+                contract = LeaseContract.objects.filter(
+                    lease_request=lease_req).first()
+                if contract and contract.signed_at:
+                    messages.error(
+                        request, 'Нельзя отменить заявку — договор уже подписан.')
+                else:
+                    lease_req.status = 'cancelled'
+                    lease_req.save()
+                    messages.success(request, 'Заявка отменена.')
+                    return redirect('core:leasing')
 
         text = (request.POST.get('text', '') or '').strip()
-        if text:
+        if text and lease_req.status not in ('cancelled', 'rejected'):
             msg = ChatMessage.objects.create(
                 lease_request=lease_req,
                 sender=account,
@@ -110,10 +122,19 @@ def chat_thread(request, request_id):
     messages_list = lease_req.messages.select_related(
         'sender', 'sender__profile').all()
     is_manager = account.role and account.role.name in ('manager', 'admin')
+    related_contract = LeaseContract.objects.filter(
+        lease_request=lease_req).first()
+    can_cancel = (
+        lease_req.account_id == account.id
+        and lease_req.status in ('pending', 'confirmed')
+        and (not related_contract or not related_contract.signed_at)
+    )
 
     return render(request, 'leasing/chat_thread.html', {
         'lease_request': lease_req,
         'messages_list': messages_list,
         'current_account': account,
         'is_manager': is_manager,
+        'related_contract': related_contract,
+        'can_cancel': can_cancel,
     })

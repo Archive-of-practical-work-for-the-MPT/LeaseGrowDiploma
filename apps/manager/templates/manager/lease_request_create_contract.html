@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Оформить договор — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="console-root contract-form-root" style="max-width: 700px; margin: 2rem auto 3rem; padding: 0 1.5rem;">
+    <div class="console-card" style="margin-bottom: 1.5rem;">
+        <div class="console-main-title">Оформить договор</div>
+        <div class="console-subtitle">
+            Заявка на {{ lease_request.equipment.name }} ({{ lease_request.equipment.model }}) от
+            {% if lease_request.account.profile %}{{ lease_request.account.profile.first_name }} {{ lease_request.account.profile.last_name }}{% else %}{{ lease_request.account.username }}{% endif %}.
+            Компания и техника подставлены автоматически.
+        </div>
+        {% with eq=lease_request.equipment %}
+        <div class="contract-equipment-info" style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--green-25, #f0fdf4); border-radius: 8px; font-size: 0.9rem;">
+            <strong>Техника:</strong> {{ eq.name }} ({{ eq.model }})<br>
+            {% if eq.price %}
+            <strong>Стоимость выкупа после лизинга:</strong> {{ eq.price|floatformat:0 }} ₽<br>
+            {% endif %}
+            {% if eq.monthly_lease_rate %}
+            <strong>Платёж в месяц:</strong> от {{ eq.monthly_lease_rate|floatformat:0 }} ₽/мес (можно платить больше — срок сократится)
+            {% endif %}
+        </div>
+        {% endwith %}
+    </div>
+    <div class="console-card">
+        <div class="console-form">
+            <form method="post" id="contract-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="console-form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+                <div class="console-form-grid">
+                    {% for field in form %}
+                    <div class="console-field {% if field.errors %}has-error{% endif %}" data-field="{{ field.name }}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        {{ field }}
+                        {% if field.help_text %}<div class="console-help">{{ field.help_text }}</div>{% endif %}
+                        {% if field.errors %}<div class="field-error">{{ field.errors.0 }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="console-form-footer" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn-xs primary">Создать договор</button>
+                    <a href="{% url 'chat:thread' lease_request.id %}" class="btn-xs">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const form = document.getElementById('contract-form');
+    if (!form) return;
+    const monthlyInp = form.querySelector('[name="monthly_payment"]');
+    const monthsInp = form.querySelector('[name="lease_term_months"]');
+    const startInp = form.querySelector('[name="start_date"]');
+    const totalInp = form.querySelector('[name="total_amount"]');
+    const endInp = form.querySelector('[name="end_date"]');
+    const advanceInp = form.querySelector('[name="advance_payment"]');
+
+    function num(v) { return parseFloat(String(v).replace(/[^\d.-]/g, '')) || 0; }
+
+    function addMonths(dateStr, months) {
+        const d = new Date(dateStr + 'T12:00:00');
+        d.setMonth(d.getMonth() + months);
+        return d.toISOString().slice(0, 10);
+    }
+
+    function recalc() {
+        const monthly = num(monthlyInp?.value);
+        const months = parseInt(monthsInp?.value, 10) || 0;
+        const advance = num(advanceInp?.value);
+        const start = startInp?.value;
+
+        if (totalInp && !isNaN(monthly) && months > 0) {
+            totalInp.value = Math.round((advance + monthly * months) * 100) / 100;
+        }
+        if (endInp && start && months > 0) {
+            endInp.value = addMonths(start, months);
+        }
+    }
+
+    [monthlyInp, monthsInp, startInp, advanceInp].forEach(function(inp) {
+        if (inp) inp.addEventListener('input', recalc);
+        if (inp) inp.addEventListener('change', recalc);
+    });
+    recalc();
+})();
+</script>
+{% endblock %}

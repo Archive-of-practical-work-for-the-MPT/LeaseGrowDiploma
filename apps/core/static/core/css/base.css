@@ -318,5 +318,6 @@ main {
 }
 
 .message-success { background: var(--green-100); color: var(--green-600); border: 1px solid var(--green-200); }
+.message-warning { background: var(--green-100); color: var(--green-600); border: 1px solid var(--green-200); }
 .message-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-.message-info { background: var(--green-50); color: var(--text-secondary); border: 1px solid var(--border); }
+.message-info { background: var(--green-100); color: var(--green-600); border: 1px solid var(--green-200); }

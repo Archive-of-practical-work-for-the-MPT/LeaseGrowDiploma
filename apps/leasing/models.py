@@ -21,7 +21,8 @@ class Company(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(max_length=255, blank=True)
     bank_details = models.JSONField(default=dict, blank=True)
-    status = models.CharField(max_length=50, default='active', choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=50, default='active', choices=STATUS_CHOICES)
     account = models.ForeignKey(
         Account,
         on_delete=models.SET_NULL,
@@ -89,7 +90,8 @@ class LeaseContract(models.Model):
     )
     monthly_payment = models.DecimalField(max_digits=10, decimal_places=2)
     payment_day = models.IntegerField(default=1)
-    status = models.CharField(max_length=50, default='draft', choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=50, default='draft', choices=STATUS_CHOICES)
     signed_at = models.DateTimeField(null=True, blank=True)
     signed_by = models.ForeignKey(
         Account,
@@ -105,6 +107,13 @@ class LeaseContract(models.Model):
         null=True,
         blank=True,
         related_name='created_contracts',
+    )
+    lease_request = models.OneToOneField(
+        'LeaseRequest',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lease_contract',
     )
 
     class Meta:
@@ -131,7 +140,8 @@ class PaymentSchedule(models.Model):
     payment_number = models.IntegerField()
     due_date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=50, default='pending', choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=50, default='pending', choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(null=True, blank=True)
     penalty_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=Decimal('0')
@@ -209,8 +219,10 @@ class MaintenanceRequest(models.Model):
         related_name='maintenance_requests',
     )
     description = models.TextField()
-    urgency = models.CharField(max_length=50, default='normal', choices=URGENCY_CHOICES)
-    status = models.CharField(max_length=50, default='new', choices=STATUS_CHOICES)
+    urgency = models.CharField(
+        max_length=50, default='normal', choices=URGENCY_CHOICES)
+    status = models.CharField(
+        max_length=50, default='new', choices=STATUS_CHOICES)
     assigned_to = models.ForeignKey(
         Account,
         on_delete=models.SET_NULL,
@@ -230,12 +242,38 @@ class MaintenanceRequest(models.Model):
         return f'Заявка #{self.id} — {self.equipment}'
 
 
+class MaintenanceChatMessage(models.Model):
+    """Сообщение в чате по заявке на ТО."""
+    maintenance_request = models.ForeignKey(
+        MaintenanceRequest,
+        on_delete=models.CASCADE,
+        related_name='messages',
+    )
+    sender = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='maintenance_chat_messages',
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'maintenance_chat_message'
+        verbose_name = 'сообщение чата ТО'
+        verbose_name_plural = 'сообщения чата ТО'
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'{self.sender.username}: {self.text[:50]}...'
+
+
 class LeaseRequest(models.Model):
     """Заявка пользователя на аренду техники. Подтверждается менеджером."""
     STATUS_CHOICES = [
         ('pending', 'Ожидает подтверждения'),
         ('confirmed', 'Подтверждена'),
         ('rejected', 'Отклонена'),
+        ('cancelled', 'Отменена'),
     ]
     equipment = models.ForeignKey(
         Equipment,
@@ -247,7 +285,8 @@ class LeaseRequest(models.Model):
         on_delete=models.CASCADE,
         related_name='lease_requests',
     )
-    status = models.CharField(max_length=50, default='pending', choices=STATUS_CHOICES)
+    status = models.CharField(
+        max_length=50, default='pending', choices=STATUS_CHOICES)
     message = models.TextField(blank=True)
     manager_notes = models.TextField(blank=True)
     confirmed_by = models.ForeignKey(

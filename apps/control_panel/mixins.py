@@ -50,6 +50,8 @@ class AdminOrManagerRequiredMixin:
             model_key = None
             if url_name == 'audit_list':
                 model_key = 'audit'
+            elif url_name == 'lease_request_create_contract':
+                model_key = None  # разрешено менеджеру
             elif url_name and '_' in url_name:
                 model_key = url_name.split('_', 1)[0]
                 if model_key in ('dashboard',):

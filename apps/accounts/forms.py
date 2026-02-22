@@ -4,6 +4,46 @@ from django.core.exceptions import ValidationError
 from .models import Account, UserProfile
 
 
+class PasswordResetRequestForm(forms.Form):
+    """Форма запроса сброса пароля — email или логин."""
+    email_or_username = forms.CharField(
+        max_length=255,
+        label='Email или логин',
+        widget=forms.TextInput(attrs={
+            'autocomplete': 'username',
+            'placeholder': 'Введите email или логин',
+        }),
+    )
+
+
+class PasswordResetConfirmForm(forms.Form):
+    """Форма установки нового пароля."""
+    password1 = forms.CharField(
+        label='Новый пароль',
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'placeholder': 'Не менее 8 символов',
+        }),
+    )
+    password2 = forms.CharField(
+        label='Повторите пароль',
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'placeholder': 'Повторите пароль',
+        }),
+    )
+
+    def clean(self):
+        data = super().clean()
+        p1 = data.get('password1')
+        p2 = data.get('password2')
+        if p1 and p2 and p1 != p2:
+            raise ValidationError({'password2': 'Пароли не совпадают.'})
+        if p1 and len(p1) < 8:
+            raise ValidationError({'password1': 'Пароль должен быть не менее 8 символов.'})
+        return data
+
+
 class LoginForm(forms.Form):
     username = forms.CharField(
         max_length=255,

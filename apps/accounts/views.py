@@ -5,13 +5,18 @@ from datetime import datetime
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 
+from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+
 from .models import Account, UserProfile, Role
-from .forms import LoginForm, RegisterForm, ProfileEditForm
+from .forms import LoginForm, RegisterForm, ProfileEditForm, PasswordResetRequestForm, PasswordResetConfirmForm
 
 
 def get_current_account(request):
@@ -66,7 +71,8 @@ def register_view(request):
             phone=form.cleaned_data.get('phone', '').strip() or '',
         )
         request.session['account_id'] = account.id
-        messages.success(request, 'Регистрация прошла успешно. Добро пожаловать!')
+        messages.success(
+            request, 'Регистрация прошла успешно. Добро пожаловать!')
         return redirect('core:home')
     return render(request, 'accounts/auth/register.html', {'form': form})
 
@@ -75,6 +81,85 @@ def logout_view(request):
     request.session.flush()
     messages.info(request, 'Вы вышли из аккаунта.')
     return redirect('core:home')
+
+
+def _make_reset_token(account_id):
+    """Создаёт подписанный токен для сброса пароля (действует 24 часа)."""
+    signer = TimestampSigner()
+    return signer.sign(str(account_id))
+
+
+def _get_account_from_token(token, max_age=86400):
+    """Извлекает account_id из токена. max_age в секундах (по умолчанию 24 ч)."""
+    signer = TimestampSigner()
+    try:
+        value = signer.unsign(token, max_age=max_age)
+        return Account.objects.filter(id=int(value), is_active=True).first()
+    except (SignatureExpired, BadSignature, ValueError):
+        return None
+
+
+def password_reset_request_view(request):
+    """Страница запроса сброса пароля — пользователь вводит email или логин."""
+    if get_current_account(request):
+        return redirect('core:home')
+    form = PasswordResetRequestForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        value = form.cleaned_data['email_or_username'].strip()
+        account = Account.objects.filter(
+            Q(email__iexact=value) | Q(username__iexact=value),
+            is_active=True,
+        ).first()
+        # Всегда показываем одно сообщение для защиты от перебора
+        if account:
+            token = _make_reset_token(account.id)
+            reset_url = request.build_absolute_uri(
+                reverse('accounts:password_reset_confirm', kwargs={'token': token})
+            )
+            plain_message = (
+                f'Здравствуйте, {account.username}!\n\n'
+                f'Вы запросили сброс пароля. Перейдите по ссылке для установки нового пароля:\n\n'
+                f'{reset_url}\n\n'
+                f'Ссылка действительна 24 часа.\n\n'
+                f'Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.'
+            )
+            html_message = render_to_string(
+                'accounts/emails/password_reset.html',
+                {'username': account.username, 'reset_url': reset_url},
+            )
+            email = EmailMultiAlternatives(
+                subject='Восстановление пароля — LeaseGrow',
+                body=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[account.email],
+            )
+            email.attach_alternative(html_message, 'text/html')
+            email.send(fail_silently=False)
+        messages.success(
+            request,
+            'Если аккаунт с таким email или логином существует, на почту отправлена ссылка для сброса пароля.'
+        )
+        return redirect('accounts:login')
+    return render(request, 'accounts/auth/password_reset_request.html', {'form': form})
+
+
+def password_reset_confirm_view(request, token):
+    """Страница установки нового пароля по токену из письма."""
+    if get_current_account(request):
+        return redirect('core:home')
+    account = _get_account_from_token(token)
+    if not account:
+        messages.error(
+            request, 'Ссылка недействительна или истекла. Запросите сброс пароля снова.')
+        return redirect('accounts:password_reset_request')
+    form = PasswordResetConfirmForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        account.password_hash = make_password(form.cleaned_data['password1'])
+        account.save(update_fields=['password_hash'])
+        messages.success(
+            request, 'Пароль успешно изменён. Войдите с новым паролем.')
+        return redirect('accounts:login')
+    return render(request, 'accounts/auth/password_reset_confirm.html', {'form': form, 'token': token})
 
 
 def profile_view(request):
@@ -102,20 +187,23 @@ def profile_view(request):
         data=request.POST if request.method == 'POST' else None,
     )
 
-    is_client = not (account.role and account.role.name in ('admin', 'manager'))
+    is_client = not (
+        account.role and account.role.name in ('admin', 'manager'))
     if is_client and request.method == 'POST' and form.is_valid():
         account.username = form.cleaned_data['username'].strip()
         account.email = form.cleaned_data['email'].strip().lower()
         account.save(update_fields=['username', 'email', 'updated_at'])
         if form.cleaned_data.get('new_password'):
-            account.password_hash = make_password(form.cleaned_data['new_password'])
+            account.password_hash = make_password(
+                form.cleaned_data['new_password'])
             account.save(update_fields=['password_hash'])
 
         if profile:
             profile.first_name = form.cleaned_data['first_name'].strip()
             profile.last_name = form.cleaned_data['last_name'].strip()
             profile.phone = (form.cleaned_data.get('phone') or '').strip()
-            profile.save(update_fields=['first_name', 'last_name', 'phone', 'updated_at'])
+            profile.save(update_fields=[
+                         'first_name', 'last_name', 'phone', 'updated_at'])
         else:
             UserProfile.objects.create(
                 account=account,
@@ -185,7 +273,8 @@ def backup_view(request):
 
             pg_bin = getattr(settings, 'PG_BIN_PATH', '') or ''
             pg_dump_exe = 'pg_dump.exe' if os.name == 'nt' else 'pg_dump'
-            pg_dump_cmd = os.path.join(pg_bin, pg_dump_exe) if pg_bin else 'pg_dump'
+            pg_dump_cmd = os.path.join(
+                pg_bin, pg_dump_exe) if pg_bin else 'pg_dump'
 
             cmd = [
                 pg_dump_cmd,
@@ -218,7 +307,8 @@ def backup_view(request):
 
             filename = f'leasegrow_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.sql'
             with open(tmp_path, 'rb') as f:
-                response = HttpResponse(f.read(), content_type='application/sql; charset=utf-8')
+                response = HttpResponse(
+                    f.read(), content_type='application/sql; charset=utf-8')
                 response['Content-Disposition'] = f'attachment; filename="{filename}"'
             os.unlink(tmp_path)
             return response
@@ -231,7 +321,8 @@ def backup_view(request):
         except subprocess.TimeoutExpired:
             if 'tmp_path' in locals() and os.path.exists(tmp_path):
                 os.unlink(tmp_path)
-            messages.error(request, 'Превышено время ожидания создания бэкапа.')
+            messages.error(
+                request, 'Превышено время ожидания создания бэкапа.')
         except Exception as e:
             if 'tmp_path' in locals() and os.path.exists(tmp_path):
                 os.unlink(tmp_path)

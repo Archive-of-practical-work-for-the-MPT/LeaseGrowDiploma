@@ -103,6 +103,20 @@
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
 
+.auth-form .forgot-link {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.auth-form .forgot-link a {
+    color: var(--green-600);
+    text-decoration: none;
+}
+
+.auth-form .forgot-link a:hover {
+    text-decoration: underline;
+}
+
 .auth-form .errorlist {
     list-style: none;
     font-size: 0.8125rem;

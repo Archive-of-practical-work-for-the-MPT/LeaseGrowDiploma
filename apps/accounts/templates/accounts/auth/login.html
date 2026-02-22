@@ -26,6 +26,7 @@
                 <label for="id_password">{{ form.password.label }}</label>
                 {{ form.password }}
                 {{ form.password.errors }}
+                <p class="forgot-link"><a href="{% url 'accounts:password_reset_request' %}">Забыли пароль?</a></p>
             </div>
             <button type="submit">Войти</button>
         </form>

@@ -85,7 +85,7 @@ class ApiUser(HttpUser):
 class LoggedInWebsiteUser(HttpUser):
     """
     Пользователь, залогиненный в веб-интерфейсе.
-    Требуется тестовый аккаунт (например, admin@test.local / adminpass).
+    Требуется аккаунт админа из seed (admin@gmail.com / adminadmin).
     """
 
     wait_time = between(1, 4)
@@ -106,8 +106,8 @@ class LoggedInWebsiteUser(HttpUser):
         self.client.post(
             "/login/",
             {
-                "username": "admin@test.local",
-                "password": "adminpass",
+                "username": "admin@gmail.com",
+                "password": "adminadmin",
                 "csrfmiddlewaretoken": csrf,
             },
             headers={"Referer": f"{self.host}/login/"},

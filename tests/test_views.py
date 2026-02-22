@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from apps.accounts.models import Account, Role, UserProfile
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
-from apps.leasing.models import LeaseRequest
+from apps.leasing.models import Company, LeaseRequest
 
 
 def _login_as_client(client):
@@ -141,6 +141,12 @@ class LeaseRequestFlowTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.account = _login_as_client(self.client)
+        Company.objects.create(
+            name='Тестовая компания',
+            inn='1234567890',
+            status='active',
+            account=self.account,
+        )
         self.category = EquipmentCategory.objects.create(name='Тракторы')
         self.manufacturer = Manufacturer.objects.create(name='Deere')
         self.equipment = Equipment.objects.create(

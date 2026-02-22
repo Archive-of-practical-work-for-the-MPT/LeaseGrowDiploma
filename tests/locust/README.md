@@ -13,10 +13,9 @@ pip install locust
    python manage.py runserver
    ```
 
-2. (Опционально) Для `LoggedInWebsiteUser` создайте тестовый аккаунт:
-   - email: `admin@test.local`
-   - пароль: `adminpass`
-   - или измените логин/пароль в `locustfile.py`.
+2. (Опционально) Для `LoggedInWebsiteUser` используйте аккаунт из seed:
+   - email: `admin@gmail.com`
+   - пароль: `adminadmin`
 
 ## Запуск
 

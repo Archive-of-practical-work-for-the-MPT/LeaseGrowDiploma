@@ -9,7 +9,7 @@ from django.test import TestCase
 
 from apps.accounts.models import Role, Account, UserProfile
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
-from apps.leasing.models import LeaseRequest, Company
+from apps.leasing.models import LeaseRequest
 
 
 class RoleCRUDTest(TestCase):

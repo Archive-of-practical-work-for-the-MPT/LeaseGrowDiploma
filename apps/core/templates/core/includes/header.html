@@ -13,6 +13,10 @@
                 {% if is_manager %}
                 <a href="{% url 'manager:chat' %}">Чат</a>
                 <a href="{% url 'manager:statistics' %}">Статистика</a>
+                {% elif is_admin %}
+                <a href="{% url 'manager:chat' %}">Чат</a>
+                {% elif current_account %}
+                <a href="{% url 'chat:list' %}">Чат</a>
                 {% endif %}
                 <a href="{% url 'accounts:profile' %}">Профиль</a>
                 <a href="{% url 'accounts:logout' %}">Выйти</a>

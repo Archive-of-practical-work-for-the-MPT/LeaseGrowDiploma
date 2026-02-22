@@ -30,6 +30,110 @@
     padding: 2rem 1.5rem 4rem;
 }
 
+/* Поиск и фильтры */
+.leasing-filters {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+}
+
+.leasing-search {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.leasing-search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+}
+
+.leasing-search-input:focus {
+    outline: none;
+    border-color: var(--green-500);
+}
+
+.leasing-search-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--green-500);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.leasing-search-btn:hover {
+    background: var(--green-600);
+}
+
+.leasing-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.leasing-filter-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.leasing-filter-label span {
+    font-weight: 500;
+}
+
+.leasing-select {
+    padding: 0.6rem 1rem;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    min-width: 180px;
+}
+
+.leasing-filter-apply {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--green-500);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.leasing-filter-apply:hover {
+    background: var(--green-600);
+}
+
+.leasing-reset {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.leasing-reset:hover {
+    color: var(--green-600);
+}
+
 .leasing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

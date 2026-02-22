@@ -9,6 +9,22 @@ from apps.accounts.views import get_current_account
 from .models import LeaseRequest, ChatMessage
 
 
+def chat_list(request):
+    """Список чатов клиента по заявкам на лизинг."""
+    account = get_current_account(request)
+    if not account:
+        messages.error(request, 'Войдите в систему.')
+        return redirect('accounts:login')
+    if account.role and account.role.name in ('manager', 'admin'):
+        return redirect('manager:chat')
+    lease_requests = LeaseRequest.objects.filter(
+        account=account
+    ).select_related('equipment', 'equipment__category').order_by('-created_at')
+    return render(request, 'leasing/chat_list.html', {
+        'lease_requests': lease_requests,
+    })
+
+
 def _can_access_chat(account, lease_request):
     """Проверка доступа: владелец заявки или менеджер."""
     if not account:
@@ -91,7 +107,8 @@ def chat_thread(request, request_id):
                 })
             return redirect('chat:thread', request_id=lease_req.id)
 
-    messages_list = lease_req.messages.select_related('sender', 'sender__profile').all()
+    messages_list = lease_req.messages.select_related(
+        'sender', 'sender__profile').all()
     is_manager = account.role and account.role.name in ('manager', 'admin')
 
     return render(request, 'leasing/chat_thread.html', {

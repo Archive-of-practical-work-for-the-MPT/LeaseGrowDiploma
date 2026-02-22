@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Q
 
-from apps.catalog.models import Equipment
+from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
 from apps.leasing.models import LeaseRequest
 from apps.accounts.views import get_current_account
 
@@ -11,10 +12,52 @@ def home(request):
 
 
 def leasing(request):
-    """Страница лизинга — каталог доступной техники."""
-    equipment_list = Equipment.objects.filter(
-        status='available'
-    ).select_related('category', 'manufacturer').order_by('category__name', 'name')
+    """Страница лизинга — каталог доступной техники с поиском и фильтрами."""
+    qs = Equipment.objects.filter(status='available').select_related('category', 'manufacturer')
+
+    q = (request.GET.get('q') or '').strip()
+    category_id = None
+    manufacturer_id = None
+    try:
+        cid = request.GET.get('category')
+        if cid:
+            category_id = int(cid)
+    except (ValueError, TypeError):
+        pass
+    try:
+        mid = request.GET.get('manufacturer')
+        if mid:
+            manufacturer_id = int(mid)
+    except (ValueError, TypeError):
+        pass
+    sort = request.GET.get('sort', 'name')
+
+    if q:
+        qs = qs.filter(
+            Q(name__icontains=q) | Q(model__icontains=q) | Q(category__name__icontains=q)
+        )
+    if category_id:
+        qs = qs.filter(category_id=category_id)
+    if manufacturer_id:
+        qs = qs.filter(manufacturer_id=manufacturer_id)
+
+    if sort == 'price':
+        qs = qs.order_by('price')
+    elif sort == 'price_desc':
+        qs = qs.order_by('-price')
+    elif sort == 'rate':
+        qs = qs.order_by('monthly_lease_rate')
+    else:
+        qs = qs.order_by('category__name', 'name')
+
+    equipment_list = qs
+
+    categories = EquipmentCategory.objects.filter(
+        equipment__status='available'
+    ).distinct().order_by('name')
+    manufacturers = Manufacturer.objects.filter(
+        equipment__status='available'
+    ).distinct().order_by('name')
 
     account = get_current_account(request)
     my_requests = []
@@ -34,6 +77,12 @@ def leasing(request):
         'my_requests': my_requests,
         'pending_equipment_ids': pending_equipment_ids,
         'current_account': account,
+        'categories': categories,
+        'manufacturers': manufacturers,
+        'search_q': q,
+        'filter_category_id': category_id,
+        'filter_manufacturer_id': manufacturer_id,
+        'sort': sort,
     })
 
 

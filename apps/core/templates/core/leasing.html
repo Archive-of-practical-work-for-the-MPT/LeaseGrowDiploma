@@ -15,6 +15,46 @@
 </section>
 
 <div class="leasing-section">
+    <form method="get" action="{% url 'core:leasing' %}" class="leasing-filters">
+        <div class="leasing-search">
+            <input type="search" name="q" value="{{ search_q }}" placeholder="Поиск по названию, модели..." class="leasing-search-input">
+            <button type="submit" class="leasing-search-btn">Найти</button>
+        </div>
+        <div class="leasing-filter-row">
+            <label class="leasing-filter-label">
+                <span>Категория</span>
+                <select name="category" class="leasing-select">
+                    <option value="">Все категории</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if filter_category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="leasing-filter-label">
+                <span>Производитель</span>
+                <select name="manufacturer" class="leasing-select">
+                    <option value="">Все производители</option>
+                    {% for m in manufacturers %}
+                    <option value="{{ m.id }}" {% if filter_manufacturer_id == m.id %}selected{% endif %}>{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="leasing-filter-label">
+                <span>Сортировка</span>
+                <select name="sort" class="leasing-select">
+                    <option value="name" {% if sort == "name" %}selected{% endif %}>По названию</option>
+                    <option value="price" {% if sort == "price" %}selected{% endif %}>Цена: по возрастанию</option>
+                    <option value="price_desc" {% if sort == "price_desc" %}selected{% endif %}>Цена: по убыванию</option>
+                    <option value="rate" {% if sort == "rate" %}selected{% endif %}>По плате в месяц</option>
+                </select>
+            </label>
+            <button type="submit" class="leasing-filter-apply">Применить</button>
+        </div>
+        {% if search_q or filter_category_id or filter_manufacturer_id %}
+        <a href="{% url 'core:leasing' %}" class="leasing-reset">Сбросить фильтры</a>
+        {% endif %}
+    </form>
+
     {% if equipment_list %}
     <div class="leasing-grid">
         {% for eq in equipment_list %}

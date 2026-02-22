@@ -38,9 +38,9 @@
         </div>
     </div>
 
-    <div class="chat-messages">
+    <div class="chat-messages" id="chat-messages">
         {% for msg in messages_list %}
-        <div class="msg {% if msg.sender_id == current_account.id %}sent{% else %}received{% endif %}">
+        <div class="msg {% if msg.sender_id == current_account.id %}sent{% else %}received{% endif %}" data-msg-id="{{ msg.id }}">
             <div class="msg-meta">
                 {% if msg.sender.profile %}{{ msg.sender.profile.first_name }}{% else %}{{ msg.sender.username }}{% endif %}
                 · {{ msg.created_at|date:"d.m.Y H:i" }}
@@ -48,13 +48,13 @@
             {{ msg.text }}
         </div>
         {% empty %}
-        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Пока нет сообщений. Напишите первым.</p>
+        <p class="chat-empty" style="color: var(--text-muted); text-align: center; padding: 2rem;">Пока нет сообщений. Напишите первым.</p>
         {% endfor %}
     </div>
 
-    <form method="post" action="{% url 'chat:thread' lease_request.id %}" class="chat-form">
+    <form method="post" action="{% url 'chat:thread' lease_request.id %}" class="chat-form" id="chat-form">
         {% csrf_token %}
-        <input type="text" name="text" placeholder="Введите сообщение..." required autocomplete="off">
+        <input type="text" name="text" id="chat-input" placeholder="Введите сообщение..." required autocomplete="off">
         <button type="submit">Отправить</button>
     </form>
 
@@ -76,4 +76,66 @@
 
     <a href="{% if is_manager %}{% url 'manager:chat' %}{% else %}{% url 'core:leasing' %}{% endif %}" class="back-link">← Назад</a>
 </div>
+
+<script>
+(function() {
+    const requestId = {{ lease_request.id }};
+    const currentAccountId = {{ current_account.id }};
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const messagesContainer = document.getElementById('chat-messages');
+
+    function addMessage(msg, isSent) {
+        if (messagesContainer.querySelector('[data-msg-id="' + msg.id + '"]')) return;
+        const emptyEl = messagesContainer.querySelector('.chat-empty');
+        if (emptyEl) emptyEl.remove();
+        const div = document.createElement('div');
+        div.className = 'msg ' + (isSent ? 'sent' : 'received');
+        div.dataset.msgId = msg.id;
+        div.innerHTML = '<div class="msg-meta">' + (msg.sender_name || '') + ' · ' + msg.created_at + '</div>' + (msg.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        const fd = new FormData(form);
+        fd.set('text', text);
+        fetch(form.action, {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        }).then(function(r) {
+            return r.json();
+        }).then(function(data) {
+            if (data.ok && data.message) {
+                input.value = '';
+                addMessage(data.message, true);
+            } else {
+                window.location.reload();
+            }
+        }).catch(function() {
+            window.location.reload();
+        }).finally(function() {
+            btn.disabled = false;
+        });
+    });
+
+    const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = wsProto + '//' + window.location.host + '/ws/chat/' + requestId + '/';
+    const ws = new WebSocket(wsUrl);
+    ws.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            addMessage(data, data.sender_id === currentAccountId);
+        } catch (e) {}
+    };
+    ws.onclose = function() {};
+})();
+</script>
 {% endblock %}

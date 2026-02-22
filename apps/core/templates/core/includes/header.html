@@ -12,6 +12,7 @@
                 {% endif %}
                 {% if is_manager %}
                 <a href="{% url 'manager:chat' %}">Чат</a>
+                <a href="{% url 'manager:statistics' %}">Статистика</a>
                 {% endif %}
                 <a href="{% url 'accounts:profile' %}">Профиль</a>
                 <a href="{% url 'accounts:logout' %}">Выйти</a>

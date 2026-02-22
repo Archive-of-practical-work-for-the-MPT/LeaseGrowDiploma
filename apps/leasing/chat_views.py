@@ -1,6 +1,9 @@
 """Чат по заявке на лизинг — доступен клиенту и менеджеру."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from apps.accounts.views import get_current_account
 from .models import LeaseRequest, ChatMessage
@@ -52,11 +55,40 @@ def chat_thread(request, request_id):
 
         text = (request.POST.get('text', '') or '').strip()
         if text:
-            ChatMessage.objects.create(
+            msg = ChatMessage.objects.create(
                 lease_request=lease_req,
                 sender=account,
                 text=text,
             )
+            try:
+                sender_name = account.profile.first_name or account.username
+            except Exception:
+                sender_name = account.username
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'chat_{lease_req.id}',
+                {
+                    'type': 'chat_message',
+                    'data': {
+                        'id': msg.id,
+                        'text': msg.text,
+                        'sender_id': account.id,
+                        'sender_name': sender_name,
+                        'created_at': msg.created_at.strftime('%d.%m.%Y %H:%M'),
+                    },
+                },
+            )
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'ok': True,
+                    'message': {
+                        'id': msg.id,
+                        'text': msg.text,
+                        'sender_id': account.id,
+                        'sender_name': sender_name,
+                        'created_at': msg.created_at.strftime('%d.%m.%Y %H:%M'),
+                    },
+                })
             return redirect('chat:thread', request_id=lease_req.id)
 
     messages_list = lease_req.messages.select_related('sender', 'sender__profile').all()

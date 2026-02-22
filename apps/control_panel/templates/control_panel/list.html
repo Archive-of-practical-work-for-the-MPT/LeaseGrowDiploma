@@ -23,10 +23,18 @@
     <table class="console-table" id="list-table">
         <thead>
             <tr>
-                <th class="col-id">#</th>
-                <th class="col-brief">Объект</th>
+                <th class="col-id sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir pk_name %}" class="sort-link">#</a>
+                    <span class="sort-arrow">{% if sort_by == pk_name %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
+                <th class="col-brief sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir pk_name %}" class="sort-link">Объект</a>
+                </th>
                 {% for name, verbose in full_fields %}
-                <th class="col-full col-hidden">{{ verbose }}</th>
+                <th class="col-full col-hidden sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir name %}" class="sort-link">{{ verbose }}</a>
+                    <span class="sort-arrow">{% if sort_by == name %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
                 {% endfor %}
                 <th class="col-actions">Действия</th>
             </tr>

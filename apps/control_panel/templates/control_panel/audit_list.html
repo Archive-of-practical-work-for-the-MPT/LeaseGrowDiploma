@@ -19,15 +19,33 @@
     <table class="console-table">
         <thead>
             <tr>
-                <th>#</th>
-                <th>action</th>
-                <th>table_name</th>
-                <th title="Идентификатор изменённой записи в таблице">record_id (ID записи)</th>
+                <th class="sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'id' %}" class="sort-link">#</a>
+                    <span class="sort-arrow">{% if sort_by == 'id' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
+                <th class="sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'action' %}" class="sort-link">action</a>
+                    <span class="sort-arrow">{% if sort_by == 'action' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
+                <th class="sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'table_name' %}" class="sort-link">table_name</a>
+                    <span class="sort-arrow">{% if sort_by == 'table_name' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
+                <th class="sortable" title="Идентификатор изменённой записи в таблице">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'record_id' %}" class="sort-link">record_id (ID записи)</a>
+                    <span class="sort-arrow">{% if sort_by == 'record_id' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
                 <th>old_values</th>
                 <th>new_values</th>
                 <th>changed_fields</th>
-                <th>performed_by</th>
-                <th>performed_at</th>
+                <th class="sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'performed_by_id' %}" class="sort-link">performed_by</a>
+                    <span class="sort-arrow">{% if sort_by == 'performed_by_id' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
+                <th class="sortable">
+                    <a href="?{% sort_url query_string sort_by sort_dir 'performed_at' %}" class="sort-link">performed_at</a>
+                    <span class="sort-arrow">{% if sort_by == 'performed_at' %}{% if sort_dir == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</span>
+                </th>
             </tr>
         </thead>
         <tbody>

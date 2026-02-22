@@ -61,6 +61,23 @@ class DashboardView(AdminOrManagerRequiredMixin, View):
         })
 
 
+def _get_order_field(model, field_name):
+    """
+    Возвращает имя поля для order_by. Для FK использует _id.
+    Возвращает None, если поле не существует.
+    """
+    pk_name = model._meta.pk.name
+    if field_name == 'id' or field_name == pk_name:
+        return pk_name
+    try:
+        f = model._meta.get_field(field_name)
+        if f.get_internal_type() == 'ForeignKey':
+            return f'{field_name}_id'
+        return field_name
+    except Exception:
+        return None
+
+
 def _build_search_filter(model, q):
     """Строит Q-фильтр для поиска по текстовым полям и pk модели."""
     if not q or not q.strip():
@@ -91,6 +108,14 @@ def _make_list_view(model, model_key, title, form_class=None):
             q = self.request.GET.get('q', '').strip()
             if q:
                 qs = qs.filter(_build_search_filter(_model, q))
+            pk_name = _model._meta.pk.name
+            sort_by = self.request.GET.get('sort_by', pk_name)
+            sort_dir = self.request.GET.get('sort_dir', 'asc')
+            order_field = _get_order_field(_model, sort_by)
+            if order_field:
+                qs = qs.order_by(
+                    ('-' if sort_dir == 'desc' else '') + order_field
+                )
             return qs
 
         def get_context_data(self, **kwargs):
@@ -101,12 +126,16 @@ def _make_list_view(model, model_key, title, form_class=None):
             ctx['edit_url_name'] = f'control_panel:{_model_key}_edit'
             ctx['delete_url_name'] = f'control_panel:{_model_key}_delete'
             pk_name = _model._meta.pk.name
-            ctx['full_fields'] = [
+            full_fields = [
                 (f.name, f.verbose_name or f.name)
                 for f in _model._meta.fields
                 if f.name != pk_name
             ]
+            ctx['full_fields'] = full_fields
+            ctx['pk_name'] = pk_name
             ctx['search_q'] = self.request.GET.get('q', '')
+            ctx['sort_by'] = self.request.GET.get('sort_by', pk_name)
+            ctx['sort_dir'] = self.request.GET.get('sort_dir', 'asc')
             get_copy = self.request.GET.copy()
             get_copy.pop('page', None)
             ctx['query_string'] = get_copy.urlencode()
@@ -431,19 +460,29 @@ class AuditLogListView(AdminOrManagerRequiredMixin, ListView):
     template_name = 'control_panel/audit_list.html'
     context_object_name = 'items'
     paginate_by = 10
-    ordering = ['-performed_at']
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = AuditLog.objects.all()
         q = self.request.GET.get('q', '').strip()
         if q:
             qs = qs.filter(_build_search_filter(AuditLog, q))
+        sort_by = self.request.GET.get('sort_by', 'performed_at')
+        sort_dir = self.request.GET.get('sort_dir', 'desc')
+        allowed = {'id', 'action', 'table_name', 'record_id', 'performed_by_id',
+                   'performed_at'}
+        if sort_by in allowed:
+            prefix = '-' if sort_dir == 'desc' else ''
+            qs = qs.order_by(prefix + sort_by)
+        else:
+            qs = qs.order_by('-performed_at')
         return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = 'Журнал аудита'
         ctx['search_q'] = self.request.GET.get('q', '')
+        ctx['sort_by'] = self.request.GET.get('sort_by', 'performed_at')
+        ctx['sort_dir'] = self.request.GET.get('sort_dir', 'desc')
         get_copy = self.request.GET.copy()
         get_copy.pop('page', None)
         ctx['query_string'] = get_copy.urlencode()

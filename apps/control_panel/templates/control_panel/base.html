@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="console-root">
+<div class="console-root{% if request.resolver_match.url_name == 'audit_list' %} view-mode-full{% endif %}">
     <div class="console-card" style="margin-bottom: 1.25rem;">
         <div class="console-title">Консоль данных</div>
         <div class="console-subtitle">

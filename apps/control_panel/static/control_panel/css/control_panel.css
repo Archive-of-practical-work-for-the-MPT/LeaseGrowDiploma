@@ -228,6 +228,24 @@ table.console-table th {
     white-space: nowrap;
 }
 
+table.console-table th.sortable {
+    cursor: pointer;
+}
+
+table.console-table th.sortable .sort-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+table.console-table th.sortable .sort-link:hover {
+    color: var(--green-600);
+}
+
+table.console-table th .sort-arrow {
+    margin-left: 0.2em;
+    color: var(--green-600);
+}
+
 table.console-table tbody tr:hover {
     background: var(--green-25);
 }

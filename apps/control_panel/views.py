@@ -13,6 +13,7 @@ from apps.leasing.models import (
     MaintenanceRequest,
 )
 from apps.core.models import AuditLog
+from apps.core.audit_utils import log_audit, model_instance_to_dict
 
 from .mixins import AdminOrManagerRequiredMixin
 from .forms import (
@@ -129,6 +130,17 @@ def _make_create_view(model, model_key, title, form_class):
             ctx['submit_label'] = 'Создать'
             return ctx
 
+        def form_valid(self, form):
+            response = super().form_valid(form)
+            log_audit(
+                action='INSERT',
+                table_name=_model._meta.db_table,
+                record_id=self.object.pk,
+                request=self.request,
+                new_values=model_instance_to_dict(self.object),
+            )
+            return response
+
         def get_success_url(self):
             messages.success(self.request, 'Запись создана.')
             return reverse(f'control_panel:{_model_key}_list')
@@ -154,6 +166,25 @@ def _make_update_view(model, model_key, title, form_class):
             ctx['delete_url'] = f'control_panel:{_model_key}_delete'
             return ctx
 
+        def form_valid(self, form):
+            old_values = model_instance_to_dict(
+                _model.objects.get(pk=self.object.pk)
+            )
+            response = super().form_valid(form)
+            self.object.refresh_from_db()
+            new_values = model_instance_to_dict(self.object)
+            changed = [k for k in new_values if old_values.get(k) != new_values.get(k)]
+            log_audit(
+                action='UPDATE',
+                table_name=_model._meta.db_table,
+                record_id=self.object.pk,
+                request=self.request,
+                old_values=old_values,
+                new_values=new_values,
+                changed_fields=changed,
+            )
+            return response
+
         def get_success_url(self):
             messages.success(self.request, 'Изменения сохранены.')
             return reverse(f'control_panel:{_model_key}_list')
@@ -166,7 +197,16 @@ def _make_delete_view(model, model_key, title):
     class V(AdminOrManagerRequiredMixin, View):
         def post(self, request, pk):
             obj = get_object_or_404(_model, pk=pk)
+            old_values = model_instance_to_dict(obj)
+            record_id = obj.pk
             obj.delete()
+            log_audit(
+                action='DELETE',
+                table_name=_model._meta.db_table,
+                record_id=record_id,
+                request=request,
+                old_values=old_values,
+            )
             messages.success(request, 'Запись удалена.')
             return redirect(f'control_panel:{_model_key}_list')
     return V

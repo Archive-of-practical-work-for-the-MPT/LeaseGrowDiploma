@@ -201,9 +201,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
     new_values JSONB,
     changed_fields JSONB DEFAULT '[]',
     performed_by_id BIGINT REFERENCES account(id) ON DELETE SET NULL,
-    performed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    ip_address INET,
-    user_agent TEXT DEFAULT ''
+    performed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_audit_table_record ON audit_log(table_name, record_id);

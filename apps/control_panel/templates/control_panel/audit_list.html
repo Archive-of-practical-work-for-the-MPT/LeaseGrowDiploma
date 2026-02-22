@@ -1,4 +1,5 @@
 {% extends 'control_panel/base.html' %}
+{% load control_panel_extras %}
 
 {% block control_content %}
 <div class="console-main-header">
@@ -19,11 +20,14 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>Действие</th>
-                <th>Таблица</th>
-                <th>ID записи</th>
-                <th>Пользователь</th>
-                <th>Дата</th>
+                <th>action</th>
+                <th>table_name</th>
+                <th title="Идентификатор изменённой записи в таблице">record_id (ID записи)</th>
+                <th>old_values</th>
+                <th>new_values</th>
+                <th>changed_fields</th>
+                <th>performed_by</th>
+                <th>performed_at</th>
             </tr>
         </thead>
         <tbody>
@@ -33,12 +37,15 @@
                 <td>{{ item.action }}</td>
                 <td>{{ item.table_name }}</td>
                 <td>{{ item.record_id }}</td>
+                <td><div class="audit-json-scroll audit-json-expand" tabindex="0" role="button" data-label="old_values" title="Нажмите для просмотра полностью"><pre class="audit-json">{{ item.old_values|json_dump|default:"—" }}</pre></div></td>
+                <td><div class="audit-json-scroll audit-json-expand" tabindex="0" role="button" data-label="new_values" title="Нажмите для просмотра полностью"><pre class="audit-json">{{ item.new_values|json_dump|default:"—" }}</pre></div></td>
+                <td>{% if item.changed_fields %}{{ item.changed_fields|join:", " }}{% else %}—{% endif %}</td>
                 <td>{{ item.performed_by|default:"—" }}</td>
                 <td>{{ item.performed_at|date:"d.m.Y H:i" }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6">
+                <td colspan="9">
                     <div class="console-table-empty">Записей нет</div>
                 </td>
             </tr>
@@ -71,4 +78,60 @@
     </div>
 </nav>
 {% endif %}
+
+<div id="audit-json-modal" class="audit-json-modal" aria-hidden="true">
+    <div class="audit-json-modal-backdrop"></div>
+    <div class="audit-json-modal-box">
+        <div class="audit-json-modal-header">
+            <span id="audit-json-modal-title">JSON</span>
+            <button type="button" class="audit-json-modal-close" aria-label="Закрыть">&times;</button>
+        </div>
+        <pre id="audit-json-modal-content" class="audit-json-modal-content"></pre>
+    </div>
+</div>
+
+<script>
+(function() {
+    var modal = document.getElementById('audit-json-modal');
+    var content = document.getElementById('audit-json-modal-content');
+    var title = document.getElementById('audit-json-modal-title');
+    var closeBtn = modal && modal.querySelector('.audit-json-modal-close');
+    var backdrop = modal && modal.querySelector('.audit-json-modal-backdrop');
+
+    function openModal(el) {
+        if (!modal || !content) return;
+        var pre = el && el.querySelector('.audit-json');
+        var label = el && el.getAttribute('data-label');
+        content.textContent = pre ? pre.textContent : '';
+        title.textContent = label || 'JSON';
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        if (!modal) return;
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('click', function(e) {
+        var expand = e.target.closest('.audit-json-expand');
+        if (expand) {
+            e.preventDefault();
+            openModal(expand);
+        }
+        if (e.target === backdrop || e.target === closeBtn) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+})();
+</script>
 {% endblock %}

@@ -1,6 +1,19 @@
+import json
+
 from django import template
 
 register = template.Library()
+
+
+@register.filter
+def json_dump(value):
+    """Сериализует значение в JSON-строку для отображения."""
+    if value is None:
+        return ''
+    try:
+        return json.dumps(value, ensure_ascii=False, indent=2)
+    except (TypeError, ValueError):
+        return str(value)
 
 
 @register.filter

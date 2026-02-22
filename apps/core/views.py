@@ -71,3 +71,13 @@ def leasing_request_create(request, equipment_id):
 
 def privacy(request):
     return render(request, 'core/privacy.html')
+
+
+def page_not_found(request, exception=None):
+    """Кастомная страница 404."""
+    return render(request, '404.html', status=404)
+
+
+def page_404_preview(request):
+    """Предпросмотр страницы 404 (для проверки в режиме DEBUG=True)."""
+    return render(request, '404.html')

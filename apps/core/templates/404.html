@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Страница не найдена — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/404.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="error-hero">
+    <div class="error-hero-inner">
+        <div class="error-code">404</div>
+        <span class="error-badge">Страница не найдена</span>
+        <h1>Здесь ничего не растёт</h1>
+        <p class="error-subtitle">Скорее всего, страница была перемещена или вы перешли по неверной ссылке. Возвращайтесь на главную — там вас ждёт наша техника.</p>
+        <div class="error-actions">
+            <a href="{% url 'core:home' %}" class="btn-error-primary">На главную</a>
+            <a href="{% url 'core:leasing' %}" class="btn-error-secondary">В каталог лизинга</a>
+        </div>
+        <div class="error-illustration" aria-hidden="true">
+            <span class="err-icon">🌾</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

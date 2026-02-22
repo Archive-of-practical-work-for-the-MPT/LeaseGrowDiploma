@@ -4,6 +4,8 @@
 from django.contrib import admin
 from django.urls import path, include
 
+handler404 = 'apps.core.views.page_not_found'
+
 urlpatterns = [
     path('', include('apps.core.urls')),
     path('', include('apps.accounts.urls')),

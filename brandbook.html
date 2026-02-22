@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeaseGrow — Брендбук</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --text: #0a0f0c;
+            --text-muted: #4b6b55;
+            --radius: 16px;
+            --radius-lg: 24px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: #fff;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .intro {
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #bbf7d0;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+        }
+        .logo span { color: var(--green-500); }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        .color-swatch {
+            text-align: center;
+        }
+        .color-swatch > div {
+            height: 80px;
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        .color-swatch span { font-size: 0.75rem; color: var(--text-muted); }
+        .palette-block { margin-bottom: 2rem; }
+        .palette-block h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #1a2e1f; }
+        .palette-light {
+            background: #f7fef9;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
+        .palette-dark {
+            background: #1c1c1c;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .palette-dark .color-swatch span { color: #888; }
+        .palette-dark .color-swatch > div { border-color: rgba(255,255,255,0.1); }
+        .palette-dark h3 { color: #b8b8b8; }
+    </style>
+</head>
+<body>
+    <div class="logo" style="margin-bottom: 1.5rem;">Lease<span>Grow</span></div>
+    <p class="intro">Брендбук LeaseGrow — руководство по визуальному стилю бренда. Документ содержит логотип и цветовые палитры для светлой и тёмной тем, используемые на сайте лизинга сельскохозяйственной техники. Палитры включают основные зелёные оттенки бренда, цвета текста и фона — для единообразного оформления интерфейса и материалов.</p>
+
+    <h2>Логотип</h2>
+    <p style="margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text-muted);">Слово «Grow» выделяется green-500 (#22c55e). Шрифт Outfit, жирность 700.</p>
+    <div class="logo">Lease<span>Grow</span></div>
+
+    <h2>Светлая тема</h2>
+    <div class="palette-block palette-light">
+        <div class="color-grid">
+            <div class="color-swatch">
+                <div style="background: #16a34a;"></div>
+                <span>green-600<br>#16a34a</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #22c55e;"></div>
+                <span>green-500<br>#22c55e</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #4ade80;"></div>
+                <span>green-400<br>#4ade80</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #86efac;"></div>
+                <span>green-300<br>#86efac</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #bbf7d0;"></div>
+                <span>green-200<br>#bbf7d0</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #dcfce7;"></div>
+                <span>green-100<br>#dcfce7</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #f0fdf4;"></div>
+                <span>green-50<br>#f0fdf4</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #f7fef9;"></div>
+                <span>green-25<br>#f7fef9</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #0a0f0c;"></div>
+                <span>text<br>#0a0f0c</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #4b6b55;"></div>
+                <span>text-muted<br>#4b6b55</span>
+            </div>
+        </div>
+    </div>
+
+    <h2>Тёмная тема</h2>
+    <div class="palette-block palette-dark">
+        <div class="color-grid">
+            <div class="color-swatch">
+                <div style="background: #1c1c1c;"></div>
+                <span>bg<br>#1c1c1c</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #252525;"></div>
+                <span>bg-elevated<br>#252525</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #f0f0f0;"></div>
+                <span>text<br>#f0f0f0</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #b8b8b8;"></div>
+                <span>text-secondary<br>#b8b8b8</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #888888;"></div>
+                <span>text-muted<br>#888888</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #152518;"></div>
+                <span>green-25<br>#152518</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #1a2e20;"></div>
+                <span>green-50<br>#1a2e20</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #1e3d25;"></div>
+                <span>green-100<br>#1e3d25</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #2a4d35;"></div>
+                <span>green-200<br>#2a4d35</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #22c55e;"></div>
+                <span>green-500<br>#22c55e</span>
+            </div>
+            <div class="color-swatch">
+                <div style="background: #4ade80;"></div>
+                <span>green-400<br>#4ade80</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

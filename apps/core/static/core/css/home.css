@@ -80,10 +80,6 @@
     box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
 }
 
-.hero .btn::after {
-    content: '→';
-    font-weight: 600;
-}
 
 .section {
     max-width: 1200px;

@@ -73,6 +73,10 @@ def privacy(request):
     return render(request, 'core/privacy.html')
 
 
+def about(request):
+    return render(request, 'core/about.html')
+
+
 def page_not_found(request, exception=None):
     """Кастомная страница 404."""
     return render(request, '404.html', status=404)

@@ -5,6 +5,7 @@
             <nav class="nav">
                 <a href="{% url 'core:home' %}">Главная</a>
                 <a href="{% url 'core:leasing' %}">Лизинг</a>
+                <a href="{% url 'core:about' %}">О компании</a>
                 {% if current_account %}
                 {% if is_admin or is_manager %}
                 <a href="{% url 'control_panel:dashboard' %}">Панель управления</a>

@@ -15,6 +15,7 @@ from apps.leasing.models import (
 class RoleForm(forms.ModelForm):
     permissions = forms.CharField(
         required=False,
+        label='Права доступа',
         widget=forms.Textarea(attrs={
             'class': 'form-input', 'rows': 2,
             'placeholder': '["all"] или ["contracts","companies"]',
@@ -24,6 +25,10 @@ class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
         fields = ['name', 'description', 'permissions']
+        labels = {
+            'name': 'Название',
+            'description': 'Описание',
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,6 +59,13 @@ class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ['email', 'username', 'role', 'is_active', 'is_verified']
+        labels = {
+            'email': 'Email',
+            'username': 'Логин',
+            'role': 'Роль',
+            'is_active': 'Активен',
+            'is_verified': 'Подтверждён',
+        }
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
             'username': forms.TextInput(attrs={'class': 'form-input'}),
@@ -85,6 +97,15 @@ class UserProfileForm(forms.ModelForm):
             'account', 'first_name', 'last_name', 'phone',
             'avatar_url', 'birth_date', 'preferred_language',
         ]
+        labels = {
+            'account': 'Аккаунт',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'phone': 'Телефон',
+            'avatar_url': 'URL аватара',
+            'birth_date': 'Дата рождения',
+            'preferred_language': 'Язык интерфейса',
+        }
         widgets = {
             'account': forms.Select(attrs={'class': 'form-select'}),
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
@@ -102,6 +123,7 @@ class AccountTokenForm(forms.ModelForm):
     class Meta:
         model = AccountToken
         fields = ['account']
+        labels = {'account': 'Аккаунт'}
         widgets = {'account': forms.Select(attrs={'class': 'form-select'})}
 
     def save(self, commit=True):
@@ -117,6 +139,12 @@ class EquipmentCategoryForm(forms.ModelForm):
     class Meta:
         model = EquipmentCategory
         fields = ['name', 'parent', 'description', 'icon_url']
+        labels = {
+            'name': 'Название',
+            'parent': 'Родительская категория',
+            'description': 'Описание',
+            'icon_url': 'URL иконки',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'parent': forms.Select(attrs={'class': 'form-select'}),
@@ -129,6 +157,13 @@ class ManufacturerForm(forms.ModelForm):
     class Meta:
         model = Manufacturer
         fields = ['name', 'country', 'website', 'description', 'logo_url']
+        labels = {
+            'name': 'Название',
+            'country': 'Страна',
+            'website': 'Сайт',
+            'description': 'Описание',
+            'logo_url': 'URL логотипа',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'country': forms.TextInput(attrs={'class': 'form-input'}),
@@ -146,6 +181,22 @@ class EquipmentForm(forms.ModelForm):
             'year', 'vin', 'condition', 'status', 'price', 'residual_value',
             'monthly_lease_rate', 'location', 'images_urls',
         ]
+        labels = {
+            'name': 'Название',
+            'model': 'Модель',
+            'category': 'Категория',
+            'manufacturer': 'Производитель',
+            'specifications': 'Характеристики',
+            'year': 'Год выпуска',
+            'vin': 'VIN',
+            'condition': 'Состояние',
+            'status': 'Статус',
+            'price': 'Цена',
+            'residual_value': 'Остаточная стоимость',
+            'monthly_lease_rate': 'Платёж в месяц',
+            'location': 'Местоположение',
+            'images_urls': 'URL изображений',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'model': forms.TextInput(attrs={'class': 'form-input'}),
@@ -196,6 +247,20 @@ class CompanyForm(forms.ModelForm):
             'legal_address', 'actual_address', 'phone', 'email',
             'bank_details', 'status', 'account',
         ]
+        labels = {
+            'name': 'Название',
+            'legal_name': 'Юридическое название',
+            'inn': 'ИНН',
+            'kpp': 'КПП',
+            'ogrn': 'ОГРН',
+            'legal_address': 'Юридический адрес',
+            'actual_address': 'Фактический адрес',
+            'phone': 'Телефон',
+            'email': 'Email',
+            'bank_details': 'Банковские реквизиты',
+            'status': 'Статус',
+            'account': 'Аккаунт',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'legal_name': forms.TextInput(attrs={'class': 'form-input'}),
@@ -228,6 +293,14 @@ class CompanyContactForm(forms.ModelForm):
     class Meta:
         model = CompanyContact
         fields = ['company', 'full_name', 'position', 'phone', 'email', 'is_main']
+        labels = {
+            'company': 'Компания',
+            'full_name': 'ФИО',
+            'position': 'Должность',
+            'phone': 'Телефон',
+            'email': 'Email',
+            'is_main': 'Основной контакт',
+        }
         widgets = {
             'company': forms.Select(attrs={'class': 'form-select'}),
             'full_name': forms.TextInput(attrs={'class': 'form-input'}),
@@ -247,6 +320,22 @@ class LeaseContractForm(forms.ModelForm):
             'total_amount', 'advance_payment', 'monthly_payment', 'payment_day',
             'status', 'signed_at', 'signed_by', 'created_by',
         ]
+        labels = {
+            'contract_number': 'Номер договора',
+            'company': 'Компания',
+            'equipment': 'Техника',
+            'start_date': 'Дата начала',
+            'end_date': 'Дата окончания',
+            'lease_term_months': 'Срок (мес.)',
+            'total_amount': 'Общая сумма',
+            'advance_payment': 'Авансовый платёж',
+            'monthly_payment': 'Ежемесячный платёж',
+            'payment_day': 'День платежа',
+            'status': 'Статус',
+            'signed_at': 'Дата подписания',
+            'signed_by': 'Подписант',
+            'created_by': 'Создал',
+        }
         widgets = {
             'contract_number': forms.TextInput(attrs={'class': 'form-input'}),
             'company': forms.Select(attrs={'class': 'form-select'}),
@@ -278,6 +367,15 @@ class PaymentScheduleForm(forms.ModelForm):
             'contract', 'payment_number', 'due_date', 'amount',
             'status', 'paid_at', 'penalty_amount',
         ]
+        labels = {
+            'contract': 'Договор',
+            'payment_number': 'Номер платежа',
+            'due_date': 'Срок оплаты',
+            'amount': 'Сумма',
+            'status': 'Статус',
+            'paid_at': 'Дата оплаты',
+            'penalty_amount': 'Штраф',
+        }
         widgets = {
             'contract': forms.Select(attrs={'class': 'form-select'}),
             'payment_number': forms.NumberInput(attrs={'class': 'form-input'}),
@@ -301,6 +399,17 @@ class MaintenanceForm(forms.ModelForm):
             'performed_at', 'next_maintenance_date',
             'service_company', 'documents_urls', 'created_by',
         ]
+        labels = {
+            'equipment': 'Техника',
+            'type': 'Тип обслуживания',
+            'description': 'Описание',
+            'cost': 'Стоимость',
+            'performed_at': 'Дата выполнения',
+            'next_maintenance_date': 'Следующее обслуживание',
+            'service_company': 'Сервисная компания',
+            'documents_urls': 'URL документов',
+            'created_by': 'Создал',
+        }
         widgets = {
             'equipment': forms.Select(attrs={'class': 'form-select'}),
             'type': forms.TextInput(attrs={'class': 'form-input'}),
@@ -337,6 +446,15 @@ class MaintenanceRequestForm(forms.ModelForm):
             'equipment', 'company', 'description', 'urgency',
             'status', 'assigned_to', 'completed_at',
         ]
+        labels = {
+            'equipment': 'Техника',
+            'company': 'Компания',
+            'description': 'Описание',
+            'urgency': 'Срочность',
+            'status': 'Статус',
+            'assigned_to': 'Исполнитель',
+            'completed_at': 'Дата завершения',
+        }
         widgets = {
             'equipment': forms.Select(attrs={'class': 'form-select'}),
             'company': forms.Select(attrs={'class': 'form-select'}),

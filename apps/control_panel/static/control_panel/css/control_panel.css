@@ -295,6 +295,16 @@ table.console-table tbody tr:hover {
     background: #fecaca;
 }
 
+[data-theme="dark"] .btn-xs.danger {
+    background: rgba(185, 28, 28, 0.25);
+    border-color: rgba(248, 113, 113, 0.4);
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .btn-xs.danger:hover {
+    background: rgba(185, 28, 28, 0.4);
+}
+
 .console-form {
     border-radius: var(--radius);
     border: 1px solid var(--border);

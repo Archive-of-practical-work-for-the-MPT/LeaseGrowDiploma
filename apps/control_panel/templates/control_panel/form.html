@@ -4,7 +4,6 @@
 <div class="console-main-header">
     <div>
         <div class="console-main-title">{{ title }}</div>
-        <a href="{% url list_url %}" class="console-back">← К списку</a>
     </div>
     {% if delete_url and obj %}
     <form method="post" action="{% url delete_url obj.pk %}" style="display: inline;" onsubmit="return confirm('Удалить запись? Действие необратимо.');">

@@ -176,18 +176,38 @@ def my_equipment(request):
     ).prefetch_related('payment_schedule').order_by('-start_date')
 
     # Подтверждённые заявки — техника, по которой менеджер подтвердил заявку (договор может быть ещё не создан)
-    confirmed_requests = LeaseRequest.objects.filter(
+    confirmed_requests_qs = LeaseRequest.objects.filter(
         account=account,
         status='confirmed'
     ).select_related('equipment', 'equipment__category', 'equipment__manufacturer').order_by('-updated_at')
 
+    # Есть ли у пользователя техника вообще (до поиска и фильтров) — для отображения поиска и фильтров
+    has_any_equipment = contracts.exists() or confirmed_requests_qs.exists()
+
+    # Поиск
+    search_q = (request.GET.get('q', '') or '').strip()
+    if search_q:
+        contracts = contracts.filter(
+            Q(equipment__name__icontains=search_q)
+            | Q(equipment__model__icontains=search_q)
+            | Q(equipment__category__name__icontains=search_q)
+            | Q(equipment__manufacturer__name__icontains=search_q)
+            | Q(contract_number__icontains=search_q)
+            | Q(company__name__icontains=search_q)
+        )
+        confirmed_requests_qs = confirmed_requests_qs.filter(
+            Q(equipment__name__icontains=search_q)
+            | Q(equipment__model__icontains=search_q)
+            | Q(equipment__category__name__icontains=search_q)
+            | Q(equipment__manufacturer__name__icontains=search_q)
+        )
+
     # Исключаем технику, которая уже есть в договорах (чтобы не дублировать)
     contract_equipment_ids = set(contracts.values_list('equipment_id', flat=True))
-    confirmed_requests = [r for r in confirmed_requests if r.equipment_id not in contract_equipment_ids]
+    confirmed_requests = [r for r in confirmed_requests_qs if r.equipment_id not in contract_equipment_ids]
 
     # Фильтр по статусу
     status_filter = request.GET.get('status', '')
-    has_any_equipment = contracts.exists() or bool(confirmed_requests)
     if status_filter == 'confirmed':
         contracts = contracts.none()
     elif status_filter in ('active', 'completed', 'terminated', 'draft'):
@@ -195,13 +215,12 @@ def my_equipment(request):
 
     if status_filter and status_filter != 'confirmed':
         confirmed_requests = []
-    elif status_filter and status_filter != 'confirmed':
-        pass  # contracts already filtered above
 
     return render(request, 'core/my_equipment.html', {
         'contracts': contracts,
         'confirmed_requests': confirmed_requests,
         'status_filter': status_filter,
+        'search_q': search_q,
         'has_any_equipment': has_any_equipment,
         'current_account': account,
     })

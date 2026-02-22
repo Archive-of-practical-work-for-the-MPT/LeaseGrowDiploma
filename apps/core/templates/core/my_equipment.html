@@ -104,6 +104,11 @@
 .status-filter a:hover, .status-filter a.active {
     background: var(--green-100); border-color: var(--green-500); color: var(--green-600);
 }
+.my-equipment-search { margin-bottom: 1rem; display: flex; flex-wrap: nowrap; align-items: center; gap: 0.5rem; }
+.my-equipment-search input { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; width: 380px; flex-shrink: 0; }
+.my-equipment-search input:focus { outline: none; border-color: var(--green-500); }
+.my-equipment-search button { padding: 0.5rem 1rem; background: var(--green-500); color: #fff; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+.my-equipment-search button:hover { background: var(--green-600); }
 </style>
 {% endblock %}
 
@@ -115,13 +120,18 @@
 
 <div class="my-equipment-section">
     {% if has_any_equipment %}
+    <form method="get" action="{% url 'core:my_equipment' %}" class="my-equipment-search">
+        <input type="search" name="q" value="{{ search_q }}" placeholder="Поиск по технике, модели, номеру договора..." class="form-input">
+        {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+        <button type="submit">Найти</button>
+    </form>
     <div class="status-filter">
-        <a href="{% url 'core:my_equipment' %}" class="{% if not status_filter %}active{% endif %}">Все</a>
-        <a href="?status=active" class="{% if status_filter == 'active' %}active{% endif %}">Действует</a>
-        <a href="?status=completed" class="{% if status_filter == 'completed' %}active{% endif %}">Завершён</a>
-        <a href="?status=terminated" class="{% if status_filter == 'terminated' %}active{% endif %}">Расторгнут</a>
-        <a href="?status=draft" class="{% if status_filter == 'draft' %}active{% endif %}">Черновик</a>
-        <a href="?status=confirmed" class="{% if status_filter == 'confirmed' %}active{% endif %}">Заявка подтверждена</a>
+        <a href="{% url 'core:my_equipment' %}{% if search_q %}?q={{ search_q }}{% endif %}" class="{% if not status_filter %}active{% endif %}">Все</a>
+        <a href="?status=active{% if search_q %}&q={{ search_q }}{% endif %}" class="{% if status_filter == 'active' %}active{% endif %}">Действует</a>
+        <a href="?status=completed{% if search_q %}&q={{ search_q }}{% endif %}" class="{% if status_filter == 'completed' %}active{% endif %}">Завершён</a>
+        <a href="?status=terminated{% if search_q %}&q={{ search_q }}{% endif %}" class="{% if status_filter == 'terminated' %}active{% endif %}">Расторгнут</a>
+        <a href="?status=draft{% if search_q %}&q={{ search_q }}{% endif %}" class="{% if status_filter == 'draft' %}active{% endif %}">Черновик</a>
+        <a href="?status=confirmed{% if search_q %}&q={{ search_q }}{% endif %}" class="{% if status_filter == 'confirmed' %}active{% endif %}">Заявка подтверждена</a>
     </div>
     {% if contracts or confirmed_requests %}
     <div class="leasing-grid">
@@ -180,7 +190,7 @@
     {% else %}
     <div class="my-equipment-empty">
         <p>По выбранному фильтру ничего не найдено.</p>
-        <p style="margin-top: 1rem;"><a href="{% url 'core:my_equipment' %}">Сбросить фильтр</a></p>
+        <p style="margin-top: 1rem;"><a href="{% url 'core:my_equipment' %}">Сбросить фильтр и поиск</a></p>
     </div>
     {% endif %}
     {% else %}

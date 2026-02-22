@@ -31,7 +31,7 @@
                 <dd>{{ contract.equipment.name }} ({{ contract.equipment.model }}){% if contract.equipment.manufacturer %} · {{ contract.equipment.manufacturer.name }}{% endif %}</dd>
 
                 <dt>Арендатор (компания)</dt>
-                <dd>{{ contract.company.name }}{% if contract.company.legal_name %} — {{ contract.company.legal_name }}{% endif %}{% if contract.company.inn %} · ИНН {{ contract.company.inn }}{% endif %}</dd>
+                <dd>{{ contract.company.name }}{% if contract.company.inn %} · ИНН {{ contract.company.inn }}{% endif %}</dd>
 
                 <dt>Период действия</dt>
                 <dd>{{ contract.start_date|date:"d.m.Y" }} — {{ contract.end_date|date:"d.m.Y" }} ({{ contract.lease_term_months }} мес.)</dd>

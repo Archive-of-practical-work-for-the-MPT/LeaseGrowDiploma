@@ -58,20 +58,18 @@ class AccountForm(forms.ModelForm):
 
     class Meta:
         model = Account
-        fields = ['email', 'username', 'role', 'is_active', 'is_verified']
+        fields = ['email', 'username', 'role', 'is_active']
         labels = {
             'email': 'Email',
             'username': 'Логин',
             'role': 'Роль',
             'is_active': 'Активен',
-            'is_verified': 'Подтверждён',
         }
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
             'username': forms.TextInput(attrs={'class': 'form-input'}),
             'role': forms.Select(attrs={'class': 'form-select'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
-            'is_verified': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -95,7 +93,7 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = [
             'account', 'first_name', 'last_name', 'phone',
-            'avatar_url', 'birth_date', 'preferred_language',
+            'avatar_url', 'birth_date',
         ]
         labels = {
             'account': 'Аккаунт',
@@ -104,7 +102,6 @@ class UserProfileForm(forms.ModelForm):
             'phone': 'Телефон',
             'avatar_url': 'URL аватара',
             'birth_date': 'Дата рождения',
-            'preferred_language': 'Язык интерфейса',
         }
         widgets = {
             'account': forms.Select(attrs={'class': 'form-select'}),
@@ -115,7 +112,6 @@ class UserProfileForm(forms.ModelForm):
             'birth_date': forms.DateInput(attrs={
                 'class': 'form-input', 'type': 'date'
             }),
-            'preferred_language': forms.TextInput(attrs={'class': 'form-input'}),
         }
 
 
@@ -204,7 +200,7 @@ class EquipmentForm(forms.ModelForm):
             'manufacturer': forms.Select(attrs={'class': 'form-select'}),
             'specifications': forms.Textarea(attrs={
                 'class': 'form-input', 'rows': 3,
-                'placeholder': '{"power": "150 л.с.", "weight": "5000 кг"}',
+                'placeholder': 'Мощность 370 л.с., дизель, масса 8000 кг',
             }),
             'year': forms.NumberInput(attrs={'class': 'form-input'}),
             'vin': forms.TextInput(attrs={'class': 'form-input'}),
@@ -220,15 +216,6 @@ class EquipmentForm(forms.ModelForm):
             }),
         }
 
-    def clean_specifications(self):
-        val = self.cleaned_data.get('specifications')
-        if isinstance(val, str):
-            try:
-                return json.loads(val) if val.strip() else {}
-            except json.JSONDecodeError:
-                raise forms.ValidationError('Некорректный JSON')
-        return val or {}
-
     def clean_images_urls(self):
         val = self.cleaned_data.get('images_urls')
         if isinstance(val, str):
@@ -243,18 +230,15 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = [
-            'name', 'legal_name', 'inn', 'kpp', 'ogrn',
-            'legal_address', 'actual_address', 'phone', 'email',
+            'name', 'inn', 'ogrn',
+            'address', 'phone', 'email',
             'bank_details', 'status', 'account',
         ]
         labels = {
             'name': 'Название',
-            'legal_name': 'Юридическое название',
             'inn': 'ИНН',
-            'kpp': 'КПП',
             'ogrn': 'ОГРН',
-            'legal_address': 'Юридический адрес',
-            'actual_address': 'Фактический адрес',
+            'address': 'Адрес',
             'phone': 'Телефон',
             'email': 'Email',
             'bank_details': 'Банковские реквизиты',
@@ -263,12 +247,9 @@ class CompanyForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
-            'legal_name': forms.TextInput(attrs={'class': 'form-input'}),
             'inn': forms.TextInput(attrs={'class': 'form-input'}),
-            'kpp': forms.TextInput(attrs={'class': 'form-input'}),
             'ogrn': forms.TextInput(attrs={'class': 'form-input'}),
-            'legal_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
-            'actual_address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
             'phone': forms.TextInput(attrs={'class': 'form-input'}),
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
             'bank_details': forms.Textarea(attrs={

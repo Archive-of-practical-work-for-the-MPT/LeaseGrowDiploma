@@ -1,3 +1,5 @@
+from datetime import date
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -16,9 +18,9 @@ class ClientCompanyForm(forms.Form):
         label='ИНН',
         widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': '1234567890'}),
     )
-    legal_address = forms.CharField(
+    address = forms.CharField(
         required=False,
-        label='Юридический адрес',
+        label='Адрес',
         widget=forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
     )
     phone = forms.CharField(
@@ -228,14 +230,17 @@ class ProfileEditForm(forms.Form):
             'placeholder': '+7 (999) 123-45-67',
         }),
     )
-    current_password = forms.CharField(
+    birth_date = forms.DateField(
         required=False,
-        label='Текущий пароль (для сохранения изменений)',
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Введите пароль для подтверждения',
-            'autocomplete': 'current-password',
-        }),
+        label='Дата рождения',
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(
+            format='%Y-%m-%d',
+            attrs={
+                'class': 'form-input',
+                'type': 'date',
+            },
+        ),
     )
     new_password = forms.CharField(
         required=False,
@@ -282,30 +287,22 @@ class ProfileEditForm(forms.Form):
             raise ValidationError('Этот email уже зарегистрирован.')
         return email
 
+    def clean_birth_date(self):
+        birth_date = self.cleaned_data.get('birth_date')
+        if not birth_date:
+            return birth_date
+        today = date.today()
+        age = today.year - birth_date.year - (
+            (today.month, today.day) < (birth_date.month, birth_date.day)
+        )
+        if age < 18:
+            raise ValidationError('Вам должно быть не менее 18 лет.')
+        return birth_date
+
     def clean(self):
         data = super().clean()
-        current = data.get('current_password')
         new_pwd = data.get('new_password')
         new_pwd_confirm = data.get('new_password_confirm')
-
-        # Текущий пароль нужен только при смене логина, email или пароля
-        needs_password = False
-        if self.account:
-            needs_password = (
-                data.get('username', '').strip() != self.account.username
-                or data.get('email', '').strip().lower() != self.account.email
-                or bool(new_pwd)
-            )
-        if self.account and needs_password:
-            if not current:
-                raise ValidationError({
-                    'current_password': 'Введите текущий пароль для подтверждения изменений.',
-                })
-            from django.contrib.auth.hashers import check_password
-            if not check_password(current, self.account.password_hash):
-                raise ValidationError({
-                    'current_password': 'Неверный текущий пароль.',
-                })
 
         if new_pwd or new_pwd_confirm:
             if new_pwd != new_pwd_confirm:

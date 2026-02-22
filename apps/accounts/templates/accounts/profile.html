@@ -110,11 +110,10 @@
                             {{ form.phone }}
                             {% if form.phone.errors %}<span class="field-error">{{ form.phone.errors.0 }}</span>{% endif %}
                         </div>
-                        <div class="console-field profile-edit-field-full {% if form.current_password.errors %}has-error{% endif %}">
-                            <label for="id_current_password">{{ form.current_password.label }}</label>
-                            {{ form.current_password }}
-                            <span class="console-help">Нужен при смене логина, email или пароля</span>
-                            {% if form.current_password.errors %}<span class="field-error">{{ form.current_password.errors.0 }}</span>{% endif %}
+                        <div class="console-field {% if form.birth_date.errors %}has-error{% endif %}">
+                            <label for="id_birth_date">{{ form.birth_date.label }}</label>
+                            {{ form.birth_date }}
+                            {% if form.birth_date.errors %}<span class="field-error">{{ form.birth_date.errors.0 }}</span>{% endif %}
                         </div>
                         <div class="console-field {% if form.new_password.errors %}has-error{% endif %}">
                             <label for="id_new_password">{{ form.new_password.label }}</label>

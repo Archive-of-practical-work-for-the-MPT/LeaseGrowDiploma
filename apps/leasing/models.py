@@ -11,13 +11,10 @@ class Company(models.Model):
         ('blocked', 'Заблокирована'),
         ('pending', 'На модерации'),
     ]
-    name = models.CharField(max_length=255)
-    legal_name = models.CharField(max_length=500, blank=True)
+    name = models.CharField(max_length=500)
     inn = models.CharField(max_length=12, unique=True)
-    kpp = models.CharField(max_length=9, blank=True)
     ogrn = models.CharField(max_length=15, blank=True)
-    legal_address = models.TextField(blank=True)
-    actual_address = models.TextField(blank=True)
+    address = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(max_length=255, blank=True)
     bank_details = models.JSONField(default=dict, blank=True)

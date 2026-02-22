@@ -30,7 +30,6 @@ class Account(models.Model):
         blank=True,
     )
     is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -61,7 +60,6 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     avatar_url = models.URLField(max_length=500, blank=True)
     birth_date = models.DateField(null=True, blank=True)
-    preferred_language = models.CharField(max_length=10, default='ru')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

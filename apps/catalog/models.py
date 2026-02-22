@@ -65,7 +65,7 @@ class Equipment(models.Model):
         blank=True,
         related_name='equipment',
     )
-    specifications = models.JSONField(default=dict)
+    specifications = models.TextField(blank=True, default='')
     year = models.IntegerField(null=True, blank=True)
     vin = models.CharField(max_length=100, unique=True, null=True, blank=True)
     condition = models.CharField(max_length=50, default='new', choices=CONDITION_CHOICES)

@@ -177,7 +177,10 @@ def _make_delete_view(model, model_key, title):
 # --- View классы ---
 
 class RoleListView(_make_list_view(Role, 'role', 'Роли')):
-    pass
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['full_fields'] = [(n, v) for n, v in ctx['full_fields'] if n != 'permissions']
+        return ctx
 
 
 class RoleCreateView(_make_create_view(Role, 'role', 'Роль', RoleForm)):

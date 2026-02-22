@@ -9,16 +9,16 @@ INSERT INTO role (name, description, permissions, created_at) VALUES
 ('client', 'Клиент (арендатор)', '["own_contracts"]', CURRENT_TIMESTAMP);
 
 -- Аккаунты (admin первым)
-INSERT INTO account (email, username, password_hash, role_id, is_active, is_verified, created_at, updated_at) VALUES
-('admin@gmail.com', 'admin', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 1, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO account (email, username, password_hash, role_id, is_active, created_at, updated_at) VALUES
+('admin@gmail.com', 'admin', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO account (email, username, password_hash, role_id, is_active, is_verified, created_at, updated_at) VALUES
-('ivan.petrov@agro.ru', 'ivan_manager', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 2, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('maria.sidorova@leasegrow.ru', 'maria_accountant', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 3, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('client1@agrofarm.ru', 'agrofarm_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('client2@zemledel.ru', 'zemledel_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('client3@harvest.ru', 'harvest_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('manager2@leasegrow.ru', 'manager2', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 2, TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO account (email, username, password_hash, role_id, is_active, created_at, updated_at) VALUES
+('ivan.petrov@agro.ru', 'ivan_manager', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('maria.sidorova@leasegrow.ru', 'maria_accountant', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('client1@agrofarm.ru', 'agrofarm_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('client2@zemledel.ru', 'zemledel_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('client3@harvest.ru', 'harvest_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('manager2@leasegrow.ru', 'manager2', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Профили
 INSERT INTO user_profile (account_id, first_name, last_name, phone, created_at, updated_at) VALUES
@@ -35,22 +35,22 @@ INSERT INTO account_token (key, account_id, created_at) VALUES
 ('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', 1, CURRENT_TIMESTAMP);
 
 -- Компании
-INSERT INTO company (name, legal_name, inn, kpp, ogrn, legal_address, actual_address, phone, email, status, account_id, created_at) VALUES
-('Агроферма Юг', 'ООО Агроферма Юг', '7707123456', '770701001', '1027700123456', 'г. Краснодар, ул. Промышленная, 1', 'г. Краснодар, ул. Промышленная, 1', '+7 (861) 200-11-11', 'info@agrofarm.ru', 'active', 4, CURRENT_TIMESTAMP),
-('Земледел', 'ООО Земледел', '7708234567', '770801001', '1027700234567', 'г. Ростов-на-Дону, пр. Будённовский, 50', 'г. Ростов-на-Дону, пр. Будённовский, 50', '+7 (863) 250-22-22', 'office@zemledel.ru', 'active', 5, CURRENT_TIMESTAMP),
-('Урожай Плюс', 'АО Урожай Плюс', '7709345678', '770901001', '1027700345678', 'г. Ставрополь, ул. Мира, 100', 'г. Ставрополь, ул. Мира, 100', '+7 (865) 230-33-33', 'contact@harvest.ru', 'active', 6, CURRENT_TIMESTAMP),
-('Нива Кубани', 'ООО Нива Кубани', '7710456789', '771001001', '1027700456789', 'Краснодарский край, г. Тихорецк, ул. Ленина, 20', NULL, '+7 (861) 510-44-44', 'niva@kuban.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('ЮгАгро Холдинг', 'ПАО ЮгАгро', '7711567890', '771101001', '1027700567890', 'г. Ростов-на-Дону, ул. Большая Садовая, 1', NULL, '+7 (863) 300-55-55', 'info@yugagro.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Чернозём', 'ООО Чернозём', '7712678901', '771201001', '1027700678901', 'г. Воронеж, пр. Революции, 25', NULL, '+7 (473) 255-66-66', 'chernozem@vrn.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Поле России', 'ООО Поле России', '7713789012', '771301001', '1027700789012', 'г. Волгоград, ул. Рабоче-Крестьянская, 10', NULL, '+7 (844) 230-77-77', 'pole@volgograd.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Колос', 'АО Колос', '7714890123', '771401001', '1027700890123', 'г. Саратов, ул. Московская, 50', NULL, '+7 (845) 220-88-88', 'kolos@saratov.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Степь', 'ООО Степь', '7715901234', '771501001', '1027700901234', 'г. Оренбург, ул. Советская, 30', NULL, '+7 (353) 275-99-99', 'step@orenburg.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('АгроСоюз', 'ООО АгроСоюз', '7716012345', '771601001', '1027701012345', 'г. Самара, ул. Куйбышева, 100', NULL, '+7 (846) 260-00-00', 'agro@samara.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Волга-Агро', 'ООО Волга-Агро', '7717123456', '771701001', '1027701123456', 'г. Ульяновск, ул. Гончарова, 40', NULL, '+7 (842) 240-11-11', 'volga@ulsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Поволжье', 'ООО Поволжье', '7718234567', '771801001', '1027701234567', 'г. Пенза, пр. Строителей, 1', NULL, '+7 (841) 250-22-22', 'povolzhye@pnz.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('РусьАгро', 'ООО РусьАгро', '7719345678', '771901001', '1027701345678', 'г. Липецк, пр. Победы, 80', NULL, '+7 (474) 270-33-33', 'rus@lipetsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('ЦентрАгро', 'АО ЦентрАгро', '7720456789', '772001001', '1027701456789', 'г. Тамбов, ул. Советская, 100', NULL, '+7 (475) 250-44-44', 'centre@tambov.ru', 'active', NULL, CURRENT_TIMESTAMP),
-('Черноземье', 'ООО Черноземье', '7721567890', '772101001', '1027701567890', 'г. Белгород, пр. Славы, 50', NULL, '+7 (472) 260-55-55', 'chernozem@belgorod.ru', 'pending', NULL, CURRENT_TIMESTAMP);
+INSERT INTO company (name, inn, ogrn, address, phone, email, status, account_id, created_at) VALUES
+('ООО Агроферма Юг', '7707123456', '1027700123456', 'г. Краснодар, ул. Промышленная, 1', '+7 (861) 200-11-11', 'info@agrofarm.ru', 'active', 4, CURRENT_TIMESTAMP),
+('ООО Земледел', '7708234567', '1027700234567', 'г. Ростов-на-Дону, пр. Будённовский, 50', '+7 (863) 250-22-22', 'office@zemledel.ru', 'active', 5, CURRENT_TIMESTAMP),
+('АО Урожай Плюс', '7709345678', '1027700345678', 'г. Ставрополь, ул. Мира, 100', '+7 (865) 230-33-33', 'contact@harvest.ru', 'active', 6, CURRENT_TIMESTAMP),
+('ООО Нива Кубани', '7710456789', '1027700456789', 'Краснодарский край, г. Тихорецк, ул. Ленина, 20', '+7 (861) 510-44-44', 'niva@kuban.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ПАО ЮгАгро', '7711567890', '1027700567890', 'г. Ростов-на-Дону, ул. Большая Садовая, 1', '+7 (863) 300-55-55', 'info@yugagro.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Чернозём', '7712678901', '1027700678901', 'г. Воронеж, пр. Революции, 25', '+7 (473) 255-66-66', 'chernozem@vrn.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Поле России', '7713789012', '1027700789012', 'г. Волгоград, ул. Рабоче-Крестьянская, 10', '+7 (844) 230-77-77', 'pole@volgograd.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('АО Колос', '7714890123', '1027700890123', 'г. Саратов, ул. Московская, 50', '+7 (845) 220-88-88', 'kolos@saratov.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Степь', '7715901234', '1027700901234', 'г. Оренбург, ул. Советская, 30', '+7 (353) 275-99-99', 'step@orenburg.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО АгроСоюз', '7716012345', '1027701012345', 'г. Самара, ул. Куйбышева, 100', '+7 (846) 260-00-00', 'agro@samara.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Волга-Агро', '7717123456', '1027701123456', 'г. Ульяновск, ул. Гончарова, 40', '+7 (842) 240-11-11', 'volga@ulsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Поволжье', '7718234567', '1027701234567', 'г. Пенза, пр. Строителей, 1', '+7 (841) 250-22-22', 'povolzhye@pnz.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО РусьАгро', '7719345678', '1027701345678', 'г. Липецк, пр. Победы, 80', '+7 (474) 270-33-33', 'rus@lipetsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('АО ЦентрАгро', '7720456789', '1027701456789', 'г. Тамбов, ул. Советская, 100', '+7 (475) 250-44-44', 'centre@tambov.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Черноземье', '7721567890', '1027701567890', 'г. Белгород, пр. Славы, 50', '+7 (472) 260-55-55', 'chernozem@belgorod.ru', 'pending', NULL, CURRENT_TIMESTAMP);
 
 -- Контакты компаний
 INSERT INTO company_contact (company_id, full_name, position, phone, email, is_main, created_at) VALUES
@@ -103,36 +103,36 @@ INSERT INTO manufacturer (name, country, website, description) VALUES
 
 -- Техника (много единиц)
 INSERT INTO equipment (name, model, category_id, manufacturer_id, specifications, year, vin, condition, price, residual_value, monthly_lease_rate, status, location, created_at, updated_at) VALUES
-('John Deere 8R 370', '8R 370', 5, 1, '{"power_hp": 370, "fuel_type": "diesel"}', 2023, '1JDH8R370P1234567', 'new', 18500000.00, 9250000.00, 185000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere 9RX 640', '9RX 640', 6, 1, '{"power_hp": 640, "fuel_type": "diesel"}', 2022, '1JDH9RX640P1234568', 'new', 45000000.00, 22500000.00, 450000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere S790', 'S790', 7, 1, '{"capacity_ton_per_hour": 70, "tank_capacity_l": 12000}', 2023, '1JDHS790P1234569', 'new', 28000000.00, 14000000.00, 280000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere S680', 'S680', 7, 1, '{"capacity_ton_per_hour": 55, "tank_capacity_l": 10200}', 2022, '1JDHS680P1234570', 'used', 22000000.00, 11000000.00, 220000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Case IH Steiger 580 HD', 'Steiger 580 HD', 6, 2, '{"power_hp": 580, "fuel_type": "diesel"}', 2023, '2CSI580HD12345671', 'new', 42000000.00, 21000000.00, 420000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Case IH Magnum 340', 'Magnum 340', 5, 2, '{"power_hp": 340, "fuel_type": "diesel"}', 2022, '2CSIM34012345672', 'used', 16500000.00, 8250000.00, 165000.00, 'available', 'Воронежская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Case IH Axial-Flow 8250', 'Axial-Flow 8250', 7, 2, '{"capacity_ton_per_hour": 65, "tank_capacity_l": 11500}', 2023, '2CSIAF825012345673', 'new', 26000000.00, 13000000.00, 260000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('CLAAS Xerion 5000', 'Xerion 5000', 5, 3, '{"power_hp": 493, "fuel_type": "diesel"}', 2022, '3CLAX5000P12345674', 'new', 38000000.00, 19000000.00, 380000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('CLAAS Lexion 8900', 'Lexion 8900', 7, 3, '{"capacity_ton_per_hour": 75, "tank_capacity_l": 13500}', 2023, '3CLAL8900P12345675', 'new', 32000000.00, 16000000.00, 320000.00, 'leased', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('CLAAS Lexion 780', 'Lexion 780', 7, 3, '{"capacity_ton_per_hour": 55, "tank_capacity_l": 10500}', 2021, '3CLAL780P12345676', 'used', 24000000.00, 12000000.00, 240000.00, 'available', 'Волгоградская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('New Holland T8.410', 'T8.410', 5, 4, '{"power_hp": 410, "fuel_type": "diesel"}', 2023, '4NHT8410P12345677', 'new', 21000000.00, 10500000.00, 210000.00, 'available', 'Саратовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('New Holland CR10.90', 'CR10.90', 7, 4, '{"capacity_ton_per_hour": 60, "tank_capacity_l": 12500}', 2022, '4NHCR1090P12345678', 'new', 27000000.00, 13500000.00, 270000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Massey Ferguson 8S.305', '8S.305', 5, 5, '{"power_hp": 305, "fuel_type": "diesel"}', 2022, '5MF8S305P12345679', 'used', 15500000.00, 7750000.00, 155000.00, 'available', 'Оренбургская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Ростсельмаш ACROS 595', 'ACROS 595', 7, 6, '{"capacity_ton_per_hour": 25, "tank_capacity_l": 6000}', 2023, '6RSAC595P12345680', 'new', 8500000.00, 4250000.00, 85000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Ростсельмаш TORUM 785', 'TORUM 785', 7, 6, '{"capacity_ton_per_hour": 40, "tank_capacity_l": 9500}', 2022, '6RST785P12345681', 'used', 15000000.00, 7500000.00, 150000.00, 'leased', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Ростсельмаш RSM 2375', 'RSM 2375', 7, 6, '{"capacity_ton_per_hour": 35, "tank_capacity_l": 8000}', 2021, '6RSR2375P12345682', 'used', 12000000.00, 6000000.00, 120000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Кировец K-7M', 'K-7M', 6, 8, '{"power_hp": 428, "fuel_type": "diesel"}', 2022, '8KRK7MP12345683', 'new', 22000000.00, 11000000.00, 220000.00, 'available', 'Воронежская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Кировец K-744', 'K-744', 6, 8, '{"power_hp": 420, "fuel_type": "diesel"}', 2021, '8KRK744P12345684', 'used', 18500000.00, 9250000.00, 185000.00, 'leased', 'Липецкая область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Amazone Ceres 8000', 'Ceres 8000', 9, 9, '{"working_width_m": 6, "hoppers_count": 2}', 2023, '9AMC8000P12345685', 'new', 8500000.00, 4250000.00, 85000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Horsch Pronto 9 DC', 'Pronto 9 DC', 9, 10, '{"working_width_m": 9, "hoppers_count": 2}', 2022, '10HOP9DCP12345686', 'new', 12000000.00, 6000000.00, 120000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Kverneland Ecomat', 'Ecomat', 4, 12, '{"working_width_m": 4, "plough_bodies": 5}', 2021, '12KVE12345687', 'used', 2500000.00, 1250000.00, 25000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere 6M 165', '6M 165', 5, 1, '{"power_hp": 165, "fuel_type": "diesel"}', 2022, '1JDH6M165P12345688', 'used', 7500000.00, 3750000.00, 75000.00, 'available', 'Волгоградская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('New Holland T6.180', 'T6.180', 5, 4, '{"power_hp": 180, "fuel_type": "diesel"}', 2021, '4NHT6180P12345689', 'used', 6500000.00, 3250000.00, 65000.00, 'available', 'Саратовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('CLAAS Jaguar 960', 'Jaguar 960', 8, 3, '{"capacity_ton_per_hour": 200, "chopping_length_mm": 4}', 2022, '3CLAJ960P12345690', 'new', 22000000.00, 11000000.00, 220000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere 8500', '8500', 8, 1, '{"capacity_ton_per_hour": 180, "chopping_length_mm": 6}', 2021, '1JDH8500P12345691', 'used', 18000000.00, 9000000.00, 180000.00, 'leased', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Buhler Versatile 2375', 'Versatile 2375', 5, 11, '{"power_hp": 375, "fuel_type": "diesel"}', 2020, '11BUV2375P12345692', 'refurbished', 22000000.00, 11000000.00, 220000.00, 'available', 'Самарская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Massey Ferguson 8737', '8737', 7, 5, '{"capacity_ton_per_hour": 45, "tank_capacity_l": 9000}', 2022, '5MF8737P12345693', 'used', 16000000.00, 8000000.00, 160000.00, 'available', 'Ульяновская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Ростсельмаш Vector 450', 'Vector 450', 7, 6, '{"capacity_ton_per_hour": 20, "tank_capacity_l": 4500}', 2023, '6RSV450P12345694', 'new', 5500000.00, 2750000.00, 55000.00, 'maintenance', 'Пензенская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Deere 6145M', '6145M', 5, 1, '{"power_hp": 145, "fuel_type": "diesel"}', 2021, '1JDH6145MP12345695', 'used', 5500000.00, 2750000.00, 55000.00, 'available', 'Тамбовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('CLAAS Arion 640', 'Arion 640', 5, 3, '{"power_hp": 234, "fuel_type": "diesel"}', 2022, '3CLAA640P12345696', 'new', 12500000.00, 6250000.00, 125000.00, 'available', 'Белгородская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('John Deere 8R 370', '8R 370', 5, 1, 'Мощность 370 л.с., дизель', 2023, '1JDH8R370P1234567', 'new', 18500000.00, 9250000.00, 185000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere 9RX 640', '9RX 640', 6, 1, 'Мощность 640 л.с., дизель', 2022, '1JDH9RX640P1234568', 'new', 45000000.00, 22500000.00, 450000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere S790', 'S790', 7, 1, 'Производительность 70 т/ч, бак 12000 л', 2023, '1JDHS790P1234569', 'new', 28000000.00, 14000000.00, 280000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere S680', 'S680', 7, 1, 'Производительность 55 т/ч, бак 10200 л', 2022, '1JDHS680P1234570', 'used', 22000000.00, 11000000.00, 220000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Case IH Steiger 580 HD', 'Steiger 580 HD', 6, 2, 'Мощность 580 л.с., дизель', 2023, '2CSI580HD12345671', 'new', 42000000.00, 21000000.00, 420000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Case IH Magnum 340', 'Magnum 340', 5, 2, 'Мощность 340 л.с., дизель', 2022, '2CSIM34012345672', 'used', 16500000.00, 8250000.00, 165000.00, 'available', 'Воронежская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Case IH Axial-Flow 8250', 'Axial-Flow 8250', 7, 2, 'Производительность 65 т/ч, бак 11500 л', 2023, '2CSIAF825012345673', 'new', 26000000.00, 13000000.00, 260000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('CLAAS Xerion 5000', 'Xerion 5000', 5, 3, 'Мощность 493 л.с., дизель', 2022, '3CLAX5000P12345674', 'new', 38000000.00, 19000000.00, 380000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('CLAAS Lexion 8900', 'Lexion 8900', 7, 3, 'Производительность 75 т/ч, бак 13500 л', 2023, '3CLAL8900P12345675', 'new', 32000000.00, 16000000.00, 320000.00, 'leased', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('CLAAS Lexion 780', 'Lexion 780', 7, 3, 'Производительность 55 т/ч, бак 10500 л', 2021, '3CLAL780P12345676', 'used', 24000000.00, 12000000.00, 240000.00, 'available', 'Волгоградская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('New Holland T8.410', 'T8.410', 5, 4, 'Мощность 410 л.с., дизель', 2023, '4NHT8410P12345677', 'new', 21000000.00, 10500000.00, 210000.00, 'available', 'Саратовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('New Holland CR10.90', 'CR10.90', 7, 4, 'Производительность 60 т/ч, бак 12500 л', 2022, '4NHCR1090P12345678', 'new', 27000000.00, 13500000.00, 270000.00, 'leased', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Massey Ferguson 8S.305', '8S.305', 5, 5, 'Мощность 305 л.с., дизель', 2022, '5MF8S305P12345679', 'used', 15500000.00, 7750000.00, 155000.00, 'available', 'Оренбургская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Ростсельмаш ACROS 595', 'ACROS 595', 7, 6, 'Производительность 25 т/ч, бак 6000 л', 2023, '6RSAC595P12345680', 'new', 8500000.00, 4250000.00, 85000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Ростсельмаш TORUM 785', 'TORUM 785', 7, 6, 'Производительность 40 т/ч, бак 9500 л', 2022, '6RST785P12345681', 'used', 15000000.00, 7500000.00, 150000.00, 'leased', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Ростсельмаш RSM 2375', 'RSM 2375', 7, 6, 'Производительность 35 т/ч, бак 8000 л', 2021, '6RSR2375P12345682', 'used', 12000000.00, 6000000.00, 120000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Кировец K-7M', 'K-7M', 6, 8, 'Мощность 428 л.с., дизель', 2022, '8KRK7MP12345683', 'new', 22000000.00, 11000000.00, 220000.00, 'available', 'Воронежская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Кировец K-744', 'K-744', 6, 8, 'Мощность 420 л.с., дизель', 2021, '8KRK744P12345684', 'used', 18500000.00, 9250000.00, 185000.00, 'leased', 'Липецкая область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Amazone Ceres 8000', 'Ceres 8000', 9, 9, 'Ширина захвата 6 м, 2 бункера', 2023, '9AMC8000P12345685', 'new', 8500000.00, 4250000.00, 85000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Horsch Pronto 9 DC', 'Pronto 9 DC', 9, 10, 'Ширина захвата 9 м, 2 бункера', 2022, '10HOP9DCP12345686', 'new', 12000000.00, 6000000.00, 120000.00, 'available', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Kverneland Ecomat', 'Ecomat', 4, 12, 'Ширина захвата 4 м, 5 корпусов плуга', 2021, '12KVE12345687', 'used', 2500000.00, 1250000.00, 25000.00, 'available', 'Ставропольский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere 6M 165', '6M 165', 5, 1, 'Мощность 165 л.с., дизель', 2022, '1JDH6M165P12345688', 'used', 7500000.00, 3750000.00, 75000.00, 'available', 'Волгоградская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('New Holland T6.180', 'T6.180', 5, 4, 'Мощность 180 л.с., дизель', 2021, '4NHT6180P12345689', 'used', 6500000.00, 3250000.00, 65000.00, 'available', 'Саратовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('CLAAS Jaguar 960', 'Jaguar 960', 8, 3, 'Производительность 200 т/ч, длина резки 4 мм', 2022, '3CLAJ960P12345690', 'new', 22000000.00, 11000000.00, 220000.00, 'available', 'Краснодарский край', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere 8500', '8500', 8, 1, 'Производительность 180 т/ч, длина резки 6 мм', 2021, '1JDH8500P12345691', 'used', 18000000.00, 9000000.00, 180000.00, 'leased', 'Ростовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Buhler Versatile 2375', 'Versatile 2375', 5, 11, 'Мощность 375 л.с., дизель', 2020, '11BUV2375P12345692', 'refurbished', 22000000.00, 11000000.00, 220000.00, 'available', 'Самарская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Massey Ferguson 8737', '8737', 7, 5, 'Производительность 45 т/ч, бак 9000 л', 2022, '5MF8737P12345693', 'used', 16000000.00, 8000000.00, 160000.00, 'available', 'Ульяновская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Ростсельмаш Vector 450', 'Vector 450', 7, 6, 'Производительность 20 т/ч, бак 4500 л', 2023, '6RSV450P12345694', 'new', 5500000.00, 2750000.00, 55000.00, 'maintenance', 'Пензенская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Deere 6145M', '6145M', 5, 1, 'Мощность 145 л.с., дизель', 2021, '1JDH6145MP12345695', 'used', 5500000.00, 2750000.00, 55000.00, 'available', 'Тамбовская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('CLAAS Arion 640', 'Arion 640', 5, 3, 'Мощность 234 л.с., дизель', 2022, '3CLAA640P12345696', 'new', 12500000.00, 6250000.00, 125000.00, 'available', 'Белгородская область', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Договоры лизинга
 INSERT INTO lease_contract (contract_number, company_id, equipment_id, start_date, end_date, lease_term_months, total_amount, advance_payment, monthly_payment, payment_day, status, signed_at, signed_by_id, created_by_id, created_at) VALUES

@@ -186,6 +186,7 @@ def profile_view(request):
             'first_name': profile.first_name if profile else '',
             'last_name': profile.last_name if profile else '',
             'phone': profile.phone if profile else '',
+            'birth_date': profile.birth_date if profile and profile.birth_date else None,
         } if request.method != 'POST' else None,
         data=request.POST if request.method == 'POST' else None,
     )
@@ -205,14 +206,16 @@ def profile_view(request):
             profile.first_name = form.cleaned_data['first_name'].strip()
             profile.last_name = form.cleaned_data['last_name'].strip()
             profile.phone = (form.cleaned_data.get('phone') or '').strip()
+            profile.birth_date = form.cleaned_data.get('birth_date')
             profile.save(update_fields=[
-                         'first_name', 'last_name', 'phone', 'updated_at'])
+                         'first_name', 'last_name', 'phone', 'birth_date', 'updated_at'])
         else:
             UserProfile.objects.create(
                 account=account,
                 first_name=form.cleaned_data['first_name'].strip(),
                 last_name=form.cleaned_data['last_name'].strip(),
                 phone=(form.cleaned_data.get('phone') or '').strip(),
+                birth_date=form.cleaned_data.get('birth_date'),
             )
         messages.success(request, 'Профиль обновлён.')
         return redirect('accounts:profile')
@@ -230,7 +233,7 @@ def profile_view(request):
             initial_company = {
                 'name': user_company.name,
                 'inn': user_company.inn,
-                'legal_address': user_company.legal_address or '',
+                'address': user_company.address or '',
                 'phone': user_company.phone or '',
                 'email': user_company.email or '',
             }
@@ -244,7 +247,7 @@ def profile_view(request):
             if user_company:
                 user_company.name = data['name'].strip()
                 user_company.inn = data['inn'].strip()
-                user_company.legal_address = (data.get('legal_address') or '').strip()
+                user_company.address = (data.get('address') or '').strip()
                 user_company.phone = (data.get('phone') or '').strip()
                 user_company.email = (data.get('email') or '').strip()
                 user_company.save()
@@ -253,7 +256,7 @@ def profile_view(request):
                 Company.objects.create(
                     name=data['name'].strip(),
                     inn=data['inn'].strip(),
-                    legal_address=(data.get('legal_address') or '').strip(),
+                    address=(data.get('address') or '').strip(),
                     phone=(data.get('phone') or '').strip(),
                     email=(data.get('email') or '').strip(),
                     status='active',

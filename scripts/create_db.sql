@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS account (
     password_hash VARCHAR(255) NOT NULL,
     role_id BIGINT REFERENCES role(id) ON DELETE RESTRICT,
     is_active BOOLEAN DEFAULT TRUE,
-    is_verified BOOLEAN DEFAULT FALSE,
     last_login TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -44,7 +43,6 @@ CREATE TABLE IF NOT EXISTS user_profile (
     phone VARCHAR(20) DEFAULT '',
     avatar_url VARCHAR(500) DEFAULT '',
     birth_date DATE,
-    preferred_language VARCHAR(10) DEFAULT 'ru',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -62,13 +60,10 @@ CREATE INDEX IF NOT EXISTS idx_account_token_key ON account_token(key);
 -- Компании
 CREATE TABLE IF NOT EXISTS company (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    legal_name VARCHAR(500) DEFAULT '',
+    name VARCHAR(500) NOT NULL,
     inn VARCHAR(12) NOT NULL UNIQUE,
-    kpp VARCHAR(9) DEFAULT '',
     ogrn VARCHAR(15) DEFAULT '',
-    legal_address TEXT DEFAULT '',
-    actual_address TEXT DEFAULT '',
+    address TEXT DEFAULT '',
     phone VARCHAR(20) DEFAULT '',
     email VARCHAR(255) DEFAULT '',
     bank_details JSONB DEFAULT '{}',
@@ -116,7 +111,7 @@ CREATE TABLE IF NOT EXISTS equipment (
     model VARCHAR(150) NOT NULL,
     category_id BIGINT NOT NULL REFERENCES equipment_category(id) ON DELETE RESTRICT,
     manufacturer_id BIGINT REFERENCES manufacturer(id) ON DELETE SET NULL,
-    specifications JSONB DEFAULT '{}',
+    specifications TEXT DEFAULT '',
     year INTEGER,
     vin VARCHAR(100) UNIQUE,
     condition VARCHAR(50) DEFAULT 'new' CHECK (condition IN ('new', 'used', 'refurbished')),

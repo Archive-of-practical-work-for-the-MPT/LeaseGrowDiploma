@@ -20,7 +20,7 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = (
             'id', 'email', 'username', 'password', 'password_hash',
-            'role', 'is_active', 'is_verified', 'last_login',
+            'role', 'is_active', 'last_login',
             'created_at', 'updated_at',
         )
         extra_kwargs = {'password_hash': {'read_only': True}}

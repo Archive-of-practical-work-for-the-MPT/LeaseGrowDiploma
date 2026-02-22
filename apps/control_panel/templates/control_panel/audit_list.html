@@ -4,7 +4,7 @@
 <div class="console-main-header">
     <div>
         <div class="console-main-title">{{ title }}</div>
-        <div class="console-main-meta">Всего записей: {{ items.paginator.count }}</div>
+        <div class="console-main-meta">Всего записей: {{ page_obj.paginator.count }}</div>
     </div>
     <span class="console-badge-readonly">read only</span>
 </div>
@@ -40,15 +40,29 @@
         </tbody>
     </table>
 </div>
-{% if items.has_other_pages %}
-<div class="console-pagination">
-    {% if items.has_previous %}
-    <a href="?page={{ items.previous_page_number }}" class="btn-pagination">← Назад</a>
-    {% endif %}
-    <span class="pagination-info">Стр. {{ items.number }} из {{ items.paginator.num_pages }}</span>
-    {% if items.has_next %}
-    <a href="?page={{ items.next_page_number }}" class="btn-pagination">Вперёд →</a>
-    {% endif %}
-</div>
+{% if page_obj.has_other_pages %}
+<nav class="console-pagination" aria-label="Пагинация">
+    <div class="console-pagination-inner">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination" aria-label="Предыдущая">← Назад</a>
+        {% else %}
+        <span class="btn-pagination btn-pagination-disabled" aria-disabled="true">← Назад</span>
+        {% endif %}
+        <div class="console-pagination-pages">
+            {% for p in page_obj.paginator.page_range %}
+                {% if p == page_obj.number %}
+                <span class="btn-pagination btn-pagination-active" aria-current="page">{{ p }}</span>
+                {% else %}
+                <a href="?page={{ p }}" class="btn-pagination">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn-pagination" aria-label="Следующая">Вперёд →</a>
+        {% else %}
+        <span class="btn-pagination btn-pagination-disabled" aria-disabled="true">Вперёд →</span>
+        {% endif %}
+    </div>
+</nav>
 {% endif %}
 {% endblock %}

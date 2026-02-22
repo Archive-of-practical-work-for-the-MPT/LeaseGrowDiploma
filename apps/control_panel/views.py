@@ -68,7 +68,7 @@ def _make_list_view(model, model_key, title, form_class=None):
         model = _model
         template_name = 'control_panel/list.html'
         context_object_name = 'items'
-        paginate_by = 20
+        paginate_by = 10
 
         def get_context_data(self, **kwargs):
             ctx = super().get_context_data(**kwargs)
@@ -381,7 +381,7 @@ class AuditLogListView(AdminOrManagerRequiredMixin, ListView):
     model = AuditLog
     template_name = 'control_panel/audit_list.html'
     context_object_name = 'items'
-    paginate_by = 30
+    paginate_by = 10
     ordering = ['-performed_at']
 
     def get_context_data(self, **kwargs):

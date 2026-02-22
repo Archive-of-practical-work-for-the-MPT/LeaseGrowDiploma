@@ -401,25 +401,56 @@ table.console-table tbody tr:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+}
+
+.console-pagination-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.console-pagination-pages {
+    display: flex;
+    gap: 0.25rem;
 }
 
 .btn-pagination {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.8rem;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.6rem;
+    font-size: 0.85rem;
+    border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--white);
     color: var(--text-secondary);
     text-decoration: none;
+    font-family: inherit;
+    font-weight: 500;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.btn-pagination:hover {
+.btn-pagination:hover:not(.btn-pagination-disabled):not(.btn-pagination-active) {
     background: var(--green-50);
     border-color: var(--green-200);
     color: var(--green-600);
+}
+
+.btn-pagination-active {
+    background: var(--green-500);
+    border-color: var(--green-500);
+    color: var(--on-primary);
+}
+
+.btn-pagination-disabled {
+    color: var(--text-muted);
+    cursor: default;
+    background: var(--bg);
 }
 
 .pagination-info {

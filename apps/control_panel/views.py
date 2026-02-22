@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView
 from django.views import View
 from django.contrib import messages
+from django.db.models import Q
 
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
@@ -61,6 +62,22 @@ class DashboardView(AdminOrManagerRequiredMixin, View):
         })
 
 
+def _build_search_filter(model, q):
+    """Строит Q-фильтр для поиска по текстовым полям и pk модели."""
+    if not q or not q.strip():
+        return Q()
+    q = q.strip()
+    conditions = Q()
+    for f in model._meta.fields:
+        if hasattr(f, 'get_internal_type'):
+            t = f.get_internal_type()
+            if t in ('CharField', 'TextField'):
+                conditions |= Q(**{f.name + '__icontains': q})
+    if str(q).isdigit():
+        conditions |= Q(pk=int(q))
+    return conditions
+
+
 def _make_list_view(model, model_key, title, form_class=None):
     _model, _model_key, _title = model, model_key, title
 
@@ -69,6 +86,13 @@ def _make_list_view(model, model_key, title, form_class=None):
         template_name = 'control_panel/list.html'
         context_object_name = 'items'
         paginate_by = 10
+
+        def get_queryset(self):
+            qs = super().get_queryset()
+            q = self.request.GET.get('q', '').strip()
+            if q:
+                qs = qs.filter(_build_search_filter(_model, q))
+            return qs
 
         def get_context_data(self, **kwargs):
             ctx = super().get_context_data(**kwargs)
@@ -83,6 +107,10 @@ def _make_list_view(model, model_key, title, form_class=None):
                 for f in _model._meta.fields
                 if f.name != pk_name
             ]
+            ctx['search_q'] = self.request.GET.get('q', '')
+            get_copy = self.request.GET.copy()
+            get_copy.pop('page', None)
+            ctx['query_string'] = get_copy.urlencode()
             return ctx
     return V
 
@@ -384,7 +412,18 @@ class AuditLogListView(AdminOrManagerRequiredMixin, ListView):
     paginate_by = 10
     ordering = ['-performed_at']
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        q = self.request.GET.get('q', '').strip()
+        if q:
+            qs = qs.filter(_build_search_filter(AuditLog, q))
+        return qs
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = 'Журнал аудита'
+        ctx['search_q'] = self.request.GET.get('q', '')
+        get_copy = self.request.GET.copy()
+        get_copy.pop('page', None)
+        ctx['query_string'] = get_copy.urlencode()
         return ctx

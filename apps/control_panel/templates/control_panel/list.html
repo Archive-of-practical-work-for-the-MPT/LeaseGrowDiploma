@@ -8,6 +8,10 @@
         <div class="console-main-meta">Всего записей: {{ page_obj.paginator.count }}</div>
     </div>
     <div class="console-header-actions">
+        <form method="get" action="" class="console-search-form">
+            <input type="search" name="q" value="{{ search_q }}" placeholder="Поиск..." class="console-search-input" aria-label="Поиск">
+            <button type="submit" class="btn-xs">Найти</button>
+        </form>
         <div class="view-toggle" role="group" aria-label="Режим отображения">
             <button type="button" class="view-toggle-btn active" data-mode="brief" title="Кратко">Кратко</button>
             <button type="button" class="view-toggle-btn" data-mode="full" title="Полностью">Полностью</button>
@@ -61,7 +65,7 @@
 <nav class="console-pagination" aria-label="Пагинация">
     <div class="console-pagination-inner">
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination" aria-label="Предыдущая">← Назад</a>
+        <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn-pagination" aria-label="Предыдущая">← Назад</a>
         {% else %}
         <span class="btn-pagination btn-pagination-disabled" aria-disabled="true">← Назад</span>
         {% endif %}
@@ -70,12 +74,12 @@
                 {% if p == page_obj.number %}
                 <span class="btn-pagination btn-pagination-active" aria-current="page">{{ p }}</span>
                 {% else %}
-                <a href="?page={{ p }}" class="btn-pagination">{{ p }}</a>
+                <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ p }}" class="btn-pagination">{{ p }}</a>
                 {% endif %}
             {% endfor %}
         </div>
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="btn-pagination" aria-label="Следующая">Вперёд →</a>
+        <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn-pagination" aria-label="Следующая">Вперёд →</a>
         {% else %}
         <span class="btn-pagination btn-pagination-disabled" aria-disabled="true">Вперёд →</span>
         {% endif %}

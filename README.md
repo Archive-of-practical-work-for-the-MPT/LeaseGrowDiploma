@@ -4,21 +4,20 @@
 
 LeaseGrow - это современное веб-приложение для лизинга сельскохозяйственной техники. Клиенты оставляют заявки, менеджеры подтверждают их и оформляют договоры, ведется учет платежей и заявок на обслуживание.
 
-## Брендбук
-
-<p align="center">
-      <img src="" alt="Брендбук" width="400">
-      <img src="" alt="Брендбук" width="350">
-</p>
-
 ## Демонстрация
 
 <p align="center">
-      <img src="" alt="Демонстрация" width="700">
+      <img src="https://github.com/user-attachments/assets/be0053f1-30cf-4245-a81d-d3f6c70b63b4" alt="Демонстрация" width="700">
 </p>
 
 <p align="center">
-      <img src="" alt="Демонстрация" width="700">
+      <img src="https://github.com/user-attachments/assets/c4e3ff86-9fc1-4692-8449-d0a014dd4dc3" alt="Демонстрация" width="700">
+</p>
+
+## Брендбук
+
+<p align="center">
+      <img src="https://github.com/user-attachments/assets/3fc55b90-0967-4b9c-816e-8de073f8cf48" alt="Брендбук" width="550">
 </p>
 
 ## Требования

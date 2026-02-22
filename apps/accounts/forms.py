@@ -68,6 +68,11 @@ class RegisterForm(forms.Form):
         label='Телефон',
         widget=forms.TextInput(attrs={'placeholder': '+7 (999) 123-45-67'}),
     )
+    privacy_agree = forms.BooleanField(
+        required=True,
+        label='Согласие с политикой конфиденциальности',
+        error_messages={'required': 'Необходимо согласиться с политикой обработки персональных данных.'},
+    )
 
     def clean_username(self):
         username = self.cleaned_data.get('username')

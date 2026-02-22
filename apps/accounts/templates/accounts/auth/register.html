@@ -54,6 +54,11 @@
                 {{ form.password2 }}
                 {{ form.password2.errors }}
             </div>
+            <div class="field field-checkbox smaller">
+                {{ form.privacy_agree }}
+                <label for="id_privacy_agree">Я согласен с <a href="{% url 'core:privacy' %}" target="_blank" rel="noopener">политикой обработки персональных данных</a></label>
+                {{ form.privacy_agree.errors }}
+            </div>
             <button type="submit" class="mt-more">Зарегистрироваться</button>
         </form>
         <p class="footer-link">Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>

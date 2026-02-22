@@ -72,18 +72,6 @@ CREATE TABLE IF NOT EXISTS company (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Контакты компаний
-CREATE TABLE IF NOT EXISTS company_contact (
-    id BIGSERIAL PRIMARY KEY,
-    company_id BIGINT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
-    full_name VARCHAR(255) NOT NULL,
-    position VARCHAR(150) DEFAULT '',
-    phone VARCHAR(20) NOT NULL,
-    email VARCHAR(255) DEFAULT '',
-    is_main BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Категории техники (иерархия)
 CREATE TABLE IF NOT EXISTS equipment_category (
     id BIGSERIAL PRIMARY KEY,
@@ -156,21 +144,6 @@ CREATE TABLE IF NOT EXISTS payment_schedule (
     paid_at TIMESTAMP WITH TIME ZONE,
     penalty_amount DECIMAL(10, 2) DEFAULT 0,
     UNIQUE(contract_id, payment_number)
-);
-
--- Обслуживание техники
-CREATE TABLE IF NOT EXISTS maintenance (
-    id BIGSERIAL PRIMARY KEY,
-    equipment_id BIGINT NOT NULL REFERENCES equipment(id) ON DELETE CASCADE,
-    type VARCHAR(100) NOT NULL,
-    description TEXT DEFAULT '',
-    cost DECIMAL(10, 2),
-    performed_at DATE NOT NULL,
-    next_maintenance_date DATE,
-    service_company VARCHAR(255) DEFAULT '',
-    documents_urls JSONB DEFAULT '[]',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by_id BIGINT REFERENCES account(id) ON DELETE SET NULL
 );
 
 -- Заявки на обслуживание

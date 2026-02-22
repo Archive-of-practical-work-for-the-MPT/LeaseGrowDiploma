@@ -52,25 +52,6 @@ INSERT INTO company (name, inn, ogrn, address, phone, email, status, account_id,
 ('АО ЦентрАгро', '7720456789', '1027701456789', 'г. Тамбов, ул. Советская, 100', '+7 (475) 250-44-44', 'centre@tambov.ru', 'active', NULL, CURRENT_TIMESTAMP),
 ('ООО Черноземье', '7721567890', '1027701567890', 'г. Белгород, пр. Славы, 50', '+7 (472) 260-55-55', 'chernozem@belgorod.ru', 'pending', NULL, CURRENT_TIMESTAMP);
 
--- Контакты компаний
-INSERT INTO company_contact (company_id, full_name, position, phone, email, is_main, created_at) VALUES
-(1, 'Сергей Кузнецов', 'Генеральный директор', '+7 (916) 333-44-44', 'kuznetsov@agrofarm.ru', TRUE, CURRENT_TIMESTAMP),
-(1, 'Ольга Иванова', 'Финансовый директор', '+7 (916) 333-44-45', 'ivanova@agrofarm.ru', FALSE, CURRENT_TIMESTAMP),
-(2, 'Андрей Морозов', 'Директор', '+7 (916) 444-55-55', 'morozov@zemledel.ru', TRUE, CURRENT_TIMESTAMP),
-(3, 'Елена Волкова', 'Руководитель', '+7 (916) 555-66-66', 'volkova@harvest.ru', TRUE, CURRENT_TIMESTAMP),
-(4, 'Николай Романов', 'Директор', '+7 (918) 111-00-00', 'romanov@kuban.ru', TRUE, CURRENT_TIMESTAMP),
-(5, 'Александр Козлов', 'Генеральный директор', '+7 (918) 222-00-00', 'kozlov@yugagro.ru', TRUE, CURRENT_TIMESTAMP),
-(6, 'Татьяна Новикова', 'Финансовый директор', '+7 (918) 333-00-00', 'novikova@vrn.ru', TRUE, CURRENT_TIMESTAMP),
-(7, 'Михаил Федоров', 'Директор', '+7 (918) 444-00-00', 'fedorov@volgograd.ru', TRUE, CURRENT_TIMESTAMP),
-(8, 'Наталья Морозова', 'Руководитель', '+7 (918) 555-00-00', 'morozova@saratov.ru', TRUE, CURRENT_TIMESTAMP),
-(9, 'Павел Смирнов', 'Генеральный директор', '+7 (918) 666-00-00', 'smirnov@orenburg.ru', TRUE, CURRENT_TIMESTAMP),
-(10, 'Ирина Кузнецова', 'Директор', '+7 (918) 777-00-00', 'kuznetsova@samara.ru', TRUE, CURRENT_TIMESTAMP),
-(11, 'Виктор Павлов', 'Руководитель', '+7 (918) 888-00-00', 'pavlov@ulsk.ru', TRUE, CURRENT_TIMESTAMP),
-(12, 'Светлана Козлова', 'Директор', '+7 (918) 999-00-00', 'kozlova@pnz.ru', TRUE, CURRENT_TIMESTAMP),
-(13, 'Евгений Волков', 'Генеральный директор', '+7 (919) 111-00-00', 'volkov@lipetsk.ru', TRUE, CURRENT_TIMESTAMP),
-(14, 'Марина Новикова', 'Руководитель', '+7 (919) 222-00-00', 'novikova@tambov.ru', TRUE, CURRENT_TIMESTAMP),
-(15, 'Алексей Смирнов', 'Директор', '+7 (919) 333-00-00', 'smirnov@belgorod.ru', TRUE, CURRENT_TIMESTAMP);
-
 -- Категории техники (иерархия)
 INSERT INTO equipment_category (name, parent_id, description, created_at) VALUES
 ('Тракторы', NULL, 'Колёсные и гусеничные тракторы', CURRENT_TIMESTAMP),
@@ -181,19 +162,6 @@ INSERT INTO payment_schedule (contract_id, payment_number, due_date, amount, sta
 (3, 3, '2023-07-01', 336000.00, 'paid', '2023-07-01 09:00:00+03', 0),
 (3, 4, '2023-08-01', 336000.00, 'pending', NULL, 0);
 
--- Обслуживание
-INSERT INTO maintenance (equipment_id, type, description, cost, performed_at, next_maintenance_date, service_company, created_by_id, created_at) VALUES
-(1, 'Техническое обслуживание', 'Регламентное ТО 500 м/ч', 45000.00, '2023-06-15', '2023-12-15', 'John Deere Сервис Юг', 2, CURRENT_TIMESTAMP),
-(2, 'Техническое обслуживание', 'Регламентное ТО 1000 м/ч', 120000.00, '2023-08-20', '2024-02-20', 'John Deere Сервис Юг', 2, CURRENT_TIMESTAMP),
-(3, 'Диагностика', 'Проверка гидросистемы', 15000.00, '2023-09-10', NULL, 'John Deere Сервис Юг', 2, CURRENT_TIMESTAMP),
-(4, 'Ремонт', 'Замена ремня привода вентилятора', 25000.00, '2023-07-05', NULL, 'Case IH Сервис', 2, CURRENT_TIMESTAMP),
-(5, 'Техническое обслуживание', 'Регламентное ТО', 95000.00, '2023-10-01', '2024-04-01', 'Case IH Сервис', 2, CURRENT_TIMESTAMP),
-(9, 'Техническое обслуживание', 'Регламентное ТО 500 м/ч', 85000.00, '2023-11-15', '2024-05-15', 'CLAAS Сервис', 2, CURRENT_TIMESTAMP),
-(14, 'Диагностика', 'Проверка мотовила', 8000.00, '2023-08-25', NULL, 'Ростсельмаш Сервис', 2, CURRENT_TIMESTAMP),
-(15, 'Техническое обслуживание', 'Регламентное ТО', 35000.00, '2023-09-20', '2024-03-20', 'Ростсельмаш Сервис', 2, CURRENT_TIMESTAMP),
-(27, 'Ремонт', 'Замена подшипника барабана', 42000.00, '2024-01-10', NULL, 'Ростсельмаш Сервис', 7, CURRENT_TIMESTAMP),
-(23, 'Техническое обслуживание', 'Регламентное ТО', 28000.00, '2023-12-01', '2024-06-01', 'CLAAS Сервис', 2, CURRENT_TIMESTAMP);
-
 -- Заявки на обслуживание
 INSERT INTO maintenance_request (equipment_id, company_id, description, urgency, status, assigned_to_id, completed_at, created_at) VALUES
 (1, 1, 'Требуется плановое ТО перед сезоном', 'normal', 'completed', 2, '2024-01-15 14:00:00+03', CURRENT_TIMESTAMP),
@@ -212,5 +180,4 @@ INSERT INTO audit_log (action, table_name, record_id, new_values, performed_by_i
 ('CREATE', 'lease_contract', 2, '{"contract_number": "LG-2023-002"}', 2, CURRENT_TIMESTAMP),
 ('UPDATE', 'lease_contract', 1, '{"status": "active"}', 2, CURRENT_TIMESTAMP),
 ('UPDATE', 'payment_schedule', 1, '{"status": "paid"}', 3, CURRENT_TIMESTAMP),
-('CREATE', 'maintenance', 1, '{"type": "Техническое обслуживание"}', 2, CURRENT_TIMESTAMP),
 ('UPDATE', 'maintenance_request', 1, '{"status": "completed"}', 2, CURRENT_TIMESTAMP);

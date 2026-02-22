@@ -79,11 +79,6 @@
             <span class="stat-value">{{ stats.payments_pending }}</span>
             <span class="stat-label">Ожидают оплаты</span>
         </a>
-        <a href="{% url 'control_panel:maintenance_list' %}" class="stat-card">
-            <span class="stat-icon">🔧</span>
-            <span class="stat-value">{{ stats.maintenance }}</span>
-            <span class="stat-label">Обслуживание</span>
-        </a>
         <a href="{% url 'control_panel:maintenancerequest_list' %}" class="stat-card">
             <span class="stat-icon">📝</span>
             <span class="stat-value">{{ stats.maintenance_requests }}</span>

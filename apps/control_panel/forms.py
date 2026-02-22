@@ -7,8 +7,8 @@ from django.contrib.auth.hashers import make_password
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
 from apps.leasing.models import (
-    Company, CompanyContact, LeaseContract, PaymentSchedule,
-    Maintenance, MaintenanceRequest,
+    Company, LeaseContract, PaymentSchedule,
+    MaintenanceRequest,
 )
 
 
@@ -270,28 +270,6 @@ class CompanyForm(forms.ModelForm):
         return val or {}
 
 
-class CompanyContactForm(forms.ModelForm):
-    class Meta:
-        model = CompanyContact
-        fields = ['company', 'full_name', 'position', 'phone', 'email', 'is_main']
-        labels = {
-            'company': 'Компания',
-            'full_name': 'ФИО',
-            'position': 'Должность',
-            'phone': 'Телефон',
-            'email': 'Email',
-            'is_main': 'Основной контакт',
-        }
-        widgets = {
-            'company': forms.Select(attrs={'class': 'form-select'}),
-            'full_name': forms.TextInput(attrs={'class': 'form-input'}),
-            'position': forms.TextInput(attrs={'class': 'form-input'}),
-            'phone': forms.TextInput(attrs={'class': 'form-input'}),
-            'email': forms.EmailInput(attrs={'class': 'form-input'}),
-            'is_main': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
-        }
-
-
 class LeaseContractForm(forms.ModelForm):
     class Meta:
         model = LeaseContract
@@ -370,54 +348,6 @@ class PaymentScheduleForm(forms.ModelForm):
             }),
             'penalty_amount': forms.NumberInput(attrs={'class': 'form-input'}),
         }
-
-
-class MaintenanceForm(forms.ModelForm):
-    class Meta:
-        model = Maintenance
-        fields = [
-            'equipment', 'type', 'description', 'cost',
-            'performed_at', 'next_maintenance_date',
-            'service_company', 'documents_urls', 'created_by',
-        ]
-        labels = {
-            'equipment': 'Техника',
-            'type': 'Тип обслуживания',
-            'description': 'Описание',
-            'cost': 'Стоимость',
-            'performed_at': 'Дата выполнения',
-            'next_maintenance_date': 'Следующее обслуживание',
-            'service_company': 'Сервисная компания',
-            'documents_urls': 'URL документов',
-            'created_by': 'Создал',
-        }
-        widgets = {
-            'equipment': forms.Select(attrs={'class': 'form-select'}),
-            'type': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
-            'cost': forms.NumberInput(attrs={'class': 'form-input'}),
-            'performed_at': forms.DateInput(attrs={
-                'class': 'form-input', 'type': 'date'
-            }),
-            'next_maintenance_date': forms.DateInput(attrs={
-                'class': 'form-input', 'type': 'date',
-            }),
-            'service_company': forms.TextInput(attrs={'class': 'form-input'}),
-            'documents_urls': forms.Textarea(attrs={
-                'class': 'form-input', 'rows': 2,
-                'placeholder': '["url1", "url2"]',
-            }),
-            'created_by': forms.Select(attrs={'class': 'form-select'}),
-        }
-
-    def clean_documents_urls(self):
-        val = self.cleaned_data.get('documents_urls')
-        if isinstance(val, str):
-            try:
-                return json.loads(val) if val.strip() else []
-            except json.JSONDecodeError:
-                raise forms.ValidationError('Некорректный JSON')
-        return val or []
 
 
 class MaintenanceRequestForm(forms.ModelForm):

@@ -9,8 +9,8 @@ from django.db.models import Q
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
 from apps.leasing.models import (
-    Company, CompanyContact, LeaseContract, PaymentSchedule,
-    Maintenance, MaintenanceRequest,
+    Company, LeaseContract, PaymentSchedule,
+    MaintenanceRequest,
 )
 from apps.core.models import AuditLog
 
@@ -18,8 +18,8 @@ from .mixins import AdminOrManagerRequiredMixin
 from .forms import (
     RoleForm, AccountForm, UserProfileForm, AccountTokenForm,
     EquipmentCategoryForm, ManufacturerForm, EquipmentForm,
-    CompanyForm, CompanyContactForm, LeaseContractForm,
-    PaymentScheduleForm, MaintenanceForm, MaintenanceRequestForm,
+    CompanyForm, LeaseContractForm,
+    PaymentScheduleForm, MaintenanceRequestForm,
 )
 
 
@@ -34,13 +34,10 @@ PANEL_MODELS = [
      'control_panel:manufacturer_list'),
     ('equipment', Equipment, 'Техника', 'control_panel:equipment_list'),
     ('company', Company, 'Компании', 'control_panel:company_list'),
-    ('companycontact', CompanyContact, 'Контакты компаний',
-     'control_panel:companycontact_list'),
     ('leasecontract', LeaseContract, 'Договоры лизинга',
      'control_panel:leasecontract_list'),
     ('paymentschedule', PaymentSchedule, 'Графики платежей',
      'control_panel:paymentschedule_list'),
-    ('maintenance', Maintenance, 'Обслуживание', 'control_panel:maintenance_list'),
     ('maintenancerequest', MaintenanceRequest,
      'Заявки на обслуживание', 'control_panel:maintenancerequest_list'),
 ]
@@ -311,26 +308,6 @@ class CompanyDeleteView(_make_delete_view(Company, 'company', 'Компания'
     pass
 
 
-class CompanyContactListView(_make_list_view(CompanyContact, 'companycontact', 'Контакты')):
-    pass
-
-
-class CompanyContactCreateView(_make_create_view(
-    CompanyContact, 'companycontact', 'Контакт', CompanyContactForm
-)):
-    pass
-
-
-class CompanyContactUpdateView(_make_update_view(
-    CompanyContact, 'companycontact', 'Контакт', CompanyContactForm
-)):
-    pass
-
-
-class CompanyContactDeleteView(_make_delete_view(CompanyContact, 'companycontact', 'Контакт')):
-    pass
-
-
 class LeaseContractListView(_make_list_view(LeaseContract, 'leasecontract', 'Договоры')):
     pass
 
@@ -368,22 +345,6 @@ class PaymentScheduleUpdateView(_make_update_view(
 
 
 class PaymentScheduleDeleteView(_make_delete_view(PaymentSchedule, 'paymentschedule', 'Платёж')):
-    pass
-
-
-class MaintenanceListView(_make_list_view(Maintenance, 'maintenance', 'Обслуживание')):
-    pass
-
-
-class MaintenanceCreateView(_make_create_view(Maintenance, 'maintenance', 'Обслуживание', MaintenanceForm)):
-    pass
-
-
-class MaintenanceUpdateView(_make_update_view(Maintenance, 'maintenance', 'Обслуживание', MaintenanceForm)):
-    pass
-
-
-class MaintenanceDeleteView(_make_delete_view(Maintenance, 'maintenance', 'Обслуживание')):
     pass
 
 

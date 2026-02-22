@@ -38,28 +38,6 @@ class Company(models.Model):
         return self.name
 
 
-class CompanyContact(models.Model):
-    company = models.ForeignKey(
-        Company,
-        on_delete=models.CASCADE,
-        related_name='contacts',
-    )
-    full_name = models.CharField(max_length=255)
-    position = models.CharField(max_length=150, blank=True)
-    phone = models.CharField(max_length=20)
-    email = models.EmailField(max_length=255, blank=True)
-    is_main = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'company_contact'
-        verbose_name = 'контакт компании'
-        verbose_name_plural = 'контакты компаний'
-
-    def __str__(self):
-        return self.full_name
-
-
 class LeaseContract(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Черновик'),
@@ -157,39 +135,6 @@ class PaymentSchedule(models.Model):
 
     def __str__(self):
         return f'{self.contract.contract_number} — платёж #{self.payment_number}'
-
-
-class Maintenance(models.Model):
-    equipment = models.ForeignKey(
-        Equipment,
-        on_delete=models.CASCADE,
-        related_name='maintenances',
-    )
-    type = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    cost = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True
-    )
-    performed_at = models.DateField()
-    next_maintenance_date = models.DateField(null=True, blank=True)
-    service_company = models.CharField(max_length=255, blank=True)
-    documents_urls = models.JSONField(default=list, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(
-        Account,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='maintenance_records',
-    )
-
-    class Meta:
-        db_table = 'maintenance'
-        verbose_name = 'обслуживание'
-        verbose_name_plural = 'обслуживание'
-
-    def __str__(self):
-        return f'{self.equipment} — {self.type} ({self.performed_at})'
 
 
 class MaintenanceRequest(models.Model):

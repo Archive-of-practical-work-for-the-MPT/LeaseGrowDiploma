@@ -95,7 +95,7 @@ def _get_admin_stats():
     """Статистика системы для администратора."""
     from apps.accounts.models import Account, Role
     from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
-    from apps.leasing.models import Company, LeaseContract, PaymentSchedule, Maintenance, MaintenanceRequest
+    from apps.leasing.models import Company, LeaseContract, PaymentSchedule, MaintenanceRequest
     return {
         'accounts': Account.objects.count(),
         'roles': Role.objects.count(),
@@ -107,7 +107,6 @@ def _get_admin_stats():
         'contracts_active': LeaseContract.objects.filter(status='active').count(),
         'payments': PaymentSchedule.objects.count(),
         'payments_pending': PaymentSchedule.objects.filter(status='pending').count(),
-        'maintenance': Maintenance.objects.count(),
         'maintenance_requests': MaintenanceRequest.objects.count(),
         'maintenance_requests_new': MaintenanceRequest.objects.filter(status='new').count(),
     }

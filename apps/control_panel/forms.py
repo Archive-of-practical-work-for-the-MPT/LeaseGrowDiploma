@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
 from apps.leasing.models import (
-    Company, LeaseContract, PaymentSchedule,
+    Company, LeaseContract, LeaseRequest, PaymentSchedule,
     MaintenanceRequest,
 )
 
@@ -268,6 +268,31 @@ class CompanyForm(forms.ModelForm):
             except json.JSONDecodeError:
                 raise forms.ValidationError('Некорректный JSON')
         return val or {}
+
+
+class LeaseRequestForm(forms.ModelForm):
+    class Meta:
+        model = LeaseRequest
+        fields = [
+            'equipment', 'account', 'status', 'message',
+            'manager_notes', 'confirmed_by',
+        ]
+        labels = {
+            'equipment': 'Техника',
+            'account': 'Пользователь',
+            'status': 'Статус',
+            'message': 'Сообщение',
+            'manager_notes': 'Заметки менеджера',
+            'confirmed_by': 'Подтвердил',
+        }
+        widgets = {
+            'equipment': forms.Select(attrs={'class': 'form-select'}),
+            'account': forms.Select(attrs={'class': 'form-select'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'message': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
+            'manager_notes': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
+            'confirmed_by': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 
 class LeaseContractForm(forms.ModelForm):

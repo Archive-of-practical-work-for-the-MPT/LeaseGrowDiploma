@@ -44,6 +44,7 @@
                 <a href="{% url 'control_panel:equipment_list' %}" class="resource-item {% if '/equipment/' in request.path %}active{% endif %}"><span class="label">🚜 Техника</span><span class="badge">crud</span></a>
                 <div class="resource-group">Лизинг</div>
                 <a href="{% url 'control_panel:company_list' %}" class="resource-item {% if '/companies/' in request.path %}active{% endif %}"><span class="label">🏢 Компании</span><span class="badge">crud</span></a>
+                <a href="{% url 'control_panel:leaserequest_list' %}" class="resource-item {% if '/lease-requests/' in request.path %}active{% endif %}"><span class="label">📋 Заявки на лизинг</span><span class="badge">crud</span></a>
                 <a href="{% url 'control_panel:leasecontract_list' %}" class="resource-item {% if '/contracts/' in request.path %}active{% endif %}"><span class="label">📄 Договоры лизинга</span><span class="badge">crud</span></a>
                 <a href="{% url 'control_panel:paymentschedule_list' %}" class="resource-item {% if '/payments/' in request.path %}active{% endif %}"><span class="label">💰 Графики платежей</span><span class="badge">crud</span></a>
                 <a href="{% url 'control_panel:maintenancerequest_list' %}" class="resource-item {% if '/maintenance-requests/' in request.path %}active{% endif %}"><span class="label">📝 Заявки на обслуживание</span><span class="badge">crud</span></a>

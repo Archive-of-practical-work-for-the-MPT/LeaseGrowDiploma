@@ -9,7 +9,7 @@ from django.db.models import Q
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
 from apps.leasing.models import (
-    Company, LeaseContract, PaymentSchedule,
+    Company, LeaseContract, LeaseRequest, PaymentSchedule,
     MaintenanceRequest,
 )
 from apps.core.models import AuditLog
@@ -18,7 +18,7 @@ from .mixins import AdminOrManagerRequiredMixin
 from .forms import (
     RoleForm, AccountForm, UserProfileForm, AccountTokenForm,
     EquipmentCategoryForm, ManufacturerForm, EquipmentForm,
-    CompanyForm, LeaseContractForm,
+    CompanyForm, LeaseContractForm, LeaseRequestForm,
     PaymentScheduleForm, MaintenanceRequestForm,
 )
 
@@ -34,6 +34,7 @@ PANEL_MODELS = [
      'control_panel:manufacturer_list'),
     ('equipment', Equipment, 'Техника', 'control_panel:equipment_list'),
     ('company', Company, 'Компании', 'control_panel:company_list'),
+    ('leaserequest', LeaseRequest, 'Заявки на лизинг', 'control_panel:leaserequest_list'),
     ('leasecontract', LeaseContract, 'Договоры лизинга',
      'control_panel:leasecontract_list'),
     ('paymentschedule', PaymentSchedule, 'Графики платежей',
@@ -305,6 +306,22 @@ class CompanyUpdateView(_make_update_view(Company, 'company', 'Компанию'
 
 
 class CompanyDeleteView(_make_delete_view(Company, 'company', 'Компания')):
+    pass
+
+
+class LeaseRequestListView(_make_list_view(LeaseRequest, 'leaserequest', 'Заявки')):
+    pass
+
+
+class LeaseRequestCreateView(_make_create_view(LeaseRequest, 'leaserequest', 'Заявку', LeaseRequestForm)):
+    pass
+
+
+class LeaseRequestUpdateView(_make_update_view(LeaseRequest, 'leaserequest', 'Заявку', LeaseRequestForm)):
+    pass
+
+
+class LeaseRequestDeleteView(_make_delete_view(LeaseRequest, 'leaserequest', 'Заявку')):
     pass
 
 

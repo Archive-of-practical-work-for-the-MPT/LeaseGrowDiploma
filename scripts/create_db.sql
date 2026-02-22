@@ -1,5 +1,5 @@
 -- LeaseGrow: создание схемы БД PostgreSQL
--- Соответствует моделям Django (core.models)
+-- Соответствует моделям Django (accounts, catalog, leasing, core)
 
 -- Проверка: если схема уже создана — не перезаписываем
 DO $$
@@ -113,6 +113,19 @@ CREATE TABLE IF NOT EXISTS equipment (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Заявки на лизинг
+CREATE TABLE IF NOT EXISTS lease_request (
+    id BIGSERIAL PRIMARY KEY,
+    equipment_id BIGINT NOT NULL REFERENCES equipment(id) ON DELETE CASCADE,
+    account_id BIGINT NOT NULL REFERENCES account(id) ON DELETE CASCADE,
+    status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'rejected', 'cancelled')),
+    message TEXT DEFAULT '',
+    manager_notes TEXT DEFAULT '',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    confirmed_by_id BIGINT REFERENCES account(id) ON DELETE SET NULL
+);
+
 -- Договоры лизинга
 CREATE TABLE IF NOT EXISTS lease_contract (
     id BIGSERIAL PRIMARY KEY,
@@ -127,6 +140,7 @@ CREATE TABLE IF NOT EXISTS lease_contract (
     monthly_payment DECIMAL(10, 2) NOT NULL,
     payment_day INTEGER DEFAULT 1,
     status VARCHAR(50) DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'completed', 'terminated')),
+    lease_request_id BIGINT UNIQUE REFERENCES lease_request(id) ON DELETE SET NULL,
     signed_at TIMESTAMP WITH TIME ZONE,
     signed_by_id BIGINT REFERENCES account(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -157,6 +171,24 @@ CREATE TABLE IF NOT EXISTS maintenance_request (
     assigned_to_id BIGINT REFERENCES account(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Сообщения чата по заявкам на лизинг
+CREATE TABLE IF NOT EXISTS chat_message (
+    id BIGSERIAL PRIMARY KEY,
+    lease_request_id BIGINT NOT NULL REFERENCES lease_request(id) ON DELETE CASCADE,
+    sender_id BIGINT NOT NULL REFERENCES account(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Сообщения чата по заявкам на ТО
+CREATE TABLE IF NOT EXISTS maintenance_chat_message (
+    id BIGSERIAL PRIMARY KEY,
+    maintenance_request_id BIGINT NOT NULL REFERENCES maintenance_request(id) ON DELETE CASCADE,
+    sender_id BIGINT NOT NULL REFERENCES account(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Журнал аудита

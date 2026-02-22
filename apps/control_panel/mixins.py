@@ -7,7 +7,7 @@ from apps.accounts.views import get_current_account
 # Таблицы, доступные менеджеру (admin видит все)
 MANAGER_ALLOWED_KEYS = frozenset([
     'account', 'userprofile', 'equipmentcategory', 'equipment',
-    'company', 'leasecontract', 'paymentschedule',
+    'company', 'leaserequest', 'leasecontract', 'paymentschedule',
     'maintenancerequest',
 ])
 

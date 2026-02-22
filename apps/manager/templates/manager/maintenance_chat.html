@@ -30,6 +30,11 @@
 .conv-item .status.completed { color: var(--green-600); }
 .conv-item .status.cancelled { color: #6b7280; }
 .empty-state { text-align: center; padding: 3rem 2rem; background: var(--green-50); border-radius: var(--radius-lg); }
+.maint-pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin: 1.5rem 0; flex-wrap: wrap; }
+.maint-pagination a, .maint-pagination span { padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.9rem; text-decoration: none; color: var(--text-secondary); border: 1px solid var(--border); background: var(--white); }
+.maint-pagination a:hover { background: var(--green-50); border-color: var(--green-200); color: var(--green-600); }
+.maint-pagination .active { background: var(--green-500); color: #fff; border-color: var(--green-500); }
+.maint-pagination .disabled { opacity: 0.6; cursor: not-allowed; }
 .back-link { display: inline-block; margin-top: 1rem; color: var(--text-muted); text-decoration: none; }
 .back-link:hover { color: var(--green-600); }
 </style>
@@ -64,6 +69,28 @@
     </div>
     {% else %}
     <div class="empty-state">Нет заявок на ТО.</div>
+    {% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="maint-pagination" aria-label="Пагинация">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" aria-label="Предыдущая">← Назад</a>
+        {% else %}
+        <span class="disabled" aria-disabled="true">← Назад</span>
+        {% endif %}
+        {% for p in page_obj.paginator.page_range %}
+        {% if p == page_obj.number %}
+        <span class="active" aria-current="page">{{ p }}</span>
+        {% else %}
+        <a href="?page={{ p }}">{{ p }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" aria-label="Следующая">Вперёд →</a>
+        {% else %}
+        <span class="disabled" aria-disabled="true">Вперёд →</span>
+        {% endif %}
+    </nav>
     {% endif %}
 
     <a href="{% url 'accounts:profile' %}" class="back-link">Назад в профиль</a>

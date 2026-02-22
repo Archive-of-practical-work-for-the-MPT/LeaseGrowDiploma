@@ -455,12 +455,17 @@ class ChatView(ManagerRequiredMixin, View):
     """Чат с клиентами — список заявок с переходом в чат."""
 
     def get(self, request):
+        from django.core.paginator import Paginator
         from apps.leasing.models import LeaseRequest
-        lease_requests = LeaseRequest.objects.select_related(
+        qs = LeaseRequest.objects.select_related(
             'equipment', 'account', 'account__profile'
         ).order_by('-created_at')
+        paginator = Paginator(qs, 5)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
         return render(request, 'manager/chat.html', {
-            'lease_requests': lease_requests,
+            'page_obj': page_obj,
+            'lease_requests': page_obj.object_list,
         })
 
 
@@ -468,9 +473,15 @@ class MaintenanceChatView(ManagerRequiredMixin, View):
     """Заявки на ТО — список с переходом в чат."""
 
     def get(self, request):
-        maintenance_requests = MaintenanceRequest.objects.select_related(
-            'equipment', 'equipment__category', 'company', 'company__account', 'company__account__profile'
+        from django.core.paginator import Paginator
+        qs = MaintenanceRequest.objects.select_related(
+            'equipment', 'equipment__category', 'company', 'company__account',
+            'company__account__profile'
         ).order_by('-created_at')
+        paginator = Paginator(qs, 5)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
         return render(request, 'manager/maintenance_chat.html', {
-            'maintenance_requests': maintenance_requests,
+            'page_obj': page_obj,
+            'maintenance_requests': page_obj.object_list,
         })

@@ -16,6 +16,7 @@
                 {% elif is_admin %}
                 <a href="{% url 'manager:admin_statistics' %}">Статистика</a>
                 {% elif current_account %}
+                <a href="{% url 'core:my_equipment' %}">Моя техника</a>
                 <a href="{% url 'chat:list' %}">Чат</a>
                 {% endif %}
                 <a href="{% url 'accounts:profile' %}">Профиль</a>

@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
-from apps.leasing.models import LeaseRequest
+from apps.leasing.models import LeaseRequest, LeaseContract
 from apps.accounts.views import get_current_account
 
 
@@ -126,6 +126,39 @@ def leasing_request_create(request, equipment_id):
         return redirect('core:leasing')
 
     return redirect('core:leasing')
+
+
+def my_equipment(request):
+    """Страница «Моя техника» — техника, взятая пользователем в лизинг (только для обычных пользователей).
+    Показывает: 1) договоры (LeaseContract) по компаниям пользователя;
+    2) подтверждённые заявки (LeaseRequest), когда договор ещё не оформлен."""
+    account = get_current_account(request)
+    if not account:
+        messages.error(request, 'Войдите в систему.')
+        return redirect('accounts:login')
+    if account.role and account.role.name in ('admin', 'manager'):
+        messages.error(request, 'Эта страница доступна только клиентам.')
+        return redirect('core:home')
+
+    contracts = LeaseContract.objects.filter(
+        company__account=account
+    ).select_related('equipment', 'equipment__category', 'equipment__manufacturer', 'company').order_by('-start_date')
+
+    # Подтверждённые заявки — техника, по которой менеджер подтвердил заявку (договор может быть ещё не создан)
+    confirmed_requests = LeaseRequest.objects.filter(
+        account=account,
+        status='confirmed'
+    ).select_related('equipment', 'equipment__category', 'equipment__manufacturer').order_by('-updated_at')
+
+    # Исключаем технику, которая уже есть в договорах (чтобы не дублировать)
+    contract_equipment_ids = set(contracts.values_list('equipment_id', flat=True))
+    confirmed_requests = [r for r in confirmed_requests if r.equipment_id not in contract_equipment_ids]
+
+    return render(request, 'core/my_equipment.html', {
+        'contracts': contracts,
+        'confirmed_requests': confirmed_requests,
+        'current_account': account,
+    })
 
 
 def privacy(request):

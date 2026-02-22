@@ -1,0 +1,143 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Моя техника — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/leasing.css' %}">
+<style>
+.my-equipment-hero {
+    background:
+        radial-gradient(ellipse 120% 100% at 50% -20%, var(--green-100) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 60% at 90% 50%, var(--green-50) 0%, transparent 45%),
+        var(--bg);
+    padding: 3rem 1.5rem 3.5rem;
+    text-align: center;
+}
+.my-equipment-hero h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+.my-equipment-hero p {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+.my-equipment-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+.my-equipment-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+}
+.my-equipment-empty a {
+    color: var(--green-600);
+    text-decoration: none;
+}
+.my-equipment-empty a:hover {
+    text-decoration: underline;
+}
+.contract-status {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+.contract-status.active { background: var(--green-100); color: var(--green-600); }
+.contract-status.completed { background: var(--border); color: var(--text-muted); }
+.contract-status.draft { background: #fef9c3; color: #a16207; }
+.contract-status.terminated { background: #fee2e2; color: #dc2626; }
+.btn-chat-manager {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    background: var(--green-500);
+    border: none;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+}
+.btn-chat-manager:hover {
+    background: var(--green-600);
+    color: #fff;
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="my-equipment-hero">
+    <h1>Моя техника</h1>
+    <p>Техника, которую вы взяли в лизинг — по договорам и подтверждённым заявкам.</p>
+</section>
+
+<div class="my-equipment-section">
+    {% if contracts or confirmed_requests %}
+    <div class="leasing-grid">
+        {% for contract in contracts %}
+        <article class="eq-card">
+            <div class="eq-card-image">🚜</div>
+            <div class="eq-card-body">
+                <h3 class="eq-card-title">{{ contract.equipment.name }} — {{ contract.equipment.model }}</h3>
+                <p class="eq-card-meta">{{ contract.equipment.category.name }}{% if contract.equipment.manufacturer %} · {{ contract.equipment.manufacturer.name }}{% endif %}</p>
+                <p class="eq-card-meta" style="margin-top: 0.25rem;">
+                    <span class="contract-status {{ contract.status }}">
+                        {% if contract.status == 'draft' %}Черновик{% endif %}
+                        {% if contract.status == 'active' %}Действует{% endif %}
+                        {% if contract.status == 'completed' %}Завершён{% endif %}
+                        {% if contract.status == 'terminated' %}Расторгнут{% endif %}
+                    </span>
+                    · {{ contract.contract_number }}
+                </p>
+                {% if contract.company %}
+                <p class="eq-card-meta" style="margin-top: 0.25rem;">{{ contract.company.name }}</p>
+                {% endif %}
+                {% if contract.monthly_payment %}
+                <div class="eq-card-rate" style="margin-top: 0.5rem;">{{ contract.monthly_payment|floatformat:0 }} ₽/мес</div>
+                {% endif %}
+                <p class="eq-card-meta" style="margin-top: 0.5rem; font-size: 0.85rem;">{{ contract.start_date|date:"d.m.Y" }} — {{ contract.end_date|date:"d.m.Y" }}</p>
+            </div>
+        </article>
+        {% endfor %}
+        {% for req in confirmed_requests %}
+        <article class="eq-card">
+            <div class="eq-card-image">🚜</div>
+            <div class="eq-card-body">
+                <h3 class="eq-card-title">{{ req.equipment.name }} — {{ req.equipment.model }}</h3>
+                <p class="eq-card-meta">{{ req.equipment.category.name }}{% if req.equipment.manufacturer %} · {{ req.equipment.manufacturer.name }}{% endif %}</p>
+                <p class="eq-card-meta" style="margin-top: 0.25rem;">
+                    <span class="contract-status active">Заявка подтверждена</span>
+                </p>
+                <p class="eq-card-meta" style="margin-top: 0.5rem; font-size: 0.85rem;">Ожидает оформления договора.</p>
+                <a href="{% url 'chat:thread' req.id %}" class="btn-chat-manager">💬 Чат с менеджером</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="my-equipment-empty">
+        <p>У вас пока нет техники в лизинге.</p>
+        <p style="margin-top: 1rem;"><a href="{% url 'core:leasing' %}">Перейти в каталог</a> и оформить заявку.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -92,6 +92,32 @@
     <p class="leasing-empty">Сейчас нет техники, доступной для лизинга. Свяжитесь с нами для индивидуального подбора.</p>
     {% endif %}
 
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="leasing-pagination" aria-label="Пагинация">
+        <div class="leasing-pagination-inner">
+            {% if page_obj.has_previous %}
+            <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}" class="leasing-pagination-btn" aria-label="Предыдущая">← Назад</a>
+            {% else %}
+            <span class="leasing-pagination-btn disabled" aria-disabled="true">← Назад</span>
+            {% endif %}
+            <div class="leasing-pagination-pages">
+                {% for p in page_obj.paginator.page_range %}
+                    {% if p == page_obj.number %}
+                    <span class="leasing-pagination-btn active" aria-current="page">{{ p }}</span>
+                    {% else %}
+                    <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ p }}" class="leasing-pagination-btn">{{ p }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% if page_obj.has_next %}
+            <a href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}" class="leasing-pagination-btn" aria-label="Следующая">Вперёд →</a>
+            {% else %}
+            <span class="leasing-pagination-btn disabled" aria-disabled="true">Вперёд →</span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
     {% if current_account and my_requests %}
     <section class="my-requests-section">
         <h2>Мои заявки</h2>

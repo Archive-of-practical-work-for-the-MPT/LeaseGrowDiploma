@@ -140,6 +140,61 @@
     gap: 1.5rem;
 }
 
+.leasing-pagination {
+    margin-top: 2.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.leasing-pagination-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.leasing-pagination-pages {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.leasing-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-family: inherit;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.leasing-pagination-btn:hover:not(.disabled):not(.active) {
+    background: var(--green-50);
+    border-color: var(--green-500);
+    color: var(--green-600);
+}
+
+.leasing-pagination-btn.active {
+    background: var(--green-500);
+    border-color: var(--green-500);
+    color: var(--on-primary);
+}
+
+.leasing-pagination-btn.disabled {
+    color: var(--text-muted);
+    cursor: default;
+    background: var(--bg);
+}
+
 .eq-card {
     background: var(--white);
     border-radius: var(--radius-lg);

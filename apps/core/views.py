@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Q
 
 from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
@@ -50,7 +51,10 @@ def leasing(request):
     else:
         qs = qs.order_by('category__name', 'name')
 
-    equipment_list = qs
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    equipment_list = page_obj.object_list
 
     categories = EquipmentCategory.objects.filter(
         equipment__status='available'
@@ -72,8 +76,14 @@ def leasing(request):
             ).values_list('equipment_id', flat=True)
         )
 
+    get_copy = request.GET.copy()
+    get_copy.pop('page', None)
+    query_string = get_copy.urlencode()
+
     return render(request, 'core/leasing.html', {
         'equipment_list': equipment_list,
+        'page_obj': page_obj,
+        'query_string': query_string,
         'my_requests': my_requests,
         'pending_equipment_ids': pending_equipment_ids,
         'current_account': account,

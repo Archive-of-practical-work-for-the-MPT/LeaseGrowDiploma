@@ -11,6 +11,7 @@ from django.views import View
 
 from apps.leasing.models import Company, LeaseContract, PaymentSchedule, MaintenanceRequest
 from apps.catalog.models import Equipment, EquipmentCategory
+from apps.control_panel.mixins import AdminRequiredMixin
 from .mixins import ManagerRequiredMixin
 
 
@@ -90,12 +91,42 @@ def _stats_with_json():
     return data
 
 
+def _get_admin_stats():
+    """Статистика системы для администратора."""
+    from apps.accounts.models import Account, Role
+    from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
+    from apps.leasing.models import Company, LeaseContract, PaymentSchedule, Maintenance, MaintenanceRequest
+    return {
+        'accounts': Account.objects.count(),
+        'roles': Role.objects.count(),
+        'companies': Company.objects.count(),
+        'equipment': Equipment.objects.count(),
+        'categories': EquipmentCategory.objects.count(),
+        'manufacturers': Manufacturer.objects.count(),
+        'contracts': LeaseContract.objects.count(),
+        'contracts_active': LeaseContract.objects.filter(status='active').count(),
+        'payments': PaymentSchedule.objects.count(),
+        'payments_pending': PaymentSchedule.objects.filter(status='pending').count(),
+        'maintenance': Maintenance.objects.count(),
+        'maintenance_requests': MaintenanceRequest.objects.count(),
+        'maintenance_requests_new': MaintenanceRequest.objects.filter(status='new').count(),
+    }
+
+
 class StatisticsView(ManagerRequiredMixin, View):
-    """Страница статистики с диаграммами."""
+    """Статистика с диаграммами и экспортом. Только для менеджера."""
 
     def get(self, request):
         data = _stats_with_json()
         return render(request, 'manager/statistics.html', data)
+
+
+class AdminStatisticsView(AdminRequiredMixin, View):
+    """Статистика системы (только карточки). Только для администратора."""
+
+    def get(self, request):
+        stats = _get_admin_stats()
+        return render(request, 'manager/admin_statistics.html', {'stats': stats})
 
 
 def _build_export_data():

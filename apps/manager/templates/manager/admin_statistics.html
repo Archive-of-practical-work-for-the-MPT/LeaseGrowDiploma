@@ -1,0 +1,99 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Статистика системы — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
+<link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}?v=2">
+<style>
+.admin-stats-root { max-width: 900px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.admin-stats-header { margin-bottom: 1.5rem; }
+.admin-stats-title { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+.admin-stats-subtitle { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; transition: opacity 0.2s; }
+.stat-card:hover { opacity: 0.9; }
+.stat-card.stat-highlight { border-color: var(--primary); }
+.stat-card.stat-highlight .stat-value { color: var(--primary); }
+.stat-card.stat-warning { border-color: var(--warning, #f59e0b); background: rgba(234, 179, 8, 0.15); }
+.stat-icon { font-size: 1.5rem; }
+/* Тёмная тема: жёлтые блоки должны быть хорошо видны */
+[data-theme="dark"] .stat-card.stat-warning {
+    background: rgba(234, 179, 8, 0.2);
+    border-color: rgba(234, 179, 8, 0.6);
+}
+[data-theme="dark"] .stat-card.stat-warning .stat-value {
+    color: #facc15;
+}
+.stat-value { font-size: 1.5rem; font-weight: 700; }
+.stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="console-root admin-stats-root">
+    <div class="console-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-stats-header">
+            <h1 class="admin-stats-title">Статистика системы</h1>
+            <p class="admin-stats-subtitle">Сводные данные по сущностям системы. Нажмите на карточку, чтобы перейти к списку.</p>
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'accounts:profile' %}" class="console-back-btn">Профиль</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <a href="{% url 'control_panel:account_list' %}" class="stat-card">
+            <span class="stat-icon">👥</span>
+            <span class="stat-value">{{ stats.accounts }}</span>
+            <span class="stat-label">Аккаунты</span>
+        </a>
+        <a href="{% url 'control_panel:company_list' %}" class="stat-card">
+            <span class="stat-icon">🏢</span>
+            <span class="stat-value">{{ stats.companies }}</span>
+            <span class="stat-label">Компании</span>
+        </a>
+        <a href="{% url 'control_panel:equipment_list' %}" class="stat-card">
+            <span class="stat-icon">🚜</span>
+            <span class="stat-value">{{ stats.equipment }}</span>
+            <span class="stat-label">Техника</span>
+        </a>
+        <a href="{% url 'control_panel:leasecontract_list' %}" class="stat-card">
+            <span class="stat-icon">📄</span>
+            <span class="stat-value">{{ stats.contracts }}</span>
+            <span class="stat-label">Договоры</span>
+        </a>
+        <a href="{% url 'control_panel:leasecontract_list' %}" class="stat-card stat-highlight">
+            <span class="stat-icon">✓</span>
+            <span class="stat-value">{{ stats.contracts_active }}</span>
+            <span class="stat-label">Активные договоры</span>
+        </a>
+        <a href="{% url 'control_panel:paymentschedule_list' %}" class="stat-card">
+            <span class="stat-icon">💰</span>
+            <span class="stat-value">{{ stats.payments }}</span>
+            <span class="stat-label">Платежи</span>
+        </a>
+        <a href="{% url 'control_panel:paymentschedule_list' %}" class="stat-card stat-warning">
+            <span class="stat-icon">⏳</span>
+            <span class="stat-value">{{ stats.payments_pending }}</span>
+            <span class="stat-label">Ожидают оплаты</span>
+        </a>
+        <a href="{% url 'control_panel:maintenance_list' %}" class="stat-card">
+            <span class="stat-icon">🔧</span>
+            <span class="stat-value">{{ stats.maintenance }}</span>
+            <span class="stat-label">Обслуживание</span>
+        </a>
+        <a href="{% url 'control_panel:maintenancerequest_list' %}" class="stat-card">
+            <span class="stat-icon">📝</span>
+            <span class="stat-value">{{ stats.maintenance_requests }}</span>
+            <span class="stat-label">Заявки на ТО</span>
+        </a>
+        <a href="{% url 'control_panel:maintenancerequest_list' %}" class="stat-card stat-warning">
+            <span class="stat-icon">🆕</span>
+            <span class="stat-value">{{ stats.maintenance_requests_new }}</span>
+            <span class="stat-label">Новые заявки</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

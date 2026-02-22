@@ -117,7 +117,7 @@
                 {% endif %}
                 {% if is_manager %}
                 <a href="{% url 'manager:statistics' %}" class="profile-btn profile-btn-panel">
-                    <span class="profile-btn-icon">📊</span>
+                    <span class="profile-btn-icon">📈</span>
                     <span class="profile-btn-text">Статистика</span>
                     <span class="profile-btn-desc">Диаграммы, сводки и экспорт в PDF/Excel</span>
                 </a>
@@ -138,66 +138,13 @@
                     <span class="profile-btn-text">Бэкап БД</span>
                     <span class="profile-btn-desc">Создать или загрузить резервную копию PostgreSQL</span>
                 </a>
+                <a href="{% url 'manager:admin_statistics' %}" class="profile-btn profile-btn-panel">
+                    <span class="profile-btn-icon">📈</span>
+                    <span class="profile-btn-text">Статистика</span>
+                    <span class="profile-btn-desc">Статистика системы: сводки по сущностям</span>
+                </a>
                 {% endif %}
             </div>
-            {% endif %}
-
-            {% if stats %}
-            <section class="profile-stats">
-                <h2 class="profile-stats-title">Статистика системы</h2>
-                <div class="stats-grid">
-                    <a href="{% url 'control_panel:account_list' %}" class="stat-card">
-                        <span class="stat-icon">👥</span>
-                        <span class="stat-value">{{ stats.accounts }}</span>
-                        <span class="stat-label">Аккаунты</span>
-                    </a>
-                    <a href="{% url 'control_panel:company_list' %}" class="stat-card">
-                        <span class="stat-icon">🏢</span>
-                        <span class="stat-value">{{ stats.companies }}</span>
-                        <span class="stat-label">Компании</span>
-                    </a>
-                    <a href="{% url 'control_panel:equipment_list' %}" class="stat-card">
-                        <span class="stat-icon">🚜</span>
-                        <span class="stat-value">{{ stats.equipment }}</span>
-                        <span class="stat-label">Техника</span>
-                    </a>
-                    <a href="{% url 'control_panel:leasecontract_list' %}" class="stat-card">
-                        <span class="stat-icon">📄</span>
-                        <span class="stat-value">{{ stats.contracts }}</span>
-                        <span class="stat-label">Договоры</span>
-                    </a>
-                    <a href="{% url 'control_panel:leasecontract_list' %}" class="stat-card stat-highlight">
-                        <span class="stat-icon">✓</span>
-                        <span class="stat-value">{{ stats.contracts_active }}</span>
-                        <span class="stat-label">Активные договоры</span>
-                    </a>
-                    <a href="{% url 'control_panel:paymentschedule_list' %}" class="stat-card">
-                        <span class="stat-icon">💰</span>
-                        <span class="stat-value">{{ stats.payments }}</span>
-                        <span class="stat-label">Платежи</span>
-                    </a>
-                    <a href="{% url 'control_panel:paymentschedule_list' %}" class="stat-card stat-warning">
-                        <span class="stat-icon">⏳</span>
-                        <span class="stat-value">{{ stats.payments_pending }}</span>
-                        <span class="stat-label">Ожидают оплаты</span>
-                    </a>
-                    <a href="{% url 'control_panel:maintenance_list' %}" class="stat-card">
-                        <span class="stat-icon">🔧</span>
-                        <span class="stat-value">{{ stats.maintenance }}</span>
-                        <span class="stat-label">Обслуживание</span>
-                    </a>
-                    <a href="{% url 'control_panel:maintenancerequest_list' %}" class="stat-card">
-                        <span class="stat-icon">📝</span>
-                        <span class="stat-value">{{ stats.maintenance_requests }}</span>
-                        <span class="stat-label">Заявки на ТО</span>
-                    </a>
-                    <a href="{% url 'control_panel:maintenancerequest_list' %}" class="stat-card stat-warning">
-                        <span class="stat-icon">🆕</span>
-                        <span class="stat-value">{{ stats.maintenance_requests_new }}</span>
-                        <span class="stat-label">Новые заявки</span>
-                    </a>
-                </div>
-            </section>
             {% endif %}
         </section>
     </div>

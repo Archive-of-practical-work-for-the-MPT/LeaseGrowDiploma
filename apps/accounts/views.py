@@ -169,7 +169,6 @@ def profile_view(request):
         return redirect('accounts:login')
 
     profile = None
-    stats = None
     try:
         profile = account.profile
     except UserProfile.DoesNotExist:
@@ -214,32 +213,11 @@ def profile_view(request):
         messages.success(request, 'Профиль обновлён.')
         return redirect('accounts:profile')
 
-    if account.role and account.role.name == 'admin':
-        from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
-        from apps.leasing.models import Company, LeaseContract, PaymentSchedule, Maintenance, MaintenanceRequest
-
-        stats = {
-            'accounts': Account.objects.count(),
-            'roles': Role.objects.count(),
-            'companies': Company.objects.count(),
-            'equipment': Equipment.objects.count(),
-            'categories': EquipmentCategory.objects.count(),
-            'manufacturers': Manufacturer.objects.count(),
-            'contracts': LeaseContract.objects.count(),
-            'contracts_active': LeaseContract.objects.filter(status='active').count(),
-            'payments': PaymentSchedule.objects.count(),
-            'payments_pending': PaymentSchedule.objects.filter(status='pending').count(),
-            'maintenance': Maintenance.objects.count(),
-            'maintenance_requests': MaintenanceRequest.objects.count(),
-            'maintenance_requests_new': MaintenanceRequest.objects.filter(status='new').count(),
-        }
-
     is_manager = account.role and account.role.name == 'manager'
     return render(request, 'accounts/profile.html', {
         'account': account,
         'profile': profile,
         'form': form,
-        'stats': stats,
         'is_admin': account.role and account.role.name == 'admin',
         'is_manager': is_manager,
     })

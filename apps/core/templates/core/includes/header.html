@@ -14,7 +14,7 @@
                 <a href="{% url 'manager:chat' %}">Чат</a>
                 <a href="{% url 'manager:statistics' %}">Статистика</a>
                 {% elif is_admin %}
-                <a href="{% url 'manager:chat' %}">Чат</a>
+                <a href="{% url 'manager:admin_statistics' %}">Статистика</a>
                 {% elif current_account %}
                 <a href="{% url 'chat:list' %}">Чат</a>
                 {% endif %}

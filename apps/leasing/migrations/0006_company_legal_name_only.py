@@ -22,22 +22,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_company_name_to_legal_name, noop),
-        migrations.RemoveField(
-            model_name='company',
-            name='actual_address',
-        ),
-        migrations.RemoveField(
-            model_name='company',
-            name='kpp',
-        ),
-        migrations.RemoveField(
-            model_name='company',
-            name='name',
-        ),
-        migrations.AlterField(
-            model_name='company',
-            name='legal_name',
-            field=models.CharField(max_length=500),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='company',
+                    name='actual_address',
+                ),
+                migrations.RemoveField(
+                    model_name='company',
+                    name='kpp',
+                ),
+                migrations.RemoveField(
+                    model_name='company',
+                    name='name',
+                ),
+                migrations.AlterField(
+                    model_name='company',
+                    name='legal_name',
+                    field=models.CharField(max_length=500),
+                ),
+            ],
         ),
     ]

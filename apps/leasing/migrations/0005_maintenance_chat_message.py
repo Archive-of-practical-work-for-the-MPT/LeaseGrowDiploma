@@ -12,20 +12,25 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='MaintenanceChatMessage',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('maintenance_request', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='leasing.maintenancerequest')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='maintenance_chat_messages', to='accounts.account')),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.CreateModel(
+                    name='MaintenanceChatMessage',
+                    fields=[
+                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('text', models.TextField()),
+                        ('created_at', models.DateTimeField(auto_now_add=True)),
+                        ('maintenance_request', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='leasing.maintenancerequest')),
+                        ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='maintenance_chat_messages', to='accounts.account')),
+                    ],
+                    options={
+                        'verbose_name': 'сообщение чата ТО',
+                        'verbose_name_plural': 'сообщения чата ТО',
+                        'db_table': 'maintenance_chat_message',
+                        'ordering': ['created_at'],
+                    },
+                ),
             ],
-            options={
-                'verbose_name': 'сообщение чата ТО',
-                'verbose_name_plural': 'сообщения чата ТО',
-                'db_table': 'maintenance_chat_message',
-                'ordering': ['created_at'],
-            },
         ),
     ]

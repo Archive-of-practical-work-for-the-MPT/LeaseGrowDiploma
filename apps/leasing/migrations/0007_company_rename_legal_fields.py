@@ -10,14 +10,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='company',
-            old_name='legal_name',
-            new_name='name',
-        ),
-        migrations.RenameField(
-            model_name='company',
-            old_name='legal_address',
-            new_name='address',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RenameField(
+                    model_name='company',
+                    old_name='legal_name',
+                    new_name='name',
+                ),
+                migrations.RenameField(
+                    model_name='company',
+                    old_name='legal_address',
+                    new_name='address',
+                ),
+            ],
         ),
     ]

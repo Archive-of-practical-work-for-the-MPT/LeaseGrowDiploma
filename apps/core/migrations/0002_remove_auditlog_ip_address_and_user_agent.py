@@ -10,12 +10,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='auditlog',
-            name='ip_address',
-        ),
-        migrations.RemoveField(
-            model_name='auditlog',
-            name='user_agent',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='auditlog',
+                    name='ip_address',
+                ),
+                migrations.RemoveField(
+                    model_name='auditlog',
+                    name='user_agent',
+                ),
+            ],
         ),
     ]

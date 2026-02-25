@@ -4,8 +4,6 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-from .models import LeaseRequest, MaintenanceRequest
-
 
 class MaintenanceChatConsumer(AsyncWebsocketConsumer):
     """WebSocket для чата по заявке на ТО."""
@@ -30,6 +28,7 @@ class MaintenanceChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def _can_access(self):
         from apps.accounts.models import Account
+        from .models import MaintenanceRequest
         session = self.scope.get('session') or {}
         account_id = session.get('account_id')
         if not account_id:
@@ -71,6 +70,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def _can_access(self):
         from apps.accounts.models import Account
+        from .models import LeaseRequest
         session = self.scope.get('session') or {}
         account_id = session.get('account_id')
         if not account_id:

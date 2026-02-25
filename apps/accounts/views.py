@@ -118,7 +118,8 @@ def password_reset_request_view(request):
         if account:
             token = _make_reset_token(account.id)
             reset_url = request.build_absolute_uri(
-                reverse('accounts:password_reset_confirm', kwargs={'token': token})
+                reverse('accounts:password_reset_confirm',
+                        kwargs={'token': token})
             )
             plain_message = (
                 f'Здравствуйте, {account.username}!\n\n'
@@ -221,7 +222,8 @@ def profile_view(request):
         return redirect('accounts:profile')
 
     is_manager = account.role and account.role.name == 'manager'
-    is_client = not (account.role and account.role.name in ('admin', 'manager'))
+    is_client = not (
+        account.role and account.role.name in ('admin', 'manager'))
 
     # Компания клиента (для заявок на лизинг)
     from apps.leasing.models import Company
@@ -239,7 +241,8 @@ def profile_view(request):
             }
         company_form = ClientCompanyForm(
             instance=user_company,
-            data=request.POST if request.method == 'POST' and request.POST.get('form_type') == 'company' else None,
+            data=request.POST if request.method == 'POST' and request.POST.get(
+                'form_type') == 'company' else None,
             initial=initial_company,
         )
         if request.method == 'POST' and request.POST.get('form_type') == 'company' and company_form.is_valid():
@@ -262,7 +265,8 @@ def profile_view(request):
                     status='active',
                     account=account,
                 )
-                messages.success(request, 'Компания добавлена. Теперь вы можете оформить заявку на лизинг.')
+                messages.success(
+                    request, 'Компания добавлена. Теперь вы можете оформить заявку на лизинг.')
             return redirect('accounts:profile')
 
     need_company = request.GET.get('need_company') == '1'

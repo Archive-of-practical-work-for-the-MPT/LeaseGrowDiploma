@@ -5,4 +5,4 @@
 from .base import *  # noqa: F401, F403
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])  # noqa: F405
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND уже правильно настроен в base.py для SMTP отправки писем

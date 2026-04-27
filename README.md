@@ -154,11 +154,9 @@ docker compose up --build
 
 3. Сайт: http://localhost:8000
 
-4. Загрузка тестовых данных (после первого запуска):
+4. База данных и тестовые данные:
 
-```bash
-docker compose exec -T db psql -U postgres -d leasegrow < scripts/seed_db.sql
-```
+База данных создаётся контейнером PostgreSQL автоматически, а тестовые данные загружаются при запуске `web` после миграций.
 
 ---
 

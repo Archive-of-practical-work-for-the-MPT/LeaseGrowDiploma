@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse, Http404
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib import messages
 
@@ -21,6 +22,8 @@ from .forms import (
     PasswordResetRequestForm, PasswordResetConfirmForm,
     ClientCompanyForm,
 )
+
+PASSWORD_RESET_TOKEN_MAX_AGE = 60 * 60
 
 
 def get_current_account(request):
@@ -88,17 +91,22 @@ def logout_view(request):
 
 
 def _make_reset_token(account_id):
-    """Создаёт подписанный токен для сброса пароля (действует 24 часа)."""
+    """Создаёт подписанный токен для сброса пароля на 1 час."""
+    account = Account.objects.only('id', 'password_hash').get(id=account_id)
     signer = TimestampSigner()
-    return signer.sign(str(account_id))
+    return signer.sign(f'{account.id}:{account.password_hash}')
 
 
-def _get_account_from_token(token, max_age=86400):
-    """Извлекает account_id из токена. max_age в секундах (по умолчанию 24 ч)."""
+def _get_account_from_token(token, max_age=PASSWORD_RESET_TOKEN_MAX_AGE):
+    """Возвращает аккаунт, если ссылка не истекла и пароль ещё не менялся."""
     signer = TimestampSigner()
     try:
         value = signer.unsign(token, max_age=max_age)
-        return Account.objects.filter(id=int(value), is_active=True).first()
+        account_id, token_password_hash = value.split(':', 1)
+        account = Account.objects.filter(id=int(account_id), is_active=True).first()
+        if account and constant_time_compare(account.password_hash, token_password_hash):
+            return account
+        return None
     except (SignatureExpired, BadSignature, ValueError):
         return None
 
@@ -125,7 +133,7 @@ def password_reset_request_view(request):
                 f'Здравствуйте, {account.username}!\n\n'
                 f'Вы запросили сброс пароля. Перейдите по ссылке для установки нового пароля:\n\n'
                 f'{reset_url}\n\n'
-                f'Ссылка действительна 24 часа.\n\n'
+                f'Ссылка действительна 1 час.\n\n'
                 f'Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.'
             )
             html_message = render_to_string(

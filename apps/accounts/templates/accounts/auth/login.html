@@ -24,7 +24,21 @@
             </div>
             <div class="field">
                 <label for="id_password">{{ form.password.label }}</label>
-                {{ form.password }}
+                <div class="password-input">
+                    {{ form.password }}
+                    <button class="password-toggle" type="button" data-password-toggle="id_password" aria-label="Show password" aria-pressed="false">
+                        <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2.2 12s3.5-6.4 9.8-6.4S21.8 12 21.8 12s-3.5 6.4-9.8 6.4S2.2 12 2.2 12Z" />
+                            <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" />
+                        </svg>
+                        <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3.1 4.2 20.9 20" />
+                            <path d="M9.5 5.9A10.3 10.3 0 0 1 12 5.6c6.3 0 9.8 6.4 9.8 6.4a17 17 0 0 1-2.7 3.4" />
+                            <path d="M14.2 14.1a3.2 3.2 0 0 1-4.3-4.3" />
+                            <path d="M6.7 7.7A17.7 17.7 0 0 0 2.2 12s3.5 6.4 9.8 6.4c1.5 0 2.9-.4 4.1-1" />
+                        </svg>
+                    </button>
+                </div>
                 {{ form.password.errors }}
                 <p class="forgot-link"><a href="{% url 'accounts:password_reset_request' %}">Забыли пароль?</a></p>
             </div>
@@ -33,4 +47,8 @@
         <p class="footer-link">Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'accounts/js/password-toggle.js' %}"></script>
 {% endblock %}

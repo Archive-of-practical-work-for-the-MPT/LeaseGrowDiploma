@@ -206,6 +206,12 @@
     flex-direction: column;
 }
 
+.eq-card-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
 .eq-card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -233,6 +239,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+}
+
+.eq-card-body-actions {
+    padding-top: 0;
 }
 
 .eq-card-title {
@@ -266,7 +276,7 @@
     margin-top: auto;
 }
 
-.eq-card .btn-leasing {
+.btn-leasing {
     display: block;
     width: 100%;
     padding: 0.75rem 1.25rem;
@@ -285,37 +295,37 @@
     appearance: none;
 }
 
-.eq-card .btn-leasing:hover {
+.btn-leasing:hover {
     background: var(--green-600);
     transform: translateY(-1px);
 }
 
-.eq-card .btn-leasing.sent {
+.btn-leasing.sent {
     background: var(--green-100);
     color: var(--green-700);
     cursor: default;
     border: 1px solid var(--green-200);
 }
 
-.eq-card a.btn-leasing.sent {
+a.btn-leasing.sent {
     cursor: pointer;
 }
 
-.eq-card .btn-leasing.sent:hover {
+.btn-leasing.sent:hover {
     transform: none;
 }
 
-.eq-card a.btn-leasing.sent:hover {
+a.btn-leasing.sent:hover {
     background: var(--green-200);
 }
 
-.eq-card .btn-leasing.guest {
+.btn-leasing.guest {
     background: var(--green-50);
     color: var(--text);
     border: 1px solid var(--green-200);
 }
 
-.eq-card .btn-leasing.guest:hover {
+.btn-leasing.guest:hover {
     background: var(--green-100);
 }
 
@@ -454,4 +464,151 @@
     padding: 3rem 1.5rem;
     color: var(--text-muted);
     font-size: 1.1rem;
+}
+
+.leasing-detail-section {
+    padding-top: 1.5rem;
+}
+
+.leasing-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+    color: var(--green-600);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.leasing-detail-back:hover {
+    color: var(--green-700);
+}
+
+.leasing-detail-card {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(0, 1.1fr);
+    gap: 2rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.leasing-detail-media {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--green-50) 0%, var(--green-100) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.leasing-detail-media img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.leasing-detail-placeholder {
+    font-size: 5rem;
+}
+
+.leasing-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.leasing-detail-header h1 {
+    margin: 0.35rem 0 0.5rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    line-height: 1.1;
+}
+
+.leasing-detail-eyebrow {
+    margin: 0;
+    color: var(--green-600);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+}
+
+.leasing-detail-subtitle {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.leasing-detail-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.9rem;
+}
+
+.leasing-detail-stat,
+.leasing-detail-meta div {
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.leasing-detail-stat span,
+.leasing-detail-meta span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+}
+
+.leasing-detail-stat strong,
+.leasing-detail-meta strong {
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.leasing-detail-description h2 {
+    margin: 0 0 0.65rem;
+    font-size: 1.1rem;
+}
+
+.leasing-detail-description p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.leasing-detail-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+}
+
+.leasing-detail-actions {
+    margin-top: auto;
+}
+
+.leasing-detail-actions .btn-leasing,
+.leasing-detail-actions form {
+    max-width: 320px;
+}
+
+.leasing-detail-actions form {
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .leasing-detail-card {
+        grid-template-columns: 1fr;
+    }
+
+    .leasing-detail-actions .btn-leasing,
+    .leasing-detail-actions form {
+        max-width: none;
+    }
 }

@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% load static core_extras %}
+
+{% block title %}{{ equipment.name }} {{ equipment.model }} — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/leasing.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="leasing-section leasing-detail-section">
+    <a href="{% url 'core:leasing' %}" class="leasing-detail-back">← Назад к каталогу</a>
+
+    <section class="leasing-detail-card">
+        {% with image_url=equipment.images_urls|first_image_url %}
+        <div class="leasing-detail-media">
+            {% if image_url %}
+            <img src="{{ image_url }}" alt="{{ equipment.name }} {{ equipment.model }}">
+            {% else %}
+            <div class="leasing-detail-placeholder">🚜</div>
+            {% endif %}
+        </div>
+        {% endwith %}
+
+        <div class="leasing-detail-content">
+            <div class="leasing-detail-header">
+                <p class="leasing-detail-eyebrow">{{ equipment.category.name }}</p>
+                <h1>{{ equipment.name }} — {{ equipment.model }}</h1>
+                <p class="leasing-detail-subtitle">
+                    {% if equipment.manufacturer %}{{ equipment.manufacturer.name }}{% endif %}
+                    {% if equipment.manufacturer and equipment.location %} · {% endif %}
+                    {% if equipment.location %}{{ equipment.location }}{% endif %}
+                </p>
+            </div>
+
+            <div class="leasing-detail-stats">
+                {% if equipment.price %}
+                <div class="leasing-detail-stat">
+                    <span>Цена</span>
+                    <strong>{{ equipment.price|floatformat:0 }} ₽</strong>
+                </div>
+                {% endif %}
+                {% if equipment.monthly_lease_rate %}
+                <div class="leasing-detail-stat">
+                    <span>Платеж в месяц</span>
+                    <strong>от {{ equipment.monthly_lease_rate|floatformat:0 }} ₽</strong>
+                </div>
+                {% endif %}
+                {% if equipment.year %}
+                <div class="leasing-detail-stat">
+                    <span>Год выпуска</span>
+                    <strong>{{ equipment.year }}</strong>
+                </div>
+                {% endif %}
+                <div class="leasing-detail-stat">
+                    <span>Состояние</span>
+                    <strong>{{ equipment.get_condition_display }}</strong>
+                </div>
+            </div>
+
+            <div class="leasing-detail-description">
+                <h2>Описание</h2>
+                {% if equipment.specifications %}
+                <p>{{ equipment.specifications }}</p>
+                {% else %}
+                <p>Подробные характеристики для этой техники пока не заполнены.</p>
+                {% endif %}
+            </div>
+
+            <div class="leasing-detail-meta">
+                <div><span>Категория</span><strong>{{ equipment.category.name }}</strong></div>
+                {% if equipment.manufacturer %}
+                <div><span>Производитель</span><strong>{{ equipment.manufacturer.name }}</strong></div>
+                {% endif %}
+                {% if equipment.location %}
+                <div><span>Локация</span><strong>{{ equipment.location }}</strong></div>
+                {% endif %}
+                {% if equipment.residual_value %}
+                <div><span>Остаточная стоимость</span><strong>{{ equipment.residual_value|floatformat:0 }} ₽</strong></div>
+                {% endif %}
+                {% if equipment.vin %}
+                <div><span>VIN</span><strong>{{ equipment.vin }}</strong></div>
+                {% endif %}
+            </div>
+
+            <div class="leasing-detail-actions">
+                {% if current_account %}
+                    {% if equipment.id in pending_equipment_ids %}
+                    <a href="{% url 'chat:thread' pending_lease_requests|get_item:equipment.id %}" class="btn-leasing sent">Заявка отправлена</a>
+                    {% else %}
+                    <form method="post" action="{% url 'core:leasing_request_create' equipment.id %}" onsubmit="return confirm('Оформить заявку на {{ equipment.name }}?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="message" value="">
+                        <button type="submit" class="btn-leasing">Оформить заявку</button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={% url 'core:leasing_detail' equipment.id %}" class="btn-leasing guest">Войдите, чтобы оформить заявку</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -59,6 +59,7 @@
     <div class="leasing-grid">
         {% for eq in equipment_list %}
         <article class="eq-card">
+            <a href="{% url 'core:leasing_detail' eq.id %}" class="eq-card-link" aria-label="{{ eq.name }} {{ eq.model }}">
             {% with image_url=eq.images_urls|first_image_url %}
             <div class="eq-card-image">
                 {% if image_url %}
@@ -77,6 +78,9 @@
                 {% if eq.monthly_lease_rate %}
                 <div class="eq-card-rate">От {{ eq.monthly_lease_rate|floatformat:0 }} ₽/мес</div>
                 {% endif %}
+            </div>
+            </a>
+            <div class="eq-card-body eq-card-body-actions">
                 <div class="eq-card-actions">
                     {% if current_account %}
                         {% if eq.id in pending_equipment_ids %}

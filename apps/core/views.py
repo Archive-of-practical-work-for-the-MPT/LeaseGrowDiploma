@@ -14,6 +14,46 @@ from apps.leasing.models import (
 from apps.accounts.views import get_current_account
 
 
+def _get_leasing_request_context(account):
+    my_requests = []
+    pending_equipment_ids = set()
+    pending_lease_requests = {}
+    can_cancel_ids = set()
+
+    if not account:
+        return {
+            'my_requests': my_requests,
+            'can_cancel_ids': can_cancel_ids,
+            'pending_equipment_ids': pending_equipment_ids,
+            'pending_lease_requests': pending_lease_requests,
+        }
+
+    my_requests = list(
+        LeaseRequest.objects.filter(account=account)
+        .select_related('equipment', 'lease_contract')
+        .order_by('-created_at')
+    )
+    for req in my_requests:
+        if req.status in ('pending', 'confirmed'):
+            c = getattr(req, 'lease_contract', None)
+            if not c or not c.signed_at:
+                can_cancel_ids.add(req.id)
+
+    pending_lease_requests = dict(
+        LeaseRequest.objects.filter(
+            account=account, status='pending'
+        ).values_list('equipment_id', 'id')
+    )
+    pending_equipment_ids = set(pending_lease_requests.keys())
+
+    return {
+        'my_requests': my_requests,
+        'can_cancel_ids': can_cancel_ids,
+        'pending_equipment_ids': pending_equipment_ids,
+        'pending_lease_requests': pending_lease_requests,
+    }
+
+
 def home(request):
     return render(request, 'core/home.html')
 
@@ -70,27 +110,7 @@ def leasing(request):
     ).distinct().order_by('name')
 
     account = get_current_account(request)
-    my_requests = []
-    pending_equipment_ids = set()
-    pending_lease_requests = {}
-    can_cancel_ids = set()
-    if account:
-        my_requests = list(
-            LeaseRequest.objects.filter(account=account)
-            .select_related('equipment', 'lease_contract')
-            .order_by('-created_at')
-        )
-        for req in my_requests:
-            if req.status in ('pending', 'confirmed'):
-                c = getattr(req, 'lease_contract', None)
-                if not c or not c.signed_at:
-                    can_cancel_ids.add(req.id)
-        pending_lease_requests = dict(
-            LeaseRequest.objects.filter(
-                account=account, status='pending'
-            ).values_list('equipment_id', 'id')
-        )
-        pending_equipment_ids = set(pending_lease_requests.keys())
+    request_context = _get_leasing_request_context(account)
 
     get_copy = request.GET.copy()
     get_copy.pop('page', None)
@@ -100,10 +120,6 @@ def leasing(request):
         'equipment_list': equipment_list,
         'page_obj': page_obj,
         'query_string': query_string,
-        'my_requests': my_requests,
-        'can_cancel_ids': can_cancel_ids,
-        'pending_equipment_ids': pending_equipment_ids,
-        'pending_lease_requests': pending_lease_requests,
         'current_account': account,
         'categories': categories,
         'manufacturers': manufacturers,
@@ -111,6 +127,23 @@ def leasing(request):
         'filter_category_id': category_id,
         'filter_manufacturer_id': manufacturer_id,
         'sort': sort,
+        **request_context,
+    })
+
+
+def leasing_detail(request, equipment_id):
+    equipment = get_object_or_404(
+        Equipment.objects.select_related('category', 'manufacturer'),
+        pk=equipment_id,
+        status='available',
+    )
+    account = get_current_account(request)
+    request_context = _get_leasing_request_context(account)
+
+    return render(request, 'core/leasing_detail.html', {
+        'equipment': equipment,
+        'current_account': account,
+        **request_context,
     })
 
 

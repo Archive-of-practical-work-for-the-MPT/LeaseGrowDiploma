@@ -212,18 +212,26 @@ class EquipmentForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-input'}),
             'images_urls': forms.Textarea(attrs={
                 'class': 'form-input', 'rows': 2,
-                'placeholder': '["url1", "url2"]',
+                'placeholder': 'https://example.com/image.jpg',
             }),
         }
 
     def clean_images_urls(self):
         val = self.cleaned_data.get('images_urls')
         if isinstance(val, str):
+            text = val.strip()
+            if not text:
+                return ''
             try:
-                return json.loads(val) if val.strip() else []
+                parsed = json.loads(text)
+                if isinstance(parsed, list):
+                    return parsed[0] if parsed else ''
+                if isinstance(parsed, str):
+                    return parsed.strip()
+                return parsed
             except json.JSONDecodeError:
-                raise forms.ValidationError('Некорректный JSON (массив URL)')
-        return val or []
+                return text
+        return val or ''
 
 
 class CompanyForm(forms.ModelForm):

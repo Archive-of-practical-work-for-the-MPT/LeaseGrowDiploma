@@ -221,6 +221,13 @@
     font-size: 4rem;
 }
 
+.eq-card-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
 .eq-card-body {
     padding: 1.5rem;
     flex: 1;

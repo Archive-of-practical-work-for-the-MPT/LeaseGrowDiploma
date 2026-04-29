@@ -59,7 +59,15 @@
     <div class="leasing-grid">
         {% for eq in equipment_list %}
         <article class="eq-card">
-            <div class="eq-card-image">🚜</div>
+            {% with image_url=eq.images_urls|first_image_url %}
+            <div class="eq-card-image">
+                {% if image_url %}
+                <img src="{{ image_url }}" alt="{{ eq.name }} {{ eq.model }}">
+                {% else %}
+                🚜
+                {% endif %}
+            </div>
+            {% endwith %}
             <div class="eq-card-body">
                 <h3 class="eq-card-title">{{ eq.name }} — {{ eq.model }}</h3>
                 <p class="eq-card-meta">{{ eq.category.name }}{% if eq.manufacturer %} · {{ eq.manufacturer.name }}{% endif %}</p>

@@ -612,3 +612,110 @@ a.btn-leasing.sent:hover {
         max-width: none;
     }
 }
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.confirm-modal[hidden] {
+    display: none;
+}
+
+.confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.confirm-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px);
+}
+
+.confirm-modal-dialog {
+    position: relative;
+    width: min(100%, 420px);
+    background: var(--white);
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.confirm-modal-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto 1rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+    background: linear-gradient(135deg, var(--green-50) 0%, var(--green-100) 100%);
+}
+
+.confirm-modal-dialog h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1.25rem;
+    color: var(--text);
+}
+
+.confirm-modal-text {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.confirm-modal-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.confirm-modal-btn {
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.confirm-modal-btn:hover {
+    transform: translateY(-1px);
+}
+
+.confirm-modal-btn.primary {
+    background: var(--green-500);
+    color: #fff;
+}
+
+.confirm-modal-btn.primary:hover {
+    background: var(--green-600);
+}
+
+.confirm-modal-btn.secondary {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.confirm-modal-btn.secondary:hover {
+    background: var(--green-50);
+    border-color: var(--green-200);
+}
+
+@media (max-width: 640px) {
+    .confirm-modal-actions {
+        grid-template-columns: 1fr;
+    }
+}

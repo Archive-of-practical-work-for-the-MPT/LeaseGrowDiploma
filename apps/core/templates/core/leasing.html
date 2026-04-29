@@ -86,7 +86,7 @@
                         {% if eq.id in pending_equipment_ids %}
                         <a href="{% url 'chat:thread' pending_lease_requests|get_item:eq.id %}" class="btn-leasing sent">Заявка отправлена</a>
                         {% else %}
-                        <form method="post" action="{% url 'core:leasing_request_create' eq.id %}" onsubmit="return confirm('Оформить заявку на {{ eq.name }}?');">
+                        <form method="post" action="{% url 'core:leasing_request_create' eq.id %}" data-confirm-message="Оформить заявку на {{ eq.name }}?">
                             {% csrf_token %}
                             <input type="hidden" name="message" value="">
                             <button type="submit" class="btn-leasing">Оформить заявку</button>
@@ -164,4 +164,9 @@
     <p class="leasing-login-box">Чтобы оформить заявку, <a href="{% url 'accounts:login' %}?next={% url 'core:leasing' %}">войдите</a> или <a href="{% url 'accounts:register' %}">зарегистрируйтесь</a>.</p>
     {% endif %}
 </div>
+{% include 'core/includes/confirm_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/leasing-confirm.js' %}"></script>
 {% endblock %}

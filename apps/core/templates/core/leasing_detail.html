@@ -89,7 +89,7 @@
                     {% if equipment.id in pending_equipment_ids %}
                     <a href="{% url 'chat:thread' pending_lease_requests|get_item:equipment.id %}" class="btn-leasing sent">Заявка отправлена</a>
                     {% else %}
-                    <form method="post" action="{% url 'core:leasing_request_create' equipment.id %}" onsubmit="return confirm('Оформить заявку на {{ equipment.name }}?');">
+                    <form method="post" action="{% url 'core:leasing_request_create' equipment.id %}" data-confirm-message="Оформить заявку на {{ equipment.name }}?">
                         {% csrf_token %}
                         <input type="hidden" name="message" value="">
                         <button type="submit" class="btn-leasing">Оформить заявку</button>
@@ -102,4 +102,9 @@
         </div>
     </section>
 </div>
+{% include 'core/includes/confirm_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/js/leasing-confirm.js' %}"></script>
 {% endblock %}

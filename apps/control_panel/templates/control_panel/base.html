@@ -33,9 +33,6 @@
                 {% endif %}
                 <a href="{% url 'control_panel:account_list' %}" class="resource-item {% if '/accounts/' in request.path %}active{% endif %}"><span class="label">🔐 Аккаунты</span><span class="badge">crud</span></a>
                 <a href="{% url 'control_panel:userprofile_list' %}" class="resource-item {% if '/profiles/' in request.path %}active{% endif %}"><span class="label">📋 Профили</span><span class="badge">crud</span></a>
-                {% if not control_panel_model_keys or 'accounttoken' in control_panel_model_keys %}
-                <a href="{% url 'control_panel:accounttoken_list' %}" class="resource-item {% if '/tokens/' in request.path %}active{% endif %}"><span class="label">🔑 Токены API</span><span class="badge">crud</span></a>
-                {% endif %}
                 <div class="resource-group">Каталог</div>
                 <a href="{% url 'control_panel:equipmentcategory_list' %}" class="resource-item {% if '/categories/' in request.path %}active{% endif %}"><span class="label">📁 Категории техники</span><span class="badge">crud</span></a>
                 {% if not control_panel_model_keys or 'manufacturer' in control_panel_model_keys %}

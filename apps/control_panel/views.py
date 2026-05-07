@@ -28,7 +28,6 @@ PANEL_MODELS = [
     ('role', Role, 'Роли', 'control_panel:role_list'),
     ('account', Account, 'Аккаунты', 'control_panel:account_list'),
     ('userprofile', UserProfile, 'Профили', 'control_panel:userprofile_list'),
-    ('accounttoken', AccountToken, 'Токены API', 'control_panel:accounttoken_list'),
     ('equipmentcategory', EquipmentCategory, 'Категории техники',
      'control_panel:equipmentcategory_list'),
     ('manufacturer', Manufacturer, 'Производители',

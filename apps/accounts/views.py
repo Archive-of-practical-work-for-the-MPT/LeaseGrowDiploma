@@ -1,8 +1,9 @@
 import os
 import subprocess
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -24,6 +25,8 @@ from .forms import (
 )
 
 PASSWORD_RESET_TOKEN_MAX_AGE = 60 * 60
+EMAIL_VERIFICATION_TOKEN_MAX_AGE = 60 * 60
+EMAIL_VERIFICATION_RESEND_COOLDOWN = timedelta(minutes=3)
 
 
 def get_current_account(request):
@@ -32,6 +35,61 @@ def get_current_account(request):
     if not account_id:
         return None
     return Account.objects.filter(id=account_id, is_active=True).select_related('role').first()
+
+
+def _make_email_verify_token(account_id):
+    account = Account.objects.only('id', 'password_hash').get(id=account_id)
+    signer = TimestampSigner()
+    return signer.sign(f'{account.id}:{account.password_hash}')
+
+
+def _get_account_from_email_verify_token(token, max_age=EMAIL_VERIFICATION_TOKEN_MAX_AGE):
+    signer = TimestampSigner()
+    try:
+        value = signer.unsign(token, max_age=max_age)
+        account_id, token_password_hash = value.split(':', 1)
+        account = Account.objects.filter(id=int(account_id)).first()
+        if account and constant_time_compare(account.password_hash, token_password_hash):
+            return account
+        return None
+    except (SignatureExpired, BadSignature, ValueError):
+        return None
+
+
+def _send_verification_link_email(account, verify_url):
+    subject = 'Подтверждение email — LeaseGrow'
+    message = (
+        f'Здравствуйте, {account.username}!\n\n'
+        'Для подтверждения регистрации нажмите на кнопку (или перейдите по ссылке):\n\n'
+        f'{verify_url}\n\n'
+        'Ссылка действует 1 час.\n'
+        'Если вы не регистрировались в LeaseGrow, просто проигнорируйте это письмо.'
+    )
+    html_message = render_to_string(
+        'accounts/emails/email_verification.html',
+        {'username': account.username, 'verify_url': verify_url},
+    )
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[account.email],
+    )
+    email.attach_alternative(html_message, 'text/html')
+    email.send(
+        fail_silently=False,
+    )
+
+
+def _send_registration_verification(request, account):
+    token = _make_email_verify_token(account.id)
+    verify_url = request.build_absolute_uri(
+        reverse('accounts:activate_email', kwargs={'token': token})
+    )
+    _send_verification_link_email(account, verify_url)
+    request.session['pending_verification_account_id'] = account.id
+    request.session['email_verification_sent_at'] = timezone.now().isoformat()
+    request.session.modified = True
 
 
 def login_view(request):
@@ -46,9 +104,14 @@ def login_view(request):
         ).first()
         if account and check_password(password, account.password_hash):
             if not account.is_active:
+                role_name = getattr(getattr(account, 'role', None), 'name', '')
+                if role_name == 'client':
+                    request.session['pending_verification_account_id'] = account.id
+                    messages.warning(request, 'Подтвердите email по ссылке из письма.')
+                    return redirect('accounts:verify_email')
                 form.add_error(
                     None,
-                    'Ваша учетная запись заблокирована. Обратитесь к администратору.',
+                    'Ваша учетная запись не активна. Обратитесь к администратору.',
                 )
                 return render(request, 'accounts/auth/login.html', {'form': form})
             request.session['account_id'] = account.id
@@ -65,28 +128,136 @@ def register_view(request):
         return redirect('core:home')
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        role_client, _ = Role.objects.get_or_create(name='client')
-        account = Account.objects.create(
-            email=form.cleaned_data['email'].strip().lower(),
-            username=form.cleaned_data['username'].strip(),
-            password_hash=make_password(form.cleaned_data['password1']),
-            role=role_client,
-            is_active=True,
-        )
-        UserProfile.objects.create(
-            account=account,
-            first_name=form.cleaned_data['first_name'].strip(),
-            last_name=form.cleaned_data['last_name'].strip(),
-            phone=form.cleaned_data.get('phone', '').strip() or '',
-            passport_series=form.cleaned_data.get('passport_series', '').strip(),
-            passport_number=form.cleaned_data.get('passport_number', '').strip(),
-        )
-        request.session['account_id'] = account.id
-        request.session['show_company_bind_prompt'] = True
-        messages.success(
-            request, 'Регистрация прошла успешно. Добро пожаловать!')
-        return redirect('core:home')
+        try:
+            with transaction.atomic():
+                role_client, _ = Role.objects.get_or_create(name='client')
+                account = Account.objects.create(
+                    email=form.cleaned_data['email'].strip().lower(),
+                    username=form.cleaned_data['username'].strip(),
+                    password_hash=make_password(form.cleaned_data['password1']),
+                    role=role_client,
+                    is_active=False,
+                )
+                UserProfile.objects.create(
+                    account=account,
+                    first_name=form.cleaned_data['first_name'].strip(),
+                    last_name=form.cleaned_data['last_name'].strip(),
+                    phone=form.cleaned_data.get('phone', '').strip() or '',
+                    passport_series=form.cleaned_data.get('passport_series', '').strip(),
+                    passport_number=form.cleaned_data.get('passport_number', '').strip(),
+                )
+                _send_registration_verification(request, account)
+            messages.success(
+                request, 'Регистрация почти завершена: подтвердите email по ссылке из письма.')
+            return redirect('accounts:verify_email')
+        except Exception:
+            messages.error(
+                request,
+                'Не удалось отправить письмо подтверждения. Аккаунт не был сохранен, попробуйте снова.',
+            )
     return render(request, 'accounts/auth/register.html', {'form': form})
+
+
+def verify_email_view(request):
+    if get_current_account(request):
+        return redirect('core:home')
+
+    account_id = request.session.get('pending_verification_account_id')
+    if not account_id:
+        messages.info(request, 'Нет ожидающего подтверждения email. Выполните вход.')
+        return redirect('accounts:login')
+
+    account = Account.objects.filter(id=account_id).first()
+    if not account:
+        request.session.pop('pending_verification_account_id', None)
+        messages.error(request, 'Аккаунт для подтверждения не найден.')
+        return redirect('accounts:register')
+
+    if account.is_active:
+        request.session.pop('pending_verification_account_id', None)
+        request.session.pop('email_verification_sent_at', None)
+        messages.success(request, 'Email уже подтверждён.')
+        return redirect('accounts:login')
+    now = timezone.now()
+    seconds_until_resend = 0
+    sent_at_raw = request.session.get('email_verification_sent_at')
+    if sent_at_raw:
+        try:
+            sent_at = datetime.fromisoformat(sent_at_raw)
+            if timezone.is_naive(sent_at):
+                sent_at = timezone.make_aware(sent_at, timezone.get_current_timezone())
+            resend_available_at = sent_at + EMAIL_VERIFICATION_RESEND_COOLDOWN
+            seconds_until_resend = max(int((resend_available_at - now).total_seconds()), 0)
+        except ValueError:
+            request.session.pop('email_verification_sent_at', None)
+    return render(request, 'accounts/auth/verify_email.html', {
+        'account_email': account.email,
+        'seconds_until_resend': seconds_until_resend,
+    })
+
+
+def resend_verification_code_view(request):
+    if request.method != 'POST':
+        return redirect('accounts:verify_email')
+
+    account_id = request.session.get('pending_verification_account_id')
+    if not account_id:
+        messages.info(request, 'Нет ожидающего подтверждения email.')
+        return redirect('accounts:login')
+
+    account = Account.objects.filter(id=account_id).first()
+    if not account:
+        request.session.pop('pending_verification_account_id', None)
+        messages.error(request, 'Аккаунт для подтверждения не найден.')
+        return redirect('accounts:register')
+
+    if account.is_active:
+        request.session.pop('pending_verification_account_id', None)
+        request.session.pop('email_verification_sent_at', None)
+        messages.success(request, 'Email уже подтверждён.')
+        return redirect('accounts:login')
+
+    now = timezone.now()
+    sent_at_raw = request.session.get('email_verification_sent_at')
+    if sent_at_raw:
+        try:
+            sent_at = datetime.fromisoformat(sent_at_raw)
+            if timezone.is_naive(sent_at):
+                sent_at = timezone.make_aware(sent_at, timezone.get_current_timezone())
+            next_allowed_at = sent_at + EMAIL_VERIFICATION_RESEND_COOLDOWN
+            if now < next_allowed_at:
+                seconds_left = int((next_allowed_at - now).total_seconds())
+                messages.warning(
+                    request,
+                    f'Повторная отправка будет доступна через {seconds_left} сек.',
+                )
+                return redirect('accounts:verify_email')
+        except ValueError:
+            request.session.pop('email_verification_sent_at', None)
+
+    _send_registration_verification(request, account)
+    messages.success(request, 'Письмо с кнопкой подтверждения отправлено повторно.')
+    return redirect('accounts:verify_email')
+
+
+def activate_email_view(request, token):
+    account = _get_account_from_email_verify_token(token)
+    if not account:
+        messages.error(request, 'Ссылка подтверждения недействительна или истекла.')
+        return redirect('accounts:verify_email')
+
+    if account.is_active:
+        messages.info(request, 'Email уже подтвержден ранее.')
+        return redirect('accounts:login')
+
+    account.is_active = True
+    account.save(update_fields=['is_active', 'updated_at'])
+    request.session.pop('pending_verification_account_id', None)
+    request.session.pop('email_verification_sent_at', None)
+    request.session['account_id'] = account.id
+    request.session['show_company_bind_prompt'] = True
+    messages.success(request, 'Email подтверждён. Добро пожаловать!')
+    return redirect('core:home')
 
 
 def logout_view(request):

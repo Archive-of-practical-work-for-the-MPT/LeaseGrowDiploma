@@ -123,6 +123,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = []  # Добавляются в local/production при необходимости
 
+# Загружаемые с панели изображения техники (не проходят через collectstatic / manifest).
+MEDIA_URL = env('MEDIA_URL', default='/media/')
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Кастомный тест-раннер с подробным выводом на русском

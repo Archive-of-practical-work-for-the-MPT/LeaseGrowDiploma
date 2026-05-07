@@ -184,14 +184,24 @@ class RegisterForm(forms.Form):
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if username and Account.objects.filter(username__iexact=username).exists():
-            raise ValidationError('Пользователь с таким логином уже существует.')
+        if username:
+            existing = Account.objects.filter(username__iexact=username).select_related('role').first()
+            if existing:
+                role_name = getattr(getattr(existing, 'role', None), 'name', '')
+                if (not existing.is_active) and role_name == 'client' and existing.last_login is None:
+                    raise ValidationError('Для этого логина уже создана регистрация. Войдите и подтвердите email.')
+                raise ValidationError('Пользователь с таким логином уже существует.')
         return username
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and Account.objects.filter(email__iexact=email).exists():
-            raise ValidationError('Пользователь с таким email уже зарегистрирован.')
+        if email:
+            existing = Account.objects.filter(email__iexact=email).select_related('role').first()
+            if existing:
+                role_name = getattr(getattr(existing, 'role', None), 'name', '')
+                if (not existing.is_active) and role_name == 'client' and existing.last_login is None:
+                    raise ValidationError('Для этого email уже создана регистрация. Войдите и подтвердите email.')
+                raise ValidationError('Пользователь с таким email уже зарегистрирован.')
         return email
 
     def clean(self):

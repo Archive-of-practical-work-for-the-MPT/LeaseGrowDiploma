@@ -13,7 +13,6 @@ env
 .coverage
 htmlcov
 staticfiles
-media
 *.sqlite3
 .DS_Store
 tests/

@@ -22,31 +22,15 @@ from apps.leasing.models import (
     PaymentSchedule, MaintenanceRequest,
 )
 from apps.accounts.views import get_current_account
+from apps.core.media_urls import extract_first_image_url, resolve_static_image_url
 from yookassa import Configuration, Payment
 
 DAILY_PENALTY_RATE = Decimal('0.001')  # 0.1% в день
 
 
-def _extract_first_image_url(images_value):
-    """Возвращает первый URL изображения из JSONField (list/str/json-string)."""
-    if not images_value:
-        return ''
-    if isinstance(images_value, (list, tuple)):
-        return str(images_value[0]).strip() if images_value else ''
-    if isinstance(images_value, str):
-        text = images_value.strip()
-        if not text:
-            return ''
-        try:
-            parsed = json.loads(text)
-            if isinstance(parsed, (list, tuple)):
-                return str(parsed[0]).strip() if parsed else ''
-            if isinstance(parsed, str):
-                return parsed.strip()
-        except json.JSONDecodeError:
-            pass
-        return text
-    return str(images_value).strip()
+def _equipment_preview_image_url(images_value):
+    """URL для <img> из поля images_urls (с учётом STATIC_URL)."""
+    return resolve_static_image_url(extract_first_image_url(images_value))
 
 
 def _can_create_leasing_request(account):
@@ -455,12 +439,12 @@ def my_equipment(request):
         _sync_contract_payment_schedule(contract)
     for contract in contracts:
         image_urls = getattr(contract.equipment, 'images_urls', []) or []
-        contract.preview_image_url = _extract_first_image_url(image_urls)
+        contract.preview_image_url = _equipment_preview_image_url(image_urls)
         contract.chat_request_id = _ensure_contract_chat_request(contract, account)
 
     for req in confirmed_requests:
         image_urls = getattr(req.equipment, 'images_urls', []) or []
-        req.preview_image_url = _extract_first_image_url(image_urls)
+        req.preview_image_url = _equipment_preview_image_url(image_urls)
 
     return render(request, 'core/my_equipment.html', {
         'contracts': contracts,

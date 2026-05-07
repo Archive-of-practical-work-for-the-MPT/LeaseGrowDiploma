@@ -1,5 +1,7 @@
 from django import template
 
+from apps.core.media_urls import extract_first_image_url, resolve_static_image_url
+
 register = template.Library()
 
 
@@ -13,9 +15,5 @@ def get_item(d, key):
 
 @register.filter
 def first_image_url(value):
-    """Return a single image URL from either a list or a stored string."""
-    if not value:
-        return ''
-    if isinstance(value, (list, tuple)):
-        return value[0] if value else ''
-    return value
+    """Первый URL картинки из JSONField и корректный префикс для локальной статики."""
+    return resolve_static_image_url(extract_first_image_url(value))

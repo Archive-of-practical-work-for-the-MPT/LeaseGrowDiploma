@@ -28,7 +28,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Код приложения
 COPY . .
 
+# Статика в образе (WHITE_NOISE CompressedManifestStaticFilesStorage); SECRET_KEY только на время сборки.
+RUN SECRET_KEY=collectstatic-build-only-placeholder \
+    python manage.py collectstatic --noinput --settings=config.settings.production
+
 EXPOSE 8000
 
-# Запуск через daphne (ASGI)
+# Запуск через daphne (ASGI); реальный SECRET_KEY задавайте средой контейнера.
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]

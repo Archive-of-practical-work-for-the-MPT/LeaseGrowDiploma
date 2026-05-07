@@ -164,7 +164,7 @@ class EquipmentForm(forms.ModelForm):
     image_file = forms.FileField(
         required=False,
         label='Загрузить изображение',
-        help_text='Поддерживаются форматы: .jpeg, .jpg, .png, .webp. При загрузке URL изображения будет заменён.',
+        help_text='Форматы: JPEG, PNG, WEBP. Файл сохраняется в каталог медиа и сразу доступен по URL без collectstatic.',
         widget=forms.ClearableFileInput(attrs={'class': 'form-input', 'accept': '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'}),
     )
 
@@ -215,21 +215,39 @@ class EquipmentForm(forms.ModelForm):
         }
 
     def clean_images_urls(self):
+        """Храним в JSONField список URL — шаблоны и фильтры ожидают один URL через first_image_url."""
         val = self.cleaned_data.get('images_urls')
+        if val is None:
+            return []
+        if isinstance(val, (list, tuple)):
+            cleaned = []
+            for x in val:
+                if x is None:
+                    continue
+                s = str(x).strip()
+                if s:
+                    cleaned.append(s)
+            return cleaned
         if isinstance(val, str):
             text = val.strip()
             if not text:
-                return ''
+                return []
             try:
                 parsed = json.loads(text)
                 if isinstance(parsed, list):
-                    return parsed[0] if parsed else ''
+                    return [
+                        str(x).strip()
+                        for x in parsed
+                        if str(x).strip()
+                    ]
                 if isinstance(parsed, str):
-                    return parsed.strip()
-                return parsed
+                    s = parsed.strip()
+                    return [s] if s else []
             except json.JSONDecodeError:
-                return text
-        return val or ''
+                pass
+            return [text]
+
+        return []
 
     def clean_image_file(self):
         uploaded = self.cleaned_data.get('image_file')
@@ -245,16 +263,17 @@ class EquipmentForm(forms.ModelForm):
         obj = super().save(commit=False)
         uploaded = self.cleaned_data.get('image_file')
         if uploaded:
-            products_dir = settings.BASE_DIR / 'apps' / 'core' / 'static' / 'core' / 'images' / 'leasing' / 'products'
-            products_dir.mkdir(parents=True, exist_ok=True)
+            media_dir = Path(settings.MEDIA_ROOT) / 'leasing' / 'products'
+            media_dir.mkdir(parents=True, exist_ok=True)
             ext = Path(uploaded.name).suffix.lower()
             safe_base = slugify(f'{obj.name}-{obj.model}') or 'equipment'
             filename = f'{safe_base}-{uuid4().hex[:8]}{ext}'
-            target_path = products_dir / filename
+            target_path = media_dir / filename
             with target_path.open('wb+') as destination:
                 for chunk in uploaded.chunks():
                     destination.write(chunk)
-            obj.images_urls = f'/static/core/images/leasing/products/{filename}'
+            base = (settings.MEDIA_URL or '/media/').rstrip('/')
+            obj.images_urls = [f'{base}/leasing/products/{filename}']
         if commit:
             obj.save()
         return obj

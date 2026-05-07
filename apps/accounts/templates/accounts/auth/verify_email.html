@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Подтверждение email — LeaseGrow{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Подтвердите email</h1>
+        <p class="verify-note">
+            Мы отправили письмо на <strong>{{ account_email }}</strong>.
+            Нажмите кнопку в письме, чтобы подтвердить регистрацию.
+            Ссылка действует 1 час.
+        </p>
+
+        <form class="auth-form" method="post" action="{% url 'accounts:resend_verification_code' %}">
+            {% csrf_token %}
+            <button
+                type="submit"
+                id="resend-btn"
+                class="secondary"
+                {% if seconds_until_resend > 0 %}disabled{% endif %}
+            >
+                Отправить повторно
+            </button>
+        </form>
+        <p id="resend-hint" class="footer-link" style="text-align:left; margin-top: 0.75rem; margin-bottom: 0;">
+            {% if seconds_until_resend > 0 %}
+            Повторная отправка будет доступна через {{ seconds_until_resend }} сек.
+            {% else %}
+            Вы можете запросить новый код.
+            {% endif %}
+        </p>
+        <p class="footer-link"><a href="{% url 'accounts:login' %}">Вернуться ко входу</a></p>
+    </div>
+</div>
+
+<script>
+(function() {
+    var seconds = Number('{{ seconds_until_resend|default:0 }}') || 0;
+    var btn = document.getElementById('resend-btn');
+    var hint = document.getElementById('resend-hint');
+    if (!btn || !hint || seconds <= 0) return;
+
+    var timer = setInterval(function() {
+        seconds -= 1;
+        if (seconds <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            hint.textContent = 'Вы можете запросить новый код.';
+            return;
+        }
+        hint.textContent = 'Повторная отправка будет доступна через ' + seconds + ' сек.';
+    }, 1000);
+})();
+</script>
+{% endblock %}

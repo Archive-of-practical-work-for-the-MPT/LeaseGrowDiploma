@@ -44,6 +44,13 @@ def _extract_first_image_url(images_value):
     return str(images_value).strip()
 
 
+def _can_create_leasing_request(account):
+    if not account:
+        return False
+    role_name = getattr(getattr(account, 'role', None), 'name', '')
+    return role_name not in ('admin', 'manager')
+
+
 def _get_leasing_request_context(account):
     my_requests = []
     pending_equipment_ids = set()
@@ -151,6 +158,7 @@ def leasing(request):
         'page_obj': page_obj,
         'query_string': query_string,
         'current_account': account,
+        'can_create_leasing_request': _can_create_leasing_request(account),
         'categories': categories,
         'manufacturers': manufacturers,
         'search_q': q,
@@ -173,6 +181,7 @@ def leasing_detail(request, equipment_id):
     return render(request, 'core/leasing_detail.html', {
         'equipment': equipment,
         'current_account': account,
+        'can_create_leasing_request': _can_create_leasing_request(account),
         **request_context,
     })
 
@@ -183,16 +192,18 @@ def leasing_request_create(request, equipment_id):
     if not account:
         messages.error(request, 'Войдите в систему, чтобы оформить заявку.')
         return redirect('accounts:login')
+    if not _can_create_leasing_request(account):
+        messages.error(request, 'Оформление заявок доступно только клиентам.')
+        return redirect('core:leasing_detail', equipment_id=equipment_id)
 
     # Клиент должен быть связан с компанией
-    if account.role and account.role.name not in ('admin', 'manager'):
-        has_company = Company.objects.filter(account=account).exists()
-        if not has_company:
-            messages.warning(
-                request,
-                'Для оформления заявки укажите данные компании в профиле.'
-            )
-            return redirect(reverse('accounts:profile') + '?need_company=1')
+    has_company = Company.objects.filter(account=account).exists()
+    if not has_company:
+        messages.warning(
+            request,
+            'Для оформления заявки укажите данные компании в профиле.'
+        )
+        return redirect(reverse('accounts:profile') + '?need_company=1')
 
     equipment = get_object_or_404(Equipment, pk=equipment_id, status='available')
 

@@ -86,7 +86,9 @@
 
             <div class="leasing-detail-actions">
                 {% if current_account %}
-                    {% if equipment.id in pending_equipment_ids %}
+                    {% if not can_create_leasing_request %}
+                    <span class="btn-leasing guest" style="cursor: default;">Доступно только клиентам</span>
+                    {% elif equipment.id in pending_equipment_ids %}
                     <a href="{% url 'chat:thread' pending_lease_requests|get_item:equipment.id %}" class="btn-leasing sent">Заявка отправлена</a>
                     {% else %}
                     <form method="post" action="{% url 'core:leasing_request_create' equipment.id %}" data-confirm-message="Оформить заявку на {{ equipment.name }}?">

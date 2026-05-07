@@ -83,7 +83,9 @@
             <div class="eq-card-body eq-card-body-actions">
                 <div class="eq-card-actions">
                     {% if current_account %}
-                        {% if eq.id in pending_equipment_ids %}
+                        {% if not can_create_leasing_request %}
+                        <span class="btn-leasing guest" style="cursor: default;">Доступно только клиентам</span>
+                        {% elif eq.id in pending_equipment_ids %}
                         <a href="{% url 'chat:thread' pending_lease_requests|get_item:eq.id %}" class="btn-leasing sent">Заявка отправлена</a>
                         {% else %}
                         <form method="post" action="{% url 'core:leasing_request_create' eq.id %}" data-confirm-message="Оформить заявку на {{ eq.name }}?">

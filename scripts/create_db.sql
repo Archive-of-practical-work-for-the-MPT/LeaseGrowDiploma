@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS payment_schedule (
     amount DECIMAL(10, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'overdue', 'cancelled')),
     paid_at TIMESTAMP WITH TIME ZONE,
+    external_payment_id VARCHAR(64) UNIQUE,
     penalty_amount DECIMAL(10, 2) DEFAULT 0,
     UNIQUE(contract_id, payment_number)
 );

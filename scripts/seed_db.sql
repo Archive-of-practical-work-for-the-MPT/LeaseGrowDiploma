@@ -2,11 +2,11 @@
 -- Админ: admin@gmail.com / adminadmin
 
 -- Роли
-INSERT INTO role (name, description, permissions, created_at) VALUES
-('admin', 'Администратор системы', '["all"]', CURRENT_TIMESTAMP),
-('manager', 'Менеджер лизинга', '["contracts", "companies", "equipment"]', CURRENT_TIMESTAMP),
-('accountant', 'Бухгалтер', '["contracts", "payments"]', CURRENT_TIMESTAMP),
-('client', 'Клиент (арендатор)', '["own_contracts"]', CURRENT_TIMESTAMP);
+INSERT INTO role (name, permissions, created_at) VALUES
+('admin', '["all"]', CURRENT_TIMESTAMP),
+('manager', '["contracts", "companies", "equipment"]', CURRENT_TIMESTAMP),
+('accountant', '["contracts", "payments"]', CURRENT_TIMESTAMP),
+('client', '["own_contracts"]', CURRENT_TIMESTAMP);
 
 -- Аккаунты (admin первым)
 INSERT INTO account (email, username, password_hash, role_id, is_active, created_at, updated_at) VALUES
@@ -53,34 +53,34 @@ INSERT INTO company (name, inn, address, phone, email, status, account_id, creat
 ('ООО Черноземье', '7721567890', 'г. Белгород, пр. Славы, 50', '+7 (472) 260-55-55', 'chernozem@belgorod.ru', 'pending', NULL, CURRENT_TIMESTAMP);
 
 -- Категории техники (иерархия)
-INSERT INTO equipment_category (name, parent_id, description, created_at) VALUES
-('Тракторы', NULL, 'Колёсные и гусеничные тракторы', CURRENT_TIMESTAMP),
-('Комбайны', NULL, 'Зерноуборочные и кормоуборочные комбайны', CURRENT_TIMESTAMP),
-('Посевная техника', NULL, 'Сеялки и посадочные машины', CURRENT_TIMESTAMP),
-('Плуги и культиваторы', NULL, 'Орудия обработки почвы', CURRENT_TIMESTAMP);
+INSERT INTO equipment_category (name, parent_id, created_at) VALUES
+('Тракторы', NULL, CURRENT_TIMESTAMP),
+('Комбайны', NULL, CURRENT_TIMESTAMP),
+('Посевная техника', NULL, CURRENT_TIMESTAMP),
+('Плуги и культиваторы', NULL, CURRENT_TIMESTAMP);
 
-INSERT INTO equipment_category (name, parent_id, description, created_at) VALUES
-('Колёсные тракторы', 1, '', CURRENT_TIMESTAMP),
-('Гусеничные тракторы', 1, '', CURRENT_TIMESTAMP),
-('Зерноуборочные комбайны', 2, '', CURRENT_TIMESTAMP),
-('Кормоуборочные комбайны', 2, '', CURRENT_TIMESTAMP),
-('Пневматические сеялки', 3, '', CURRENT_TIMESTAMP),
-('Дисковые сеялки', 3, '', CURRENT_TIMESTAMP);
+INSERT INTO equipment_category (name, parent_id, created_at) VALUES
+('Колёсные тракторы', 1, CURRENT_TIMESTAMP),
+('Гусеничные тракторы', 1, CURRENT_TIMESTAMP),
+('Зерноуборочные комбайны', 2, CURRENT_TIMESTAMP),
+('Кормоуборочные комбайны', 2, CURRENT_TIMESTAMP),
+('Пневматические сеялки', 3, CURRENT_TIMESTAMP),
+('Дисковые сеялки', 3, CURRENT_TIMESTAMP);
 
 -- Производители
-INSERT INTO manufacturer (name, country, description) VALUES
-('John Deere', 'США', 'Крупнейший производитель сельхозтехники'),
-('Case IH', 'США', 'Производитель тракторов и комбайнов'),
-('CLAAS', 'Германия', 'Европейский лидер в производстве комбайнов'),
-('New Holland', 'Италия', 'Производитель тракторов и комбайнов'),
-('AGCO (Massey Ferguson)', 'США', 'Производитель сельхозтехники'),
-('Kubota', 'Япония', 'Японский производитель тракторов и мини-техники'),
-('Ростсельмаш', 'Россия', 'Отечественный производитель'),
-('Кировец', 'Россия', 'Тракторы Кировец'),
-('Amazone', 'Германия', 'Посевная и почвообрабатывающая техника'),
-('Horsch', 'Германия', 'Сеялки и опрыскиватели'),
-('Бuhler', 'Германия', 'Зернообработка и техника'),
-('Kverneland', 'Норвегия', 'Плуги и почвообработка');
+INSERT INTO manufacturer (name, country) VALUES
+('John Deere', 'США'),
+('Case IH', 'США'),
+('CLAAS', 'Германия'),
+('New Holland', 'Италия'),
+('AGCO (Massey Ferguson)', 'США'),
+('Kubota', 'Япония'),
+('Ростсельмаш', 'Россия'),
+('Кировец', 'Россия'),
+('Amazone', 'Германия'),
+('Horsch', 'Германия'),
+('Бuhler', 'Германия'),
+('Kverneland', 'Норвегия');
 
 -- Техника (много единиц)
 INSERT INTO equipment (name, model, category_id, manufacturer_id, specifications, year, vin, condition, price, residual_value, monthly_lease_rate, status, location, images_urls, created_at, updated_at) VALUES

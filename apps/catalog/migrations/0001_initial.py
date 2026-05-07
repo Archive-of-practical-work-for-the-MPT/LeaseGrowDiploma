@@ -18,9 +18,6 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255, unique=True)),
                 ('country', models.CharField(blank=True, max_length=100)),
-                ('website', models.URLField(blank=True, max_length=500)),
-                ('description', models.TextField(blank=True)),
-                ('logo_url', models.URLField(blank=True, max_length=500)),
             ],
             options={
                 'verbose_name': 'производитель',
@@ -33,8 +30,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=150)),
-                ('description', models.TextField(blank=True)),
-                ('icon_url', models.URLField(blank=True, max_length=500)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='catalog.equipmentcategory')),
             ],

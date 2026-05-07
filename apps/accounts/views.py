@@ -43,9 +43,14 @@ def login_view(request):
         password = form.cleaned_data['password']
         account = Account.objects.filter(
             Q(email__iexact=username) | Q(username__iexact=username),
-            is_active=True,
         ).first()
         if account and check_password(password, account.password_hash):
+            if not account.is_active:
+                form.add_error(
+                    None,
+                    'Ваша учетная запись заблокирована. Обратитесь к администратору.',
+                )
+                return render(request, 'accounts/auth/login.html', {'form': form})
             request.session['account_id'] = account.id
             account.last_login = timezone.now()
             account.save(update_fields=['last_login'])

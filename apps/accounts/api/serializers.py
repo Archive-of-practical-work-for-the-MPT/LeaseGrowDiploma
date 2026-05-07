@@ -63,11 +63,14 @@ class AccountTokenSerializer(serializers.ModelSerializer):
             account = Account.objects.filter(
                 Q(email__iexact=username.strip())
                 | Q(username__iexact=username.strip()),
-                is_active=True,
             ).first()
             if not account or not check_password(password, account.password_hash):
                 raise serializers.ValidationError(
                     'Неверный логин или пароль.'
+                )
+            if not account.is_active:
+                raise serializers.ValidationError(
+                    'Ваша учетная запись заблокирована. Обратитесь к администратору.'
                 )
             validated_data['account'] = account
         if 'account' not in validated_data:

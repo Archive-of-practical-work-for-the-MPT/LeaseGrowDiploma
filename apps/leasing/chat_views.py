@@ -9,6 +9,25 @@ from apps.accounts.views import get_current_account
 from .models import LeaseRequest, ChatMessage, LeaseContract
 
 
+def _role_label(account):
+    role_name = getattr(getattr(account, 'role', None), 'name', '') or ''
+    mapping = {
+        'manager': 'Менеджер',
+        'admin': 'Администратор',
+        'client': 'Клиент',
+        'accountant': 'Бухгалтер',
+    }
+    return mapping.get(role_name, role_name.capitalize() if role_name else 'Пользователь')
+
+
+def _sender_display(account):
+    try:
+        base_name = account.profile.first_name or account.username
+    except Exception:
+        base_name = account.username
+    return f'{base_name} ● {_role_label(account)}'
+
+
 def chat_list(request):
     """Список чатов клиента по заявкам на лизинг."""
     account = get_current_account(request)
@@ -88,10 +107,7 @@ def chat_thread(request, request_id):
                 sender=account,
                 text=text,
             )
-            try:
-                sender_name = account.profile.first_name or account.username
-            except Exception:
-                sender_name = account.username
+            sender_name = _sender_display(account)
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'chat_{lease_req.id}',
@@ -120,7 +136,7 @@ def chat_thread(request, request_id):
             return redirect('chat:thread', request_id=lease_req.id)
 
     messages_list = lease_req.messages.select_related(
-        'sender', 'sender__profile').order_by('created_at', 'id')
+        'sender', 'sender__profile', 'sender__role').order_by('created_at', 'id')
     is_manager = account.role and account.role.name in ('manager', 'admin')
     related_contract = LeaseContract.objects.filter(
         lease_request=lease_req).first()

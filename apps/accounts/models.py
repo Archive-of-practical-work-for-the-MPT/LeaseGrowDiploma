@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 
 class Role(models.Model):
@@ -57,7 +58,8 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
+    passport_series = models.CharField(max_length=4, blank=True)
+    passport_number = models.CharField(max_length=6, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -65,6 +67,13 @@ class UserProfile(models.Model):
         db_table = 'user_profile'
         verbose_name = 'профиль пользователя'
         verbose_name_plural = 'профили пользователей'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['passport_series', 'passport_number'],
+                condition=~Q(passport_series='') & ~Q(passport_number=''),
+                name='uniq_user_profile_passport_pair',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

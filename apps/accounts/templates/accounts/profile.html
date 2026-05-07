@@ -110,10 +110,15 @@
                             {{ form.phone }}
                             {% if form.phone.errors %}<span class="field-error">{{ form.phone.errors.0 }}</span>{% endif %}
                         </div>
-                        <div class="console-field {% if form.birth_date.errors %}has-error{% endif %}">
-                            <label for="id_birth_date">{{ form.birth_date.label }}</label>
-                            {{ form.birth_date }}
-                            {% if form.birth_date.errors %}<span class="field-error">{{ form.birth_date.errors.0 }}</span>{% endif %}
+                        <div class="console-field {% if form.passport_series.errors %}has-error{% endif %}">
+                            <label for="id_passport_series">{{ form.passport_series.label }}</label>
+                            {{ form.passport_series }}
+                            {% if form.passport_series.errors %}<span class="field-error">{{ form.passport_series.errors.0 }}</span>{% endif %}
+                        </div>
+                        <div class="console-field {% if form.passport_number.errors %}has-error{% endif %}">
+                            <label for="id_passport_number">{{ form.passport_number.label }}</label>
+                            {{ form.passport_number }}
+                            {% if form.passport_number.errors %}<span class="field-error">{{ form.passport_number.errors.0 }}</span>{% endif %}
                         </div>
                         <div class="console-field {% if form.new_password.errors %}has-error{% endif %}">
                             <label for="id_new_password">{{ form.new_password.label }}</label>

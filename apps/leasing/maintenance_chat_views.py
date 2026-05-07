@@ -10,6 +10,25 @@ from apps.accounts.views import get_current_account
 from .models import MaintenanceRequest, MaintenanceChatMessage
 
 
+def _role_label(account):
+    role_name = getattr(getattr(account, 'role', None), 'name', '') or ''
+    mapping = {
+        'manager': 'Менеджер',
+        'admin': 'Администратор',
+        'client': 'Клиент',
+        'accountant': 'Бухгалтер',
+    }
+    return mapping.get(role_name, role_name.capitalize() if role_name else 'Пользователь')
+
+
+def _sender_display(account):
+    try:
+        base_name = account.profile.first_name or account.username
+    except Exception:
+        base_name = account.username
+    return f'{base_name} ● {_role_label(account)}'
+
+
 def _can_access_maintenance_chat(account, maint_req):
     """Проверка доступа: владелец компании заявки или менеджер."""
     if not account:
@@ -58,10 +77,7 @@ def maintenance_chat_thread(request, pk):
                 sender=account,
                 text=text,
             )
-            try:
-                sender_name = account.profile.first_name or account.username
-            except Exception:
-                sender_name = account.username
+            sender_name = _sender_display(account)
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'maint_chat_{maint_req.id}',
@@ -90,7 +106,7 @@ def maintenance_chat_thread(request, pk):
             return redirect('chat:maintenance_thread', pk=maint_req.id)
 
     messages_list = maint_req.messages.select_related(
-        'sender', 'sender__profile').order_by('created_at', 'id')
+        'sender', 'sender__profile', 'sender__role').order_by('created_at', 'id')
     is_manager = account.role and account.role.name in ('manager', 'admin')
 
     return render(request, 'leasing/maintenance_chat_thread.html', {

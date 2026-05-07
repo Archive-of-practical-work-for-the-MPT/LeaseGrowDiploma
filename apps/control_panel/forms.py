@@ -92,23 +92,23 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = [
             'account', 'first_name', 'last_name', 'phone',
-            'birth_date',
+            'passport_series', 'passport_number',
         ]
         labels = {
             'account': 'Аккаунт',
             'first_name': 'Имя',
             'last_name': 'Фамилия',
             'phone': 'Телефон',
-            'birth_date': 'Дата рождения',
+            'passport_series': 'Серия паспорта',
+            'passport_number': 'Номер паспорта',
         }
         widgets = {
             'account': forms.Select(attrs={'class': 'form-select'}),
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
             'phone': forms.TextInput(attrs={'class': 'form-input'}),
-            'birth_date': forms.DateInput(attrs={
-                'class': 'form-input', 'type': 'date'
-            }),
+            'passport_series': forms.TextInput(attrs={'class': 'form-input', 'maxlength': '4'}),
+            'passport_number': forms.TextInput(attrs={'class': 'form-input', 'maxlength': '6'}),
         }
 
 

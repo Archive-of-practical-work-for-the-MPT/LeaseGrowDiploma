@@ -1,5 +1,3 @@
-from datetime import date
-
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -158,6 +156,26 @@ class RegisterForm(forms.Form):
         label='Телефон',
         widget=forms.TextInput(attrs={'placeholder': '+7 (999) 123-45-67'}),
     )
+    passport_series = forms.CharField(
+        max_length=4,
+        label='Серия паспорта',
+        widget=forms.TextInput(attrs={
+            'placeholder': '1234',
+            'maxlength': '4',
+            'inputmode': 'numeric',
+            'pattern': r'\d{4}',
+        }),
+    )
+    passport_number = forms.CharField(
+        max_length=6,
+        label='Номер паспорта',
+        widget=forms.TextInput(attrs={
+            'placeholder': '123456',
+            'maxlength': '6',
+            'inputmode': 'numeric',
+            'pattern': r'\d{6}',
+        }),
+    )
     privacy_agree = forms.BooleanField(
         required=True,
         label='Согласие с политикой конфиденциальности',
@@ -180,11 +198,34 @@ class RegisterForm(forms.Form):
         data = super().clean()
         p1 = data.get('password1')
         p2 = data.get('password2')
+        passport_series = (data.get('passport_series') or '').strip()
+        passport_number = (data.get('passport_number') or '').strip()
         if p1 and p2 and p1 != p2:
             raise ValidationError({'password2': 'Пароли не совпадают.'})
         if p1 and len(p1) < 8:
             raise ValidationError({'password1': 'Пароль должен быть не менее 8 символов.'})
+        if passport_series and passport_number and UserProfile.objects.filter(
+            passport_series=passport_series,
+            passport_number=passport_number,
+        ).exists():
+            raise ValidationError({'passport_number': 'Профиль с такими паспортными данными уже существует.'})
         return data
+
+    def clean_passport_series(self):
+        value = (self.cleaned_data.get('passport_series') or '').strip()
+        if not value.isdigit():
+            raise ValidationError('Серия паспорта должна содержать только цифры.')
+        if len(value) != 4:
+            raise ValidationError('Серия паспорта должна содержать 4 цифры.')
+        return value
+
+    def clean_passport_number(self):
+        value = (self.cleaned_data.get('passport_number') or '').strip()
+        if not value.isdigit():
+            raise ValidationError('Номер паспорта должен содержать только цифры.')
+        if len(value) != 6:
+            raise ValidationError('Номер паспорта должен содержать 6 цифр.')
+        return value
 
 
 class ProfileEditForm(forms.Form):
@@ -230,17 +271,27 @@ class ProfileEditForm(forms.Form):
             'placeholder': '+7 (999) 123-45-67',
         }),
     )
-    birth_date = forms.DateField(
+    passport_series = forms.CharField(
+        max_length=4,
         required=False,
-        label='Дата рождения',
-        input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(
-            format='%Y-%m-%d',
-            attrs={
-                'class': 'form-input',
-                'type': 'date',
-            },
-        ),
+        label='Серия паспорта',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'maxlength': '4',
+            'inputmode': 'numeric',
+            'placeholder': '1234',
+        }),
+    )
+    passport_number = forms.CharField(
+        max_length=6,
+        required=False,
+        label='Номер паспорта',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'maxlength': '6',
+            'inputmode': 'numeric',
+            'placeholder': '123456',
+        }),
     )
     new_password = forms.CharField(
         required=False,
@@ -287,27 +338,39 @@ class ProfileEditForm(forms.Form):
             raise ValidationError('Этот email уже зарегистрирован.')
         return email
 
-    def clean_birth_date(self):
-        birth_date = self.cleaned_data.get('birth_date')
-        if not birth_date:
-            return birth_date
-        today = date.today()
-        age = today.year - birth_date.year - (
-            (today.month, today.day) < (birth_date.month, birth_date.day)
-        )
-        if age < 18:
-            raise ValidationError('Вам должно быть не менее 18 лет.')
-        return birth_date
+    def clean_passport_series(self):
+        value = (self.cleaned_data.get('passport_series') or '').strip()
+        if value and (not value.isdigit() or len(value) != 4):
+            raise ValidationError('Серия паспорта должна содержать ровно 4 цифры.')
+        return value
+
+    def clean_passport_number(self):
+        value = (self.cleaned_data.get('passport_number') or '').strip()
+        if value and (not value.isdigit() or len(value) != 6):
+            raise ValidationError('Номер паспорта должен содержать ровно 6 цифр.')
+        return value
 
     def clean(self):
         data = super().clean()
         new_pwd = data.get('new_password')
         new_pwd_confirm = data.get('new_password_confirm')
+        passport_series = (data.get('passport_series') or '').strip()
+        passport_number = (data.get('passport_number') or '').strip()
 
         if new_pwd or new_pwd_confirm:
             if new_pwd != new_pwd_confirm:
                 raise ValidationError({'new_password_confirm': 'Пароли не совпадают.'})
             if len(new_pwd or '') < 8:
                 raise ValidationError({'new_password': 'Пароль должен быть не менее 8 символов.'})
+
+        if passport_series and passport_number:
+            qs = UserProfile.objects.filter(
+                passport_series=passport_series,
+                passport_number=passport_number,
+            )
+            if self.account:
+                qs = qs.exclude(account_id=self.account.id)
+            if qs.exists():
+                raise ValidationError({'passport_number': 'Профиль с такими паспортными данными уже существует.'})
 
         return data

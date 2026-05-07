@@ -70,7 +70,8 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=100)),
                 ('last_name', models.CharField(max_length=100)),
                 ('phone', models.CharField(blank=True, max_length=20)),
-                ('birth_date', models.DateField(blank=True, null=True)),
+                ('passport_series', models.CharField(blank=True, max_length=4)),
+                ('passport_number', models.CharField(blank=True, max_length=6)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to='accounts.account')),
@@ -79,6 +80,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'профиль пользователя',
                 'verbose_name_plural': 'профили пользователей',
                 'db_table': 'user_profile',
+                'constraints': [models.UniqueConstraint(condition=~models.Q(passport_series='') & ~models.Q(passport_number=''), fields=('passport_series', 'passport_number'), name='uniq_user_profile_passport_pair')],
             },
         ),
     ]

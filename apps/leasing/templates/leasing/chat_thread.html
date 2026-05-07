@@ -48,6 +48,8 @@
         <div class="msg {% if msg.sender_id == current_account.id %}sent{% else %}received{% endif %}" data-msg-id="{{ msg.id }}">
             <div class="msg-meta">
                 {% if msg.sender.profile %}{{ msg.sender.profile.first_name }}{% else %}{{ msg.sender.username }}{% endif %}
+                ●
+                {% if msg.sender.role.name == 'manager' %}Менеджер{% elif msg.sender.role.name == 'admin' %}Администратор{% elif msg.sender.role.name == 'client' %}Клиент{% elif msg.sender.role.name == 'accountant' %}Бухгалтер{% else %}Пользователь{% endif %}
                 · {{ msg.created_at|date:"d.m.Y H:i" }}
             </div>
             {{ msg.text }}

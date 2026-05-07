@@ -40,10 +40,14 @@ CREATE TABLE IF NOT EXISTS user_profile (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20) DEFAULT '',
-    birth_date DATE,
+    passport_series VARCHAR(4) DEFAULT '',
+    passport_number VARCHAR(6) DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_profile_passport_pair
+ON user_profile (passport_series, passport_number)
+WHERE passport_series <> '' AND passport_number <> '';
 
 -- API токены
 CREATE TABLE IF NOT EXISTS account_token (

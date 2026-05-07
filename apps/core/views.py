@@ -72,9 +72,9 @@ def _first_day_next_month(dt: date) -> date:
 
 
 def _month_due_date(year: int, month: int, payment_day: int) -> date:
+    # Срок платежа фиксируем как последний день месяца.
     max_day = calendar.monthrange(year, month)[1]
-    safe_day = min(max(payment_day or 1, 1), max_day)
-    return date(year, month, safe_day)
+    return date(year, month, max_day)
 
 
 def _sync_contract_payment_schedule(contract, today=None):
@@ -417,6 +417,21 @@ def my_equipment(request):
     for contract in contracts:
         image_urls = getattr(contract.equipment, 'images_urls', []) or []
         contract.preview_image_url = _extract_first_image_url(image_urls)
+        contract.chat_request_id = None
+        if contract.lease_request_id:
+            linked_req = LeaseRequest.objects.filter(
+                id=contract.lease_request_id,
+                account=account,
+            ).only('id').first()
+            if linked_req:
+                contract.chat_request_id = linked_req.id
+        if not contract.chat_request_id:
+            fallback_req = LeaseRequest.objects.filter(
+                account=account,
+                equipment_id=contract.equipment_id,
+            ).exclude(status='cancelled').order_by('-created_at').only('id').first()
+            if fallback_req:
+                contract.chat_request_id = fallback_req.id
 
     for req in confirmed_requests:
         image_urls = getattr(req.equipment, 'images_urls', []) or []
@@ -449,7 +464,7 @@ def contract_sign(request, pk):
     if contract.signed_at:
         messages.info(request, 'Договор уже подписан.')
         return redirect('core:my_equipment')
-    if contract.status != 'draft':
+    if contract.status not in ('draft', 'active'):
         messages.info(request, 'Договор уже обработан.')
         return redirect('core:my_equipment')
 

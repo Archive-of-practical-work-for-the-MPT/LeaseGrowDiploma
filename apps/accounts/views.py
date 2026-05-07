@@ -78,6 +78,8 @@ def register_view(request):
             first_name=form.cleaned_data['first_name'].strip(),
             last_name=form.cleaned_data['last_name'].strip(),
             phone=form.cleaned_data.get('phone', '').strip() or '',
+            passport_series=form.cleaned_data.get('passport_series', '').strip(),
+            passport_number=form.cleaned_data.get('passport_number', '').strip(),
         )
         request.session['account_id'] = account.id
         request.session['show_company_bind_prompt'] = True
@@ -198,7 +200,8 @@ def profile_view(request):
             'first_name': profile.first_name if profile else '',
             'last_name': profile.last_name if profile else '',
             'phone': profile.phone if profile else '',
-            'birth_date': profile.birth_date if profile and profile.birth_date else None,
+            'passport_series': profile.passport_series if profile else '',
+            'passport_number': profile.passport_number if profile else '',
         } if request.method != 'POST' else None,
         data=request.POST if request.method == 'POST' else None,
     )
@@ -218,16 +221,18 @@ def profile_view(request):
             profile.first_name = form.cleaned_data['first_name'].strip()
             profile.last_name = form.cleaned_data['last_name'].strip()
             profile.phone = (form.cleaned_data.get('phone') or '').strip()
-            profile.birth_date = form.cleaned_data.get('birth_date')
+            profile.passport_series = (form.cleaned_data.get('passport_series') or '').strip()
+            profile.passport_number = (form.cleaned_data.get('passport_number') or '').strip()
             profile.save(update_fields=[
-                         'first_name', 'last_name', 'phone', 'birth_date', 'updated_at'])
+                         'first_name', 'last_name', 'phone', 'passport_series', 'passport_number', 'updated_at'])
         else:
             UserProfile.objects.create(
                 account=account,
                 first_name=form.cleaned_data['first_name'].strip(),
                 last_name=form.cleaned_data['last_name'].strip(),
                 phone=(form.cleaned_data.get('phone') or '').strip(),
-                birth_date=form.cleaned_data.get('birth_date'),
+                passport_series=(form.cleaned_data.get('passport_series') or '').strip(),
+                passport_number=(form.cleaned_data.get('passport_number') or '').strip(),
             )
         messages.success(request, 'Профиль обновлён.')
         return redirect('accounts:profile')

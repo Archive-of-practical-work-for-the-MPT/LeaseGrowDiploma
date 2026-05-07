@@ -29,22 +29,22 @@ INSERT INTO account (email, username, password_hash, role_id, is_active, last_lo
 ('client11@volga-agro.ru', 'volga_client', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 4, TRUE, '2026-05-07 07:55:00+03', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Профили
-INSERT INTO user_profile (account_id, first_name, last_name, phone, birth_date, created_at, updated_at) VALUES
-(1, 'Админ', 'Системы', '+7 (495) 111-11-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 'Иван', 'Петров', '+7 (916) 111-22-22', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 'Мария', 'Сидорова', '+7 (916) 222-33-33', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(4, 'Сергей', 'Кузнецов', '+7 (916) 333-44-44', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(5, 'Андрей', 'Морозов', '+7 (916) 444-55-55', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6, 'Елена', 'Волкова', '+7 (916) 555-66-66', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(7, 'Дмитрий', 'Соколов', '+7 (916) 666-77-77', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(8, 'Николай', 'Кочетов', '+7 (916) 777-88-88', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(9, 'Павел', 'Тихонов', '+7 (916) 888-99-99', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(10, 'Виктор', 'Лапин', '+7 (916) 111-22-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(11, 'Олег', 'Суханов', '+7 (916) 222-33-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(12, 'Илья', 'Меркулов', '+7 (916) 333-44-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(13, 'Руслан', 'Белов', '+7 (916) 444-55-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(14, 'Егор', 'Климов', '+7 (916) 555-66-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(15, 'Артем', 'Горин', '+7 (916) 666-77-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO user_profile (account_id, first_name, last_name, phone, passport_series, passport_number, created_at, updated_at) VALUES
+(1, 'Админ', 'Системы', '+7 (495) 111-11-11', '', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'Иван', 'Петров', '+7 (916) 111-22-22', '', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'Мария', 'Сидорова', '+7 (916) 222-33-33', '', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'Сергей', 'Кузнецов', '+7 (916) 333-44-44', '4501', '123456', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'Андрей', 'Морозов', '+7 (916) 444-55-55', '4502', '234567', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 'Елена', 'Волкова', '+7 (916) 555-66-66', '4503', '345678', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 'Дмитрий', 'Соколов', '+7 (916) 666-77-77', '', '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(8, 'Николай', 'Кочетов', '+7 (916) 777-88-88', '4504', '456789', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9, 'Павел', 'Тихонов', '+7 (916) 888-99-99', '4505', '567890', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 'Виктор', 'Лапин', '+7 (916) 111-22-11', '4506', '678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 'Олег', 'Суханов', '+7 (916) 222-33-11', '4507', '789012', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(12, 'Илья', 'Меркулов', '+7 (916) 333-44-11', '4508', '890123', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(13, 'Руслан', 'Белов', '+7 (916) 444-55-11', '4509', '901234', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(14, 'Егор', 'Климов', '+7 (916) 555-66-11', '4510', '012345', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 'Артем', 'Горин', '+7 (916) 666-77-11', '4511', '112233', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- API токены (64 hex символа)
 INSERT INTO account_token (key, account_id, created_at) VALUES
@@ -148,37 +148,53 @@ INSERT INTO lease_contract (contract_number, company_id, equipment_id, start_dat
 ('LG-2026-017', 5, 8, '2026-04-01', '2026-12-31', 9, 22800000.00, 4560000.00, 304000.00, 1, 'active', '2026-04-06 10:00:00+03', 2, 2, CURRENT_TIMESTAMP),
 ('LG-2026-018', 2, 24, '2026-05-01', '2026-12-31', 8, 6480000.00, 1296000.00, 144000.00, 10, 'completed', '2026-05-06 12:00:00+03', 2, 2, CURRENT_TIMESTAMP);
 
+-- Для графика платежей срок оплаты — конец месяца
+UPDATE lease_contract SET payment_day = 31;
+
 -- Графики платежей (примеры для нескольких договоров)
 INSERT INTO payment_schedule (contract_id, payment_number, due_date, amount, status, paid_at, external_payment_id, penalty_amount) VALUES
-(1, 1, '2026-03-01', 360000.00, 'paid', '2026-03-01 10:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6778', 0),
-(1, 2, '2026-04-01', 360000.00, 'paid', '2026-04-01 09:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6779', 0),
-(1, 3, '2026-05-01', 360000.00, 'pending', NULL, NULL, 0),
-(2, 1, '2026-04-15', 224000.00, 'paid', '2026-04-15 10:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6780', 0),
-(2, 2, '2026-05-15', 224000.00, 'pending', NULL, NULL, 0),
-(3, 1, '2026-05-01', 336000.00, 'pending', NULL, NULL, 0);
+(1, 1, '2026-03-31', 360000.00, 'paid', '2026-03-31 10:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6778', 0),
+(1, 2, '2026-04-30', 360000.00, 'paid', '2026-04-30 09:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6779', 0),
+(1, 3, '2026-05-31', 360000.00, 'pending', NULL, NULL, 0),
+(2, 1, '2026-04-30', 224000.00, 'paid', '2026-04-30 10:00:00+03', '318eff86-000f-5001-9000-19b0b0cc6780', 0),
+(2, 2, '2026-05-31', 224000.00, 'pending', NULL, NULL, 0),
+(3, 1, '2026-05-31', 336000.00, 'pending', NULL, NULL, 0);
 
 -- Заявки на лизинг (для тестовых чатов клиент ↔ менеджер)
 INSERT INTO lease_request (equipment_id, account_id, status, message, manager_notes, confirmed_by_id, created_at, updated_at) VALUES
 (1, 4, 'pending', 'Нужен трактор к началу сезона, интересует аванс 20%.', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (7, 5, 'confirmed', 'Планируем закупку на 3 года, можно ли сдвинуть первый платеж?', 'Согласовали индивидуальный график, ожидаем подписание.', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (15, 6, 'pending', 'Нужна техника в лизинг до конца месяца.', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(20, 4, 'confirmed', 'Готовы к сделке, просим КП и проект договора.', 'Отправлены условия и расчет, клиент подтвердил интерес.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(20, 4, 'confirmed', 'Готовы к сделке, просим КП и проект договора.', 'Отправлены условия и расчет, клиент подтвердил интерес.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 8, 'confirmed', 'Нужна поставка и оформление договора по технике в этом месяце.', 'Подтверждено, подготовка договора начата.', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 9, 'confirmed', 'Просьба зафиксировать платеж 15 числа.', 'Согласовано, передано в договор.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 10, 'confirmed', 'Готовы к подписанию и отгрузке.', 'Подтверждено менеджером.', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(23, 11, 'confirmed', 'Ожидаем итоговый график платежей.', 'Заявка подтверждена.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(20, 13, 'confirmed', 'Подтверждаю интерес, прошу оформить договор.', 'Согласованы условия.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Привязка договоров к заявкам (lease_request_id)
-UPDATE lease_contract
-SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 1 AND account_id = 4 LIMIT 1)
-WHERE contract_number = 'LG-2026-001';
-
 UPDATE lease_contract
 SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 7 AND account_id = 5 LIMIT 1)
 WHERE contract_number = 'LG-2026-002';
 
 UPDATE lease_contract
-SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 15 AND account_id = 6 LIMIT 1)
+SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 15 AND account_id = 8 LIMIT 1)
 WHERE contract_number = 'LG-2026-007';
 
 UPDATE lease_contract
-SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 20 AND account_id = 4 LIMIT 1)
+SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 17 AND account_id = 9 LIMIT 1)
+WHERE contract_number = 'LG-2026-008';
+
+UPDATE lease_contract
+SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 10 AND account_id = 10 LIMIT 1)
+WHERE contract_number = 'LG-2026-010';
+
+UPDATE lease_contract
+SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 23 AND account_id = 11 LIMIT 1)
+WHERE contract_number = 'LG-2026-011';
+
+UPDATE lease_contract
+SET lease_request_id = (SELECT id FROM lease_request WHERE equipment_id = 20 AND account_id = 13 LIMIT 1)
 WHERE contract_number = 'LG-2026-013';
 
 -- Сообщения в чатах по заявкам на лизинг

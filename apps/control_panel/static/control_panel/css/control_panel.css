@@ -465,6 +465,43 @@ table.console-table tbody tr:hover {
     font-family: inherit;
 }
 
+.console-field input[type="file"] {
+    padding: 0.35rem;
+    min-height: 2.4rem;
+    background: var(--bg);
+    border-style: dashed;
+}
+
+.console-field input[type="file"]::file-selector-button {
+    margin-right: 0.6rem;
+    border: 1px solid var(--green-400);
+    background: var(--green-500);
+    color: var(--on-primary);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.console-field input[type="file"]::file-selector-button:hover {
+    background: var(--green-600);
+    border-color: var(--green-600);
+}
+
+.console-field input[type="file"]::-webkit-file-upload-button {
+    margin-right: 0.6rem;
+    border: 1px solid var(--green-400);
+    background: var(--green-500);
+    color: var(--on-primary);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .console-field-checkbox {
     flex-direction: row;
     align-items: center;

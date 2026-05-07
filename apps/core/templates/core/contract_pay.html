@@ -6,44 +6,143 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'control_panel/css/control_panel.css' %}">
 <style>
-.pay-root { max-width: 500px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
-.pay-item { padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.5rem; }
+.pay-root { max-width: 860px; margin: 2rem auto 3rem; padding: 0 1.5rem; }
+.pay-header { margin-bottom: 1rem; }
+.pay-subtitle { color: var(--text-secondary); margin-top: 0.35rem; }
+.pay-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0 1.25rem; }
+.pay-stat { border: 1px solid var(--border); border-radius: 10px; background: var(--white); padding: 0.9rem 1rem; }
+.pay-stat-label { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.35rem; }
+.pay-stat-value { font-size: 1.3rem; font-weight: 700; }
+.pay-actions { border: 1px solid var(--border); border-radius: 12px; background: var(--white); padding: 1rem; margin-bottom: 1rem; }
+.pay-actions-title { font-weight: 600; margin-bottom: 0.75rem; }
+.pay-actions-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+.pay-progress-wrap { margin: 0.75rem 0 1.25rem; }
+.pay-progress-head { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+.pay-progress-track { width: 100%; height: 10px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.pay-progress-bar { height: 100%; background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); }
+.pay-item { padding: 0.85rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.55rem; display: flex; justify-content: space-between; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.pay-item-meta { color: var(--text-secondary); font-size: 0.9rem; }
 .pay-custom { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid var(--border); border-radius: 10px; background: var(--white); }
 .pay-custom-label { font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-secondary); }
 .pay-custom-inner { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-.pay-custom-input { padding: 0.65rem 1rem; font-size: 1.1rem; width: 160px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; }
+.pay-custom-input { padding: 0.65rem 1rem; font-size: 1.05rem; width: 180px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; }
 .pay-custom-input:focus { outline: none; border-color: var(--green-500); box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2); }
 .pay-back { display: inline-block; margin-top: 1.5rem; padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); transition: background 0.2s, border-color 0.2s; }
 .pay-back:hover { background: var(--green-50, #f0fdf4); border-color: var(--green-200); color: var(--green-700); }
+.pay-badge { display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+.pay-badge.success { color: #166534; background: #dcfce7; }
+.pay-badge.warning { color: #92400e; background: #fef3c7; }
+.pay-badge.danger { color: #991b1b; background: #fee2e2; }
+.pay-badge.neutral { color: #374151; background: #e5e7eb; }
+@media (max-width: 720px) {
+  .pay-grid { grid-template-columns: 1fr; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="console-root pay-root">
     <div class="console-card">
-        <h2>Оплата по договору {{ contract.contract_number }}</h2>
-        <p class="console-subtitle">{{ contract.equipment.name }} · {{ contract.monthly_payment|floatformat:0 }} ₽/мес</p>
-
-        {% if payments %}
-        <p style="margin-top: 1rem;">Ожидающие платежи:</p>
-        {% for p in payments %}
-        <div class="pay-item">
-            Платёж #{{ p.payment_number }} — {{ p.due_date|date:"d.m.Y" }} — {{ p.amount|floatformat:0 }} ₽
-            <form method="post" style="display: inline; margin-left: 0.5rem;">
-                {% csrf_token %}
-                <input type="hidden" name="payment_id" value="{{ p.id }}">
-                <input type="hidden" name="amount" value="{{ p.amount }}">
-                <button type="submit" class="btn-xs primary">Оплатить</button>
-            </form>
+        <div class="pay-header">
+            <h2>Оплата по договору {{ contract.contract_number }}</h2>
+            <p class="pay-subtitle">{{ contract.equipment.name }} · {{ contract.monthly_payment|floatformat:0 }} ₽/мес</p>
         </div>
-        {% endfor %}
-        {% endif %}
+
+        <div class="pay-grid">
+            <div class="pay-stat">
+                <div class="pay-stat-label">Общая сумма договора</div>
+                <div class="pay-stat-value">{{ contract.total_amount|floatformat:2 }} ₽</div>
+            </div>
+            <div class="pay-stat">
+                <div class="pay-stat-label">Уже оплачено</div>
+                <div class="pay-stat-value">{{ paid_total|floatformat:2 }} ₽</div>
+            </div>
+            <div class="pay-stat">
+                <div class="pay-stat-label">Осталось к оплате</div>
+                <div class="pay-stat-value">{{ remaining_total|floatformat:2 }} ₽</div>
+            </div>
+            <div class="pay-stat">
+                <div class="pay-stat-label">Осталось за этот месяц</div>
+                <div class="pay-stat-value">{{ remaining_this_month|floatformat:2 }} ₽</div>
+            </div>
+        </div>
+        <div class="pay-progress-wrap">
+            <div class="pay-progress-head">
+                <span>Прогресс оплаты</span>
+                <strong>{{ progress_percent }}%</strong>
+            </div>
+            <div class="pay-progress-track">
+                <div class="pay-progress-bar" style="width: {{ progress_percent }}%;"></div>
+            </div>
+        </div>
+
+        <div class="pay-actions">
+            <div class="pay-actions-title">Быстрая оплата</div>
+            <p class="pay-custom-label">После нажатия вы будете перенаправлены на страницу оплаты ЮKassa.</p>
+            <div class="pay-actions-row">
+                <span>Статус платежа за текущий месяц:</span>
+                <span class="pay-badge {{ month_status_class }}">{{ month_status_label }}</span>
+            </div>
+
+            {% if quick_month_payment %}
+            <div class="pay-actions-row">
+                <span>
+                    Оплата за месяц:
+                    {% if current_month_payment %}
+                        платеж #{{ current_month_payment.payment_number }} до {{ current_month_payment.due_date|date:"d.m.Y" }}
+                    {% else %}
+                        ближайший платеж #{{ quick_month_payment.payment_number }} до {{ quick_month_payment.due_date|date:"d.m.Y" }}
+                    {% endif %}
+                    — <strong>{{ quick_month_payment.amount|floatformat:2 }} ₽</strong>
+                </span>
+            </div>
+            {% else %}
+            <p class="pay-custom-label">Нет ожидающих платежей по графику. Можно быстро оплатить стандартный ежемесячный платеж:</p>
+            {% endif %}
+        </div>
+
+        <div class="pay-actions">
+            <div class="pay-actions-title">График ожидающих платежей</div>
+            <p class="pay-custom-label">Ожидают: {{ pending_count }} · Оплачено: {{ paid_count }}</p>
+            {% if payments %}
+                {% for p in payments %}
+                <div class="pay-item">
+                    <div>
+                        <strong>Платеж #{{ p.payment_number }}</strong> — {{ p.amount|floatformat:2 }} ₽
+                        <div class="pay-item-meta">Срок оплаты: {{ p.due_date|date:"d.m.Y" }}</div>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="payment_id" value="{{ p.id }}">
+                        <input type="hidden" name="amount" value="{{ p.amount }}">
+                        <button type="submit" class="btn-xs primary">Оплатить этот платеж</button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="pay-custom-label">Все платежи по графику уже оплачены.</p>
+            {% endif %}
+        </div>
 
         <div class="pay-custom">
-            <p class="pay-custom-label">Или введите произвольную сумму:</p>
+            <p class="pay-custom-label">Оплатить этот месяц:</p>
+            <form method="post" class="pay-custom-inner" style="margin-bottom: 0.75rem;">
+                {% csrf_token %}
+                {% if quick_month_payment %}
+                <input type="hidden" name="payment_id" value="{{ quick_month_payment.id }}">
+                <input type="text" value="{{ quick_month_payment.amount|floatformat:2 }} ₽" class="pay-custom-input" readonly>
+                <input type="hidden" name="amount" value="{{ quick_month_payment.amount }}">
+                {% else %}
+                <input type="text" value="{{ contract.monthly_payment|floatformat:2 }} ₽" class="pay-custom-input" readonly>
+                <input type="hidden" name="amount" value="{{ contract.monthly_payment }}">
+                {% endif %}
+                <button type="submit" class="btn-xs primary">Оплатить</button>
+            </form>
+
+            <p class="pay-custom-label">Произвольная сумма (если нужно внести частичный/дополнительный платеж):</p>
             <form method="post" class="pay-custom-inner">
                 {% csrf_token %}
-                <input type="number" name="amount" step="0.01" min="0.01" placeholder="{{ contract.monthly_payment|floatformat:0 }}" class="pay-custom-input">
+                <input type="number" name="amount" step="0.01" min="0.01" placeholder="{{ contract.monthly_payment|floatformat:2 }}" class="pay-custom-input">
                 <button type="submit" class="btn-xs primary">Оплатить</button>
             </form>
         </div>

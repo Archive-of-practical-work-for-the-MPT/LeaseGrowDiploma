@@ -14,6 +14,7 @@ urlpatterns = [
     path('leasing/request/<int:equipment_id>/', views.leasing_request_create, name='leasing_request_create'),
     path('contract/<int:pk>/sign/', views.contract_sign, name='contract_sign'),
     path('contract/<int:pk>/pay/', views.contract_pay, name='contract_pay'),
+    path('contract/<int:pk>/pay/return/', views.contract_pay_return, name='contract_pay_return'),
     path('contract/<int:pk>/maintenance/', views.maintenance_request_create, name='maintenance_request_create'),
     path('privacy/', views.privacy, name='privacy'),
     path('about/', views.about, name='about'),

@@ -60,6 +60,8 @@
 .contract-status.completed { background: var(--border); color: var(--text-muted); }
 .contract-status.draft { background: #fef9c3; color: #a16207; }
 .contract-status.terminated { background: #fee2e2; color: #dc2626; }
+.eq-card-image { overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.eq-card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .btn-chat-manager {
     display: inline-flex;
     align-items: center;
@@ -137,7 +139,13 @@
     <div class="leasing-grid">
         {% for contract in contracts %}
         <article class="eq-card">
-            <div class="eq-card-image">🚜</div>
+            <div class="eq-card-image">
+                {% if contract.preview_image_url %}
+                <img src="{{ contract.preview_image_url }}" alt="{{ contract.equipment.name }}">
+                {% else %}
+                🚜
+                {% endif %}
+            </div>
             <div class="eq-card-body">
                 <h3 class="eq-card-title">{{ contract.equipment.name }} — {{ contract.equipment.model }}</h3>
                 <p class="eq-card-meta">{{ contract.equipment.category.name }}{% if contract.equipment.manufacturer %} · {{ contract.equipment.manufacturer.name }}{% endif %}</p>
@@ -174,7 +182,13 @@
         {% endfor %}
         {% for req in confirmed_requests %}
         <article class="eq-card">
-            <div class="eq-card-image">🚜</div>
+            <div class="eq-card-image">
+                {% if req.preview_image_url %}
+                <img src="{{ req.preview_image_url }}" alt="{{ req.equipment.name }}">
+                {% else %}
+                🚜
+                {% endif %}
+            </div>
             <div class="eq-card-body">
                 <h3 class="eq-card-title">{{ req.equipment.name }} — {{ req.equipment.model }}</h3>
                 <p class="eq-card-meta">{{ req.equipment.category.name }}{% if req.equipment.manufacturer %} · {{ req.equipment.manufacturer.name }}{% endif %}</p>

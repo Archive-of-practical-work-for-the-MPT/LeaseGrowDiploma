@@ -91,6 +91,10 @@ DATABASES = {
 # Путь к bin PostgreSQL (pg_dump, psql) — для Windows, если не в PATH
 PG_BIN_PATH = env('PG_BIN_PATH', default='')
 
+# ЮKassa
+YOOKASSA_SHOP_ID = env('YOOKASSA_SHOP_ID', default='')
+YOOKASSA_SECRET_KEY = env('YOOKASSA_SECRET_KEY', default='')
+
 # Почта (Yandex SMTP для восстановления пароля)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.yandex.ru')

@@ -118,6 +118,7 @@ class PaymentSchedule(models.Model):
     status = models.CharField(
         max_length=50, default='pending', choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(null=True, blank=True)
+    external_payment_id = models.CharField(max_length=64, null=True, blank=True, unique=True)
     penalty_amount = models.DecimalField(
         max_digits=10, decimal_places=2, default=Decimal('0')
     )

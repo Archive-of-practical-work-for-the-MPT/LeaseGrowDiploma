@@ -14,7 +14,7 @@
 </div>
 <div class="console-form">
     <div class="console-form-title">Создание / обновление записи</div>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% if form.non_field_errors %}
         <div class="console-form-errors">{{ form.non_field_errors }}</div>

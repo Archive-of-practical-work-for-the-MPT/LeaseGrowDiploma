@@ -1,8 +1,12 @@
 """Формы для панели управления."""
 import json
 import secrets
+from pathlib import Path
+from uuid import uuid4
 from django import forms
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.utils.text import slugify
 
 from apps.accounts.models import Role, Account, UserProfile, AccountToken
 from apps.catalog.models import EquipmentCategory, Manufacturer, Equipment
@@ -157,6 +161,13 @@ class ManufacturerForm(forms.ModelForm):
 
 
 class EquipmentForm(forms.ModelForm):
+    image_file = forms.FileField(
+        required=False,
+        label='Загрузить изображение',
+        help_text='Поддерживаются форматы: .jpeg, .jpg, .png, .webp. При загрузке URL изображения будет заменён.',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-input', 'accept': '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'}),
+    )
+
     class Meta:
         model = Equipment
         fields = [
@@ -219,6 +230,34 @@ class EquipmentForm(forms.ModelForm):
             except json.JSONDecodeError:
                 return text
         return val or ''
+
+    def clean_image_file(self):
+        uploaded = self.cleaned_data.get('image_file')
+        if not uploaded:
+            return uploaded
+        ext = Path(uploaded.name).suffix.lower()
+        allowed = {'.jpg', '.jpeg', '.png', '.webp'}
+        if ext not in allowed:
+            raise forms.ValidationError('Разрешены только файлы JPEG, PNG или WEBP.')
+        return uploaded
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        uploaded = self.cleaned_data.get('image_file')
+        if uploaded:
+            products_dir = settings.BASE_DIR / 'apps' / 'core' / 'static' / 'core' / 'images' / 'leasing' / 'products'
+            products_dir.mkdir(parents=True, exist_ok=True)
+            ext = Path(uploaded.name).suffix.lower()
+            safe_base = slugify(f'{obj.name}-{obj.model}') or 'equipment'
+            filename = f'{safe_base}-{uuid4().hex[:8]}{ext}'
+            target_path = products_dir / filename
+            with target_path.open('wb+') as destination:
+                for chunk in uploaded.chunks():
+                    destination.write(chunk)
+            obj.images_urls = f'/static/core/images/leasing/products/{filename}'
+        if commit:
+            obj.save()
+        return obj
 
 
 class CompanyForm(forms.ModelForm):

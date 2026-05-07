@@ -102,19 +102,22 @@
         </div>
 
         <div class="pay-actions">
-            <div class="pay-actions-title">График ожидающих платежей</div>
+            <div class="pay-actions-title">График ожидающих/просроченных платежей</div>
             <p class="pay-custom-label">Ожидают: {{ pending_count }} · Оплачено: {{ paid_count }}</p>
             {% if payments %}
                 {% for p in payments %}
                 <div class="pay-item">
                     <div>
                         <strong>Платеж #{{ p.payment_number }}</strong> — {{ p.amount|floatformat:2 }} ₽
-                        <div class="pay-item-meta">Срок оплаты: {{ p.due_date|date:"d.m.Y" }}</div>
+                        {% if p.penalty_amount and p.penalty_amount > 0 %}
+                        <div class="pay-item-meta">Штраф: {{ p.penalty_amount|floatformat:2 }} ₽ · Итого: {{ p.amount|add:p.penalty_amount|floatformat:2 }} ₽</div>
+                        {% endif %}
+                        <div class="pay-item-meta">Срок оплаты: {{ p.due_date|date:"d.m.Y" }}{% if p.status == 'overdue' %} · <span class="pay-badge danger">Просрочен</span>{% endif %}</div>
                     </div>
                     <form method="post">
                         {% csrf_token %}
                         <input type="hidden" name="payment_id" value="{{ p.id }}">
-                        <input type="hidden" name="amount" value="{{ p.amount }}">
+                        <input type="hidden" name="amount" value="{{ p.amount|add:p.penalty_amount }}">
                         <button type="submit" class="btn-xs primary">Оплатить этот платеж</button>
                     </form>
                 </div>
@@ -130,8 +133,8 @@
                 {% csrf_token %}
                 {% if quick_month_payment %}
                 <input type="hidden" name="payment_id" value="{{ quick_month_payment.id }}">
-                <input type="text" value="{{ quick_month_payment.amount|floatformat:2 }} ₽" class="pay-custom-input" readonly>
-                <input type="hidden" name="amount" value="{{ quick_month_payment.amount }}">
+                <input type="text" value="{{ quick_month_payment.amount|add:quick_month_payment.penalty_amount|floatformat:2 }} ₽" class="pay-custom-input" readonly>
+                <input type="hidden" name="amount" value="{{ quick_month_payment.amount|add:quick_month_payment.penalty_amount }}">
                 {% else %}
                 <input type="text" value="{{ contract.monthly_payment|floatformat:2 }} ₽" class="pay-custom-input" readonly>
                 <input type="hidden" name="amount" value="{{ contract.monthly_payment }}">

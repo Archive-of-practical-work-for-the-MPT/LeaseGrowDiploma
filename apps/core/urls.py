@@ -13,6 +13,7 @@ urlpatterns = [
     path('my-maintenance/', views.my_maintenance_requests, name='my_maintenance_requests'),
     path('leasing/request/<int:equipment_id>/', views.leasing_request_create, name='leasing_request_create'),
     path('contract/<int:pk>/sign/', views.contract_sign, name='contract_sign'),
+    path('contract/<int:pk>/download-docx/', views.contract_download_docx, name='contract_download_docx'),
     path('contract/<int:pk>/pay/', views.contract_pay, name='contract_pay'),
     path('contract/<int:pk>/pay/return/', views.contract_pay_return, name='contract_pay_return'),
     path('contract/<int:pk>/maintenance/', views.maintenance_request_create, name='maintenance_request_create'),

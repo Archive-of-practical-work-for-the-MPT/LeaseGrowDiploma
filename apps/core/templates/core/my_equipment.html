@@ -97,6 +97,8 @@
 .card-actions .btn-pay:hover { background: #15803d; color: #fff; }
 .card-actions .btn-maintenance { background: #ca8a04; color: #fff; border: none; }
 .card-actions .btn-maintenance:hover { background: #a16207; color: #fff; }
+.card-actions .btn-download { background: #2563eb; color: #fff; border: none; }
+.card-actions .btn-download:hover { background: #1d4ed8; color: #fff; }
 .status-filter { margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .status-filter a {
     padding: 0.5rem 1rem; border-radius: var(--radius); font-size: 0.9rem;
@@ -169,6 +171,7 @@
                     {% if contract.lease_request_id %}
                     <a href="{% url 'chat:thread' contract.lease_request_id %}" class="btn-chat">💬 Чат</a>
                     {% endif %}
+                    <a href="{% url 'core:contract_download_docx' contract.id %}" class="btn-download">📄 Word</a>
                     {% if contract.status == 'draft' and not contract.signed_at %}
                     <a href="{% url 'core:contract_sign' contract.id %}" class="btn-sign">✏️ Подписать</a>
                     {% endif %}

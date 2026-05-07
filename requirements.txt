@@ -10,3 +10,4 @@ reportlab>=4.0
 matplotlib>=3.8
 locust>=2.0
 yookassa>=3.7
+python-docx

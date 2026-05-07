@@ -26,6 +26,8 @@
 .chat-actions .btn-cancel { background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; }
 .chat-actions .btn-contract { background: var(--green-500); color: #fff; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; }
 .chat-actions .btn-contract:hover { background: var(--green-600); color: #fff; }
+.chat-actions .btn-docx { background: #2563eb; color: #fff; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; }
+.chat-actions .btn-docx:hover { background: #1d4ed8; color: #fff; }
 .back-link { display: inline-block; margin-top: 1rem; color: var(--text-muted); text-decoration: none; }
 .back-link:hover { color: var(--green-600); }
 </style>
@@ -69,9 +71,15 @@
     <div class="chat-actions">
         {% if related_contract %}
         <a href="{% url 'control_panel:leasecontract_edit' related_contract.id %}" class="btn btn-contract">✏️ Изменить договор</a>
+        <a href="{% url 'core:contract_download_docx' related_contract.id %}" class="btn btn-docx">📄 Word</a>
         {% else %}
         <a href="{% url 'manager:lease_request_create_contract' lease_request.id %}" class="btn btn-contract">📄 Оформить договор</a>
         {% endif %}
+    </div>
+    {% endif %}
+    {% if not is_manager and related_contract %}
+    <div class="chat-actions">
+        <a href="{% url 'core:contract_download_docx' related_contract.id %}" class="btn btn-docx">📄 Скачать договор (Word)</a>
     </div>
     {% endif %}
     {% if is_manager and lease_request.status == 'pending' %}

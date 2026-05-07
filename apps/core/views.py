@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.http import HttpResponse
 from django.db.models import Q
 from django.db import transaction
 from django.db.models import Sum, Max
@@ -13,6 +14,7 @@ from uuid import uuid4
 from datetime import timedelta, date
 import calendar
 import json
+from io import BytesIO
 
 from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
 from apps.leasing.models import (
@@ -21,6 +23,8 @@ from apps.leasing.models import (
 )
 from apps.accounts.views import get_current_account
 from yookassa import Configuration, Payment
+
+DAILY_PENALTY_RATE = Decimal('0.001')  # 0.1% в день
 
 
 def _extract_first_image_url(images_value):
@@ -52,6 +56,15 @@ def _can_create_leasing_request(account):
     return role_name not in ('admin', 'manager')
 
 
+def _can_download_contract(account, contract):
+    if not account:
+        return False
+    role_name = getattr(getattr(account, 'role', None), 'name', '')
+    if role_name in ('admin', 'manager'):
+        return True
+    return contract.company.account_id == account.id
+
+
 def _first_day_next_month(dt: date) -> date:
     if dt.month == 12:
         return date(dt.year + 1, 1, 1)
@@ -78,28 +91,26 @@ def _sync_contract_payment_schedule(contract, today=None):
     if start_month > end_month:
         return
 
-    schedules = list(
-        PaymentSchedule.objects.filter(contract=contract).order_by('due_date', 'id')
-    )
+    schedules = list(PaymentSchedule.objects.filter(contract=contract).order_by('due_date', 'id'))
     paid_months = {
         (ps.due_date.year, ps.due_date.month)
         for ps in schedules
         if ps.status == 'paid'
     }
 
-    pending_by_month = {}
-    duplicate_pending_ids = []
+    unpaid_by_month = {}
+    duplicate_unpaid_ids = []
     for ps in schedules:
-        if ps.status != 'pending':
+        if ps.status not in ('pending', 'overdue'):
             continue
         key = (ps.due_date.year, ps.due_date.month)
-        if key in pending_by_month:
-            duplicate_pending_ids.append(ps.id)
+        if key in unpaid_by_month:
+            duplicate_unpaid_ids.append(ps.id)
         else:
-            pending_by_month[key] = ps
+            unpaid_by_month[key] = ps
 
-    if duplicate_pending_ids:
-        PaymentSchedule.objects.filter(id__in=duplicate_pending_ids).delete()
+    if duplicate_unpaid_ids:
+        PaymentSchedule.objects.filter(id__in=duplicate_unpaid_ids).delete()
 
     max_number = PaymentSchedule.objects.filter(contract=contract).aggregate(
         max_number=Max('payment_number')
@@ -107,25 +118,43 @@ def _sync_contract_payment_schedule(contract, today=None):
     next_payment_number = max_number + 1
     to_create = []
     to_delete_ids = []
+    to_update = []
 
     cursor_month = start_month
     while cursor_month <= end_month:
         key = (cursor_month.year, cursor_month.month)
-        existing_pending = pending_by_month.get(key)
+        existing_unpaid = unpaid_by_month.get(key)
 
         if key in paid_months:
-            if existing_pending:
-                to_delete_ids.append(existing_pending.id)
-        elif not existing_pending:
+            if existing_unpaid:
+                to_delete_ids.append(existing_unpaid.id)
+        elif existing_unpaid:
+            expected_status = 'overdue' if existing_unpaid.due_date < today else 'pending'
+            days_overdue = max((today - existing_unpaid.due_date).days, 0)
+            expected_penalty = (
+                (existing_unpaid.amount * DAILY_PENALTY_RATE * Decimal(days_overdue)).quantize(Decimal('0.01'))
+                if days_overdue > 0 else Decimal('0.00')
+            )
+            if existing_unpaid.status != expected_status or existing_unpaid.penalty_amount != expected_penalty:
+                existing_unpaid.status = expected_status
+                existing_unpaid.penalty_amount = expected_penalty
+                to_update.append(existing_unpaid)
+        else:
+            due_date = _month_due_date(cursor_month.year, cursor_month.month, contract.payment_day)
+            status = 'overdue' if due_date < today else 'pending'
+            days_overdue = max((today - due_date).days, 0)
+            penalty_amount = (
+                (contract.monthly_payment * DAILY_PENALTY_RATE * Decimal(days_overdue)).quantize(Decimal('0.01'))
+                if days_overdue > 0 else Decimal('0.00')
+            )
             to_create.append(
                 PaymentSchedule(
                     contract=contract,
                     payment_number=next_payment_number,
-                    due_date=_month_due_date(
-                        cursor_month.year, cursor_month.month, contract.payment_day
-                    ),
+                    due_date=due_date,
                     amount=contract.monthly_payment,
-                    status='pending',
+                    status=status,
+                    penalty_amount=penalty_amount,
                 )
             )
             next_payment_number += 1
@@ -134,6 +163,8 @@ def _sync_contract_payment_schedule(contract, today=None):
 
     if to_delete_ids:
         PaymentSchedule.objects.filter(id__in=to_delete_ids).delete()
+    if to_update:
+        PaymentSchedule.objects.bulk_update(to_update, ['status', 'penalty_amount'])
     if to_create:
         PaymentSchedule.objects.bulk_create(to_create)
 
@@ -433,6 +464,71 @@ def contract_sign(request, pk):
     return render(request, 'core/contract_sign.html', {'contract': contract})
 
 
+def contract_download_docx(request, pk):
+    """Скачивание договора в формате DOCX для клиента/менеджера."""
+    account = get_current_account(request)
+    if not account:
+        messages.error(request, 'Войдите в систему.')
+        return redirect('accounts:login')
+
+    contract = get_object_or_404(
+        LeaseContract.objects.select_related('equipment', 'equipment__manufacturer', 'company'),
+        pk=pk,
+    )
+    if not _can_download_contract(account, contract):
+        messages.error(request, 'Нет доступа к этому договору.')
+        return redirect('core:my_equipment')
+
+    try:
+        from docx import Document
+    except ImportError:
+        messages.error(request, 'Для выгрузки в Word установите пакет python-docx.')
+        return redirect('core:my_equipment')
+
+    doc = Document()
+    doc.add_heading(f'Договор лизинга {contract.contract_number}', level=1)
+    doc.add_paragraph(f'Дата выгрузки: {timezone.localtime().strftime("%d.%m.%Y %H:%M")}')
+
+    manufacturer = getattr(contract.equipment, 'manufacturer', None)
+    equipment_text = f'{contract.equipment.name} ({contract.equipment.model})'
+    if manufacturer:
+        equipment_text += f', {manufacturer.name}'
+
+    details = [
+        ('Номер договора', contract.contract_number),
+        ('Компания (арендатор)', contract.company.name),
+        ('ИНН компании', contract.company.inn),
+        ('Техника', equipment_text),
+        ('Статус договора', contract.get_status_display()),
+        ('Период действия', f'{contract.start_date:%d.%m.%Y} - {contract.end_date:%d.%m.%Y}'),
+        ('Срок лизинга', f'{contract.lease_term_months} мес.'),
+        ('Общая сумма договора', f'{contract.total_amount:.2f} RUB'),
+        ('Ежемесячный платеж', f'{contract.monthly_payment:.2f} RUB'),
+        ('День ежемесячного платежа', f'{contract.payment_day}-е число'),
+    ]
+    if contract.advance_payment is not None:
+        details.append(('Авансовый платеж', f'{contract.advance_payment:.2f} RUB'))
+    for label, value in details:
+        doc.add_paragraph(f'{label}: {value}')
+
+    doc.add_heading('Условие о штрафе', level=2)
+    doc.add_paragraph(
+        'При просрочке ежемесячного платежа начисляется штраф в размере '
+        '0.1% в день от суммы платежа за каждый день просрочки.'
+    )
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    filename = f'lease_contract_{contract.contract_number}.docx'
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
 def contract_pay(request, pk):
     """Создание платежа в ЮKassa и редирект на страницу подтверждения."""
     account = get_current_account(request)
@@ -448,7 +544,7 @@ def contract_pay(request, pk):
         return redirect('core:my_equipment')
 
     _sync_contract_payment_schedule(contract)
-    pending_qs = contract.payment_schedule.filter(status='pending').order_by('due_date')
+    pending_qs = contract.payment_schedule.filter(status__in=('pending', 'overdue')).order_by('due_date')
     payments = list(pending_qs)
 
     if request.method == 'POST':
@@ -478,12 +574,12 @@ def contract_pay(request, pk):
         if pay_id:
             try:
                 pending_payment = PaymentSchedule.objects.get(
-                    contract=contract, pk=int(pay_id), status='pending'
+                    contract=contract, pk=int(pay_id), status__in=('pending', 'overdue')
                 )
             except (ValueError, PaymentSchedule.DoesNotExist):
                 messages.error(request, 'Платёж по графику не найден.')
                 return redirect('core:contract_pay', pk=pk)
-            amount_val = pending_payment.amount
+            amount_val = pending_payment.amount + (pending_payment.penalty_amount or Decimal('0'))
 
         Configuration.configure(shop_id, secret_key)
         return_url = request.build_absolute_uri(
@@ -548,7 +644,10 @@ def contract_pay(request, pk):
     ).first()
     next_payment = payments[0] if payments else None
     quick_month_payment = current_month_payment or next_payment
-    remaining_this_month = quick_month_payment.amount if quick_month_payment else Decimal('0')
+    remaining_this_month = (
+        (quick_month_payment.amount + (quick_month_payment.penalty_amount or Decimal('0')))
+        if quick_month_payment else Decimal('0')
+    )
 
     pending_count = len(payments)
     paid_count = paid_qs.count()

@@ -96,9 +96,11 @@ YOOKASSA_SHOP_ID = env('YOOKASSA_SHOP_ID', default='')
 YOOKASSA_SECRET_KEY = env('YOOKASSA_SECRET_KEY', default='')
 
 # Почта (Yandex SMTP для восстановления пароля)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Сначала пробуем основной порт, при ошибке подключения — fallback.
+EMAIL_BACKEND = 'config.email_backend.FallbackSMTPEmailBackend'
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.yandex.ru')
 EMAIL_PORT = env.int('EMAIL_PORT', default=465)
+EMAIL_FALLBACK_PORT = env.int('EMAIL_FALLBACK_PORT', default=2587)
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')

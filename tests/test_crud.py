@@ -20,7 +20,6 @@ class RoleCRUDTest(TestCase):
         # Create
         role = Role.objects.create(
             name='test_role',
-            description='Тестовая роль',
             permissions=['own_contracts'],
         )
         self.assertIsNotNone(role.id)
@@ -46,7 +45,7 @@ class AccountCRUDTest(TestCase):
     """Функциональный тест: CRUD для модели Account (аккаунт)."""
 
     def setUp(self):
-        self.role = Role.objects.create(name='client', description='Клиент')
+        self.role = Role.objects.create(name='client')
 
     def test_account_crud(self):
         """CRUD для аккаунта (Account): создание, чтение, обновление, удаление."""
@@ -82,7 +81,6 @@ class EquipmentCRUDTest(TestCase):
     def setUp(self):
         self.category = EquipmentCategory.objects.create(
             name='Тракторы',
-            description='Сельхозтехника',
         )
         self.manufacturer = Manufacturer.objects.create(
             name='John Deere',
@@ -125,7 +123,7 @@ class LeaseRequestCRUDTest(TestCase):
     """Функциональный тест: CRUD для модели LeaseRequest (заявка на лизинг)."""
 
     def setUp(self):
-        self.role = Role.objects.create(name='client', description='Клиент')
+        self.role = Role.objects.create(name='client')
         self.account = Account.objects.create(
             email='client@test.ru',
             username='testclient',

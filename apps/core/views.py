@@ -169,6 +169,45 @@ def _sync_contract_payment_schedule(contract, today=None):
         PaymentSchedule.objects.bulk_create(to_create)
 
 
+def _ensure_contract_chat_request(contract, account):
+    """
+    Гарантирует, что у договора есть доступный чат (LeaseRequest) для клиента.
+    Если заявки нет, создаёт подтверждённую заявку и привязывает её к договору.
+    """
+    if not account or contract.company.account_id != account.id:
+        return None
+
+    if contract.lease_request_id:
+        linked_req = LeaseRequest.objects.filter(
+            id=contract.lease_request_id,
+            account=account,
+        ).exclude(status='cancelled').only('id').first()
+        if linked_req:
+            return linked_req.id
+
+    existing_req = LeaseRequest.objects.filter(
+        account=account,
+        equipment_id=contract.equipment_id,
+    ).exclude(status='cancelled').order_by('-created_at').only('id').first()
+    if existing_req:
+        if contract.lease_request_id != existing_req.id:
+            contract.lease_request_id = existing_req.id
+            contract.save(update_fields=['lease_request'])
+        return existing_req.id
+
+    with transaction.atomic():
+        created_req = LeaseRequest.objects.create(
+            equipment_id=contract.equipment_id,
+            account=account,
+            status='confirmed',
+            message='Автоматически создано для привязки чата к активному договору.',
+            manager_notes='Чат создан автоматически по существующему договору.',
+        )
+        contract.lease_request_id = created_req.id
+        contract.save(update_fields=['lease_request'])
+        return created_req.id
+
+
 def _get_leasing_request_context(account):
     my_requests = []
     pending_equipment_ids = set()
@@ -417,21 +456,7 @@ def my_equipment(request):
     for contract in contracts:
         image_urls = getattr(contract.equipment, 'images_urls', []) or []
         contract.preview_image_url = _extract_first_image_url(image_urls)
-        contract.chat_request_id = None
-        if contract.lease_request_id:
-            linked_req = LeaseRequest.objects.filter(
-                id=contract.lease_request_id,
-                account=account,
-            ).only('id').first()
-            if linked_req:
-                contract.chat_request_id = linked_req.id
-        if not contract.chat_request_id:
-            fallback_req = LeaseRequest.objects.filter(
-                account=account,
-                equipment_id=contract.equipment_id,
-            ).exclude(status='cancelled').order_by('-created_at').only('id').first()
-            if fallback_req:
-                contract.chat_request_id = fallback_req.id
+        contract.chat_request_id = _ensure_contract_chat_request(contract, account)
 
     for req in confirmed_requests:
         image_urls = getattr(req.equipment, 'images_urls', []) or []

@@ -19,7 +19,6 @@ def _login_as_admin(client):
     """Создаёт роль ADMIN, аккаунт, профиль и авторизует сессию для доступа к API."""
     role = Role.objects.create(
         name='admin',
-        description='Администратор',
         permissions=['all'],
     )
     account = Account.objects.create(
@@ -65,7 +64,6 @@ class EquipmentAPITest(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
         self.category = EquipmentCategory.objects.create(
             name='Тракторы',
-            description='Тест',
         )
         self.manufacturer = Manufacturer.objects.create(
             name='John Deere',

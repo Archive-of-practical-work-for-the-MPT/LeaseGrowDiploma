@@ -14,7 +14,6 @@ def _login_as_manager(client):
     """Создаёт роль менеджера, аккаунт и авторизует сессию."""
     role = Role.objects.create(
         name='manager',
-        description='Менеджер',
         permissions=['contracts', 'companies'],
     )
     account = Account.objects.create(

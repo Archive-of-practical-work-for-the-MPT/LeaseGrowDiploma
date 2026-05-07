@@ -2,11 +2,11 @@
 -- Админ: admin@gmail.com / adminadmin
 
 -- Роли
-INSERT INTO role (name, description, permissions, created_at) VALUES
-('admin', 'Администратор системы', '["all"]', CURRENT_TIMESTAMP),
-('manager', 'Менеджер лизинга', '["contracts", "companies", "equipment"]', CURRENT_TIMESTAMP),
-('accountant', 'Бухгалтер', '["contracts", "payments"]', CURRENT_TIMESTAMP),
-('client', 'Клиент (арендатор)', '["own_contracts"]', CURRENT_TIMESTAMP);
+INSERT INTO role (name, permissions, created_at) VALUES
+('admin', '["all"]', CURRENT_TIMESTAMP),
+('manager', '["contracts", "companies", "equipment"]', CURRENT_TIMESTAMP),
+('accountant', '["contracts", "payments"]', CURRENT_TIMESTAMP),
+('client', '["own_contracts"]', CURRENT_TIMESTAMP);
 
 -- Аккаунты (admin первым)
 INSERT INTO account (email, username, password_hash, role_id, is_active, created_at, updated_at) VALUES
@@ -21,66 +21,66 @@ INSERT INTO account (email, username, password_hash, role_id, is_active, created
 ('manager2@leasegrow.ru', 'manager2', 'pbkdf2_sha256$1000000$CLaK4xcz2hdbU8VwzF9x6A$sMGJTF3mgmzlGZgpXcDD0YsxhVbddGmKZ6W9iexr8Vw=', 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Профили
-INSERT INTO user_profile (account_id, first_name, last_name, phone, avatar_url, birth_date, created_at, updated_at) VALUES
-(1, 'Админ', 'Системы', '+7 (495) 111-11-11', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 'Иван', 'Петров', '+7 (916) 111-22-22', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 'Мария', 'Сидорова', '+7 (916) 222-33-33', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(4, 'Сергей', 'Кузнецов', '+7 (916) 333-44-44', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(5, 'Андрей', 'Морозов', '+7 (916) 444-55-55', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6, 'Елена', 'Волкова', '+7 (916) 555-66-66', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(7, 'Дмитрий', 'Соколов', '+7 (916) 666-77-77', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO user_profile (account_id, first_name, last_name, phone, birth_date, created_at, updated_at) VALUES
+(1, 'Админ', 'Системы', '+7 (495) 111-11-11', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'Иван', 'Петров', '+7 (916) 111-22-22', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'Мария', 'Сидорова', '+7 (916) 222-33-33', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'Сергей', 'Кузнецов', '+7 (916) 333-44-44', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'Андрей', 'Морозов', '+7 (916) 444-55-55', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 'Елена', 'Волкова', '+7 (916) 555-66-66', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 'Дмитрий', 'Соколов', '+7 (916) 666-77-77', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- API токен для админа (64 hex символа)
 INSERT INTO account_token (key, account_id, created_at) VALUES
 ('a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', 1, CURRENT_TIMESTAMP);
 
 -- Компании
-INSERT INTO company (name, inn, ogrn, address, phone, email, bank_details, status, account_id, created_at) VALUES
-('ООО Агроферма Юг', '7707123456', '1027700123456', 'г. Краснодар, ул. Промышленная, 1', '+7 (861) 200-11-11', 'info@agrofarm.ru', '{}'::jsonb, 'active', 4, CURRENT_TIMESTAMP),
-('ООО Земледел', '7708234567', '1027700234567', 'г. Ростов-на-Дону, пр. Будённовский, 50', '+7 (863) 250-22-22', 'office@zemledel.ru', '{}'::jsonb, 'active', 5, CURRENT_TIMESTAMP),
-('АО Урожай Плюс', '7709345678', '1027700345678', 'г. Ставрополь, ул. Мира, 100', '+7 (865) 230-33-33', 'contact@harvest.ru', '{}'::jsonb, 'active', 6, CURRENT_TIMESTAMP),
-('ООО Нива Кубани', '7710456789', '1027700456789', 'Краснодарский край, г. Тихорецк, ул. Ленина, 20', '+7 (861) 510-44-44', 'niva@kuban.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ПАО ЮгАгро', '7711567890', '1027700567890', 'г. Ростов-на-Дону, ул. Большая Садовая, 1', '+7 (863) 300-55-55', 'info@yugagro.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Чернозём', '7712678901', '1027700678901', 'г. Воронеж, пр. Революции, 25', '+7 (473) 255-66-66', 'chernozem@vrn.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Поле России', '7713789012', '1027700789012', 'г. Волгоград, ул. Рабоче-Крестьянская, 10', '+7 (844) 230-77-77', 'pole@volgograd.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('АО Колос', '7714890123', '1027700890123', 'г. Саратов, ул. Московская, 50', '+7 (845) 220-88-88', 'kolos@saratov.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Степь', '7715901234', '1027700901234', 'г. Оренбург, ул. Советская, 30', '+7 (353) 275-99-99', 'step@orenburg.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО АгроСоюз', '7716012345', '1027701012345', 'г. Самара, ул. Куйбышева, 100', '+7 (846) 260-00-00', 'agro@samara.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Волга-Агро', '7717123456', '1027701123456', 'г. Ульяновск, ул. Гончарова, 40', '+7 (842) 240-11-11', 'volga@ulsk.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Поволжье', '7718234567', '1027701234567', 'г. Пенза, пр. Строителей, 1', '+7 (841) 250-22-22', 'povolzhye@pnz.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО РусьАгро', '7719345678', '1027701345678', 'г. Липецк, пр. Победы, 80', '+7 (474) 270-33-33', 'rus@lipetsk.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('АО ЦентрАгро', '7720456789', '1027701456789', 'г. Тамбов, ул. Советская, 100', '+7 (475) 250-44-44', 'centre@tambov.ru', '{}'::jsonb, 'active', NULL, CURRENT_TIMESTAMP),
-('ООО Черноземье', '7721567890', '1027701567890', 'г. Белгород, пр. Славы, 50', '+7 (472) 260-55-55', 'chernozem@belgorod.ru', '{}'::jsonb, 'pending', NULL, CURRENT_TIMESTAMP);
+INSERT INTO company (name, inn, address, phone, email, status, account_id, created_at) VALUES
+('ООО Агроферма Юг', '7707123456', 'г. Краснодар, ул. Промышленная, 1', '+7 (861) 200-11-11', 'info@agrofarm.ru', 'active', 4, CURRENT_TIMESTAMP),
+('ООО Земледел', '7708234567', 'г. Ростов-на-Дону, пр. Будённовский, 50', '+7 (863) 250-22-22', 'office@zemledel.ru', 'active', 5, CURRENT_TIMESTAMP),
+('АО Урожай Плюс', '7709345678', 'г. Ставрополь, ул. Мира, 100', '+7 (865) 230-33-33', 'contact@harvest.ru', 'active', 6, CURRENT_TIMESTAMP),
+('ООО Нива Кубани', '7710456789', 'Краснодарский край, г. Тихорецк, ул. Ленина, 20', '+7 (861) 510-44-44', 'niva@kuban.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ПАО ЮгАгро', '7711567890', 'г. Ростов-на-Дону, ул. Большая Садовая, 1', '+7 (863) 300-55-55', 'info@yugagro.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Чернозём', '7712678901', 'г. Воронеж, пр. Революции, 25', '+7 (473) 255-66-66', 'chernozem@vrn.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Поле России', '7713789012', 'г. Волгоград, ул. Рабоче-Крестьянская, 10', '+7 (844) 230-77-77', 'pole@volgograd.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('АО Колос', '7714890123', 'г. Саратов, ул. Московская, 50', '+7 (845) 220-88-88', 'kolos@saratov.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Степь', '7715901234', 'г. Оренбург, ул. Советская, 30', '+7 (353) 275-99-99', 'step@orenburg.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО АгроСоюз', '7716012345', 'г. Самара, ул. Куйбышева, 100', '+7 (846) 260-00-00', 'agro@samara.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Волга-Агро', '7717123456', 'г. Ульяновск, ул. Гончарова, 40', '+7 (842) 240-11-11', 'volga@ulsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Поволжье', '7718234567', 'г. Пенза, пр. Строителей, 1', '+7 (841) 250-22-22', 'povolzhye@pnz.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО РусьАгро', '7719345678', 'г. Липецк, пр. Победы, 80', '+7 (474) 270-33-33', 'rus@lipetsk.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('АО ЦентрАгро', '7720456789', 'г. Тамбов, ул. Советская, 100', '+7 (475) 250-44-44', 'centre@tambov.ru', 'active', NULL, CURRENT_TIMESTAMP),
+('ООО Черноземье', '7721567890', 'г. Белгород, пр. Славы, 50', '+7 (472) 260-55-55', 'chernozem@belgorod.ru', 'pending', NULL, CURRENT_TIMESTAMP);
 
 -- Категории техники (иерархия)
-INSERT INTO equipment_category (name, parent_id, description, icon_url, created_at) VALUES
-('Тракторы', NULL, 'Колёсные и гусеничные тракторы', '', CURRENT_TIMESTAMP),
-('Комбайны', NULL, 'Зерноуборочные и кормоуборочные комбайны', '', CURRENT_TIMESTAMP),
-('Посевная техника', NULL, 'Сеялки и посадочные машины', '', CURRENT_TIMESTAMP),
-('Плуги и культиваторы', NULL, 'Орудия обработки почвы', '', CURRENT_TIMESTAMP);
+INSERT INTO equipment_category (name, parent_id, created_at) VALUES
+('Тракторы', NULL, CURRENT_TIMESTAMP),
+('Комбайны', NULL, CURRENT_TIMESTAMP),
+('Посевная техника', NULL, CURRENT_TIMESTAMP),
+('Плуги и культиваторы', NULL, CURRENT_TIMESTAMP);
 
-INSERT INTO equipment_category (name, parent_id, description, icon_url, created_at) VALUES
-('Колёсные тракторы', 1, '', '', CURRENT_TIMESTAMP),
-('Гусеничные тракторы', 1, '', '', CURRENT_TIMESTAMP),
-('Зерноуборочные комбайны', 2, '', '', CURRENT_TIMESTAMP),
-('Кормоуборочные комбайны', 2, '', '', CURRENT_TIMESTAMP),
-('Пневматические сеялки', 3, '', '', CURRENT_TIMESTAMP),
-('Дисковые сеялки', 3, '', '', CURRENT_TIMESTAMP);
+INSERT INTO equipment_category (name, parent_id, created_at) VALUES
+('Колёсные тракторы', 1, CURRENT_TIMESTAMP),
+('Гусеничные тракторы', 1, CURRENT_TIMESTAMP),
+('Зерноуборочные комбайны', 2, CURRENT_TIMESTAMP),
+('Кормоуборочные комбайны', 2, CURRENT_TIMESTAMP),
+('Пневматические сеялки', 3, CURRENT_TIMESTAMP),
+('Дисковые сеялки', 3, CURRENT_TIMESTAMP);
 
 -- Производители
-INSERT INTO manufacturer (name, country, website, description, logo_url) VALUES
-('John Deere', 'США', 'https://www.deere.com', 'Крупнейший производитель сельхозтехники', ''),
-('Case IH', 'США', 'https://www.caseih.com', 'Производитель тракторов и комбайнов', ''),
-('CLAAS', 'Германия', 'https://www.claas.com', 'Европейский лидер в производстве комбайнов', ''),
-('New Holland', 'Италия', 'https://www.newholland.com', 'Производитель тракторов и комбайнов', ''),
-('AGCO (Massey Ferguson)', 'США', 'https://www.agcocorp.com', 'Производитель сельхозтехники', ''),
-('Kubota', 'Япония', 'https://www.kubota.com', 'Японский производитель тракторов и мини-техники', ''),
-('Ростсельмаш', 'Россия', 'https://www.rostselmash.ru', 'Отечественный производитель', ''),
-('Кировец', 'Россия', 'https://www.kzgroup.ru', 'Тракторы Кировец', ''),
-('Amazone', 'Германия', 'https://www.amazone.net', 'Посевная и почвообрабатывающая техника', ''),
-('Horsch', 'Германия', 'https://www.horsch.com', 'Сеялки и опрыскиватели', ''),
-('Бuhler', 'Германия', 'https://www.buhler.com', 'Зернообработка и техника', ''),
-('Kverneland', 'Норвегия', 'https://www.kvernelandgroup.com', 'Плуги и почвообработка', '');
+INSERT INTO manufacturer (name, country) VALUES
+('John Deere', 'США'),
+('Case IH', 'США'),
+('CLAAS', 'Германия'),
+('New Holland', 'Италия'),
+('AGCO (Massey Ferguson)', 'США'),
+('Kubota', 'Япония'),
+('Ростсельмаш', 'Россия'),
+('Кировец', 'Россия'),
+('Amazone', 'Германия'),
+('Horsch', 'Германия'),
+('Бuhler', 'Германия'),
+('Kverneland', 'Норвегия');
 
 -- Техника (много единиц)
 INSERT INTO equipment (name, model, category_id, manufacturer_id, specifications, year, vin, condition, price, residual_value, monthly_lease_rate, status, location, images_urls, created_at, updated_at) VALUES

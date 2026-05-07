@@ -60,10 +60,7 @@ def register_view(request):
         return redirect('core:home')
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        role_client, _ = Role.objects.get_or_create(
-            name='client',
-            defaults={'description': 'Клиент (арендатор)'},
-        )
+        role_client, _ = Role.objects.get_or_create(name='client')
         account = Account.objects.create(
             email=form.cleaned_data['email'].strip().lower(),
             username=form.cleaned_data['username'].strip(),

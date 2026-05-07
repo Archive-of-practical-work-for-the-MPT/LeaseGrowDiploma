@@ -4,7 +4,7 @@ from .models import Role, Account, UserProfile, AccountToken
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'created_at')
+    list_display = ('name', 'created_at')
 
 
 @admin.register(Account)

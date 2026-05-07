@@ -4,7 +4,6 @@ from django.db import models
 class Role(models.Model):
     """Роли пользователей (1 к М с аккаунтами)."""
     name = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
     permissions = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -58,7 +57,6 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True)
-    avatar_url = models.URLField(max_length=500, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -13,11 +13,9 @@ class Company(models.Model):
     ]
     name = models.CharField(max_length=500)
     inn = models.CharField(max_length=12, unique=True)
-    ogrn = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(max_length=255, blank=True)
-    bank_details = models.JSONField(default=dict, blank=True)
     status = models.CharField(
         max_length=50, default='active', choices=STATUS_CHOICES)
     account = models.ForeignKey(

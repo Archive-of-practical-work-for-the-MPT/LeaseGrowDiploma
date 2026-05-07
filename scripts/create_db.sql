@@ -13,7 +13,6 @@ END $$;
 CREATE TABLE IF NOT EXISTS role (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT DEFAULT '',
     permissions JSONB DEFAULT '[]',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,7 +40,6 @@ CREATE TABLE IF NOT EXISTS user_profile (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20) DEFAULT '',
-    avatar_url VARCHAR(500) DEFAULT '',
     birth_date DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -62,11 +60,9 @@ CREATE TABLE IF NOT EXISTS company (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(500) NOT NULL,
     inn VARCHAR(12) NOT NULL UNIQUE,
-    ogrn VARCHAR(15) DEFAULT '',
     address TEXT DEFAULT '',
     phone VARCHAR(20) DEFAULT '',
     email VARCHAR(255) DEFAULT '',
-    bank_details JSONB DEFAULT '{}',
     status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'blocked', 'pending')),
     account_id BIGINT REFERENCES account(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -77,8 +73,6 @@ CREATE TABLE IF NOT EXISTS equipment_category (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     parent_id BIGINT REFERENCES equipment_category(id) ON DELETE SET NULL,
-    description TEXT DEFAULT '',
-    icon_url VARCHAR(500) DEFAULT '',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -86,10 +80,7 @@ CREATE TABLE IF NOT EXISTS equipment_category (
 CREATE TABLE IF NOT EXISTS manufacturer (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
-    country VARCHAR(100) DEFAULT '',
-    website VARCHAR(500) DEFAULT '',
-    description TEXT DEFAULT '',
-    logo_url VARCHAR(500) DEFAULT ''
+    country VARCHAR(100) DEFAULT ''
 );
 
 -- Техника

@@ -24,10 +24,9 @@ class RoleForm(forms.ModelForm):
 
     class Meta:
         model = Role
-        fields = ['name', 'description', 'permissions']
+        fields = ['name', 'permissions']
         labels = {
             'name': 'Название',
-            'description': 'Описание',
         }
 
     def __init__(self, *args, **kwargs):
@@ -93,14 +92,13 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = [
             'account', 'first_name', 'last_name', 'phone',
-            'avatar_url', 'birth_date',
+            'birth_date',
         ]
         labels = {
             'account': 'Аккаунт',
             'first_name': 'Имя',
             'last_name': 'Фамилия',
             'phone': 'Телефон',
-            'avatar_url': 'URL аватара',
             'birth_date': 'Дата рождения',
         }
         widgets = {
@@ -108,7 +106,6 @@ class UserProfileForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-input'}),
             'last_name': forms.TextInput(attrs={'class': 'form-input'}),
             'phone': forms.TextInput(attrs={'class': 'form-input'}),
-            'avatar_url': forms.URLInput(attrs={'class': 'form-input'}),
             'birth_date': forms.DateInput(attrs={
                 'class': 'form-input', 'type': 'date'
             }),
@@ -134,38 +131,28 @@ class AccountTokenForm(forms.ModelForm):
 class EquipmentCategoryForm(forms.ModelForm):
     class Meta:
         model = EquipmentCategory
-        fields = ['name', 'parent', 'description', 'icon_url']
+        fields = ['name', 'parent']
         labels = {
             'name': 'Название',
             'parent': 'Родительская категория',
-            'description': 'Описание',
-            'icon_url': 'URL иконки',
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'parent': forms.Select(attrs={'class': 'form-select'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
-            'icon_url': forms.URLInput(attrs={'class': 'form-input'}),
         }
 
 
 class ManufacturerForm(forms.ModelForm):
     class Meta:
         model = Manufacturer
-        fields = ['name', 'country', 'website', 'description', 'logo_url']
+        fields = ['name', 'country']
         labels = {
             'name': 'Название',
             'country': 'Страна',
-            'website': 'Сайт',
-            'description': 'Описание',
-            'logo_url': 'URL логотипа',
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'country': forms.TextInput(attrs={'class': 'form-input'}),
-            'website': forms.URLInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 3}),
-            'logo_url': forms.URLInput(attrs={'class': 'form-input'}),
         }
 
 
@@ -238,44 +225,28 @@ class CompanyForm(forms.ModelForm):
     class Meta:
         model = Company
         fields = [
-            'name', 'inn', 'ogrn',
+            'name', 'inn',
             'address', 'phone', 'email',
-            'bank_details', 'status', 'account',
+            'status', 'account',
         ]
         labels = {
             'name': 'Название',
             'inn': 'ИНН',
-            'ogrn': 'ОГРН',
             'address': 'Адрес',
             'phone': 'Телефон',
             'email': 'Email',
-            'bank_details': 'Банковские реквизиты',
             'status': 'Статус',
             'account': 'Аккаунт',
         }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input'}),
             'inn': forms.TextInput(attrs={'class': 'form-input'}),
-            'ogrn': forms.TextInput(attrs={'class': 'form-input'}),
             'address': forms.Textarea(attrs={'class': 'form-input', 'rows': 2}),
             'phone': forms.TextInput(attrs={'class': 'form-input'}),
             'email': forms.EmailInput(attrs={'class': 'form-input'}),
-            'bank_details': forms.Textarea(attrs={
-                'class': 'form-input', 'rows': 3,
-                'placeholder': '{"bik": "...", "account": "..."}',
-            }),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'account': forms.Select(attrs={'class': 'form-select'}),
         }
-
-    def clean_bank_details(self):
-        val = self.cleaned_data.get('bank_details')
-        if isinstance(val, str):
-            try:
-                return json.loads(val) if val.strip() else {}
-            except json.JSONDecodeError:
-                raise forms.ValidationError('Некорректный JSON')
-        return val or {}
 
 
 class LeaseRequestForm(forms.ModelForm):

@@ -162,6 +162,29 @@ INSERT INTO payment_schedule (contract_id, payment_number, due_date, amount, sta
 (3, 3, '2023-07-01', 336000.00, 'paid', '2023-07-01 09:00:00+03', 0),
 (3, 4, '2023-08-01', 336000.00, 'pending', NULL, 0);
 
+-- Заявки на лизинг (для тестовых чатов клиент ↔ менеджер)
+INSERT INTO lease_request (equipment_id, account_id, status, message, manager_notes, confirmed_by_id, created_at, updated_at) VALUES
+(1, 4, 'pending', 'Нужен трактор к началу сезона, интересует аванс 20%.', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 5, 'confirmed', 'Планируем закупку на 3 года, можно ли сдвинуть первый платеж?', 'Согласовали индивидуальный график, ожидаем подписание.', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 6, 'pending', 'Нужна техника в лизинг до конца месяца.', '', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(20, 4, 'confirmed', 'Готовы к сделке, просим КП и проект договора.', 'Отправлены условия и расчет, клиент подтвердил интерес.', 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Сообщения в чатах по заявкам на лизинг
+INSERT INTO chat_message (lease_request_id, sender_id, text, created_at) VALUES
+((SELECT id FROM lease_request WHERE equipment_id = 1 AND account_id = 4 LIMIT 1), 4, 'Здравствуйте! Хотим оформить John Deere 8R 370, подскажите по срокам рассмотрения.', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 1 AND account_id = 4 LIMIT 1), 2, 'Добрый день! Заявку получили, предварительное решение будет сегодня до 18:00.', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 1 AND account_id = 4 LIMIT 1), 4, 'Отлично, благодарю. Документы готовы, отправлю в течение часа.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM lease_request WHERE equipment_id = 7 AND account_id = 5 LIMIT 1), 5, 'Добрый день, можем уменьшить аванс до 15%?', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 7 AND account_id = 5 LIMIT 1), 2, 'Да, такой вариант возможен. Обновленный расчет уже прикрепили в переписке.', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 7 AND account_id = 5 LIMIT 1), 5, 'Условия подходят, готовы переходить к подписанию.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM lease_request WHERE equipment_id = 15 AND account_id = 6 LIMIT 1), 6, 'Нужна поставка в Ставрополь до 25 числа, это реально?', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 15 AND account_id = 6 LIMIT 1), 7, 'Проверили склад: можем отгрузить до 24 числа, если утвердим договор сегодня.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM lease_request WHERE equipment_id = 20 AND account_id = 4 LIMIT 1), 4, 'Подтвердите, что в графике можно платеж 5-го числа.', CURRENT_TIMESTAMP),
+((SELECT id FROM lease_request WHERE equipment_id = 20 AND account_id = 4 LIMIT 1), 7, 'Да, в проекте договора уже указали 5-е число каждого месяца.', CURRENT_TIMESTAMP);
+
 -- Заявки на обслуживание
 INSERT INTO maintenance_request (equipment_id, company_id, description, urgency, status, assigned_to_id, completed_at, created_at) VALUES
 (1, 1, 'Требуется плановое ТО перед сезоном', 'normal', 'completed', 2, '2024-01-15 14:00:00+03', CURRENT_TIMESTAMP),
@@ -171,6 +194,21 @@ INSERT INTO maintenance_request (equipment_id, company_id, description, urgency,
 (15, 4, 'Проверка выгрузного шнека', 'low', 'new', NULL, NULL, CURRENT_TIMESTAMP),
 (27, 10, 'Течь масла в редукторе', 'high', 'in_progress', 7, NULL, CURRENT_TIMESTAMP),
 (10, 3, 'Плановое сервисное обслуживание', 'normal', 'new', NULL, NULL, CURRENT_TIMESTAMP);
+
+-- Сообщения в чатах по заявкам на ТО
+INSERT INTO maintenance_chat_message (maintenance_request_id, sender_id, text, created_at) VALUES
+((SELECT id FROM maintenance_request WHERE description = 'Замечание по работе молотилки' LIMIT 1), 4, 'Добрый день. Во время уборки появился посторонний шум в барабане.', CURRENT_TIMESTAMP),
+((SELECT id FROM maintenance_request WHERE description = 'Замечание по работе молотилки' LIMIT 1), 2, 'Здравствуйте! Принято. Инженер свяжется с вами сегодня и согласует выезд.', CURRENT_TIMESTAMP),
+((SELECT id FROM maintenance_request WHERE description = 'Замечание по работе молотилки' LIMIT 1), 4, 'Спасибо, ожидаем звонок после 15:00.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM maintenance_request WHERE description = 'Неисправность гидравлики' LIMIT 1), 6, 'Техника не поднимает навесное оборудование, работа встала.', CURRENT_TIMESTAMP),
+((SELECT id FROM maintenance_request WHERE description = 'Неисправность гидравлики' LIMIT 1), 7, 'Понял, назначаю срочный выезд сервисной бригады на завтра утром.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM maintenance_request WHERE description = 'Течь масла в редукторе' LIMIT 1), 5, 'Обнаружили подтекание масла после смены.', CURRENT_TIMESTAMP),
+((SELECT id FROM maintenance_request WHERE description = 'Течь масла в редукторе' LIMIT 1), 7, 'Приняли в работу, подготовьте технику к диагностике в 10:00.', CURRENT_TIMESTAMP),
+
+((SELECT id FROM maintenance_request WHERE description = 'Плановое сервисное обслуживание' LIMIT 1), 6, 'Можно провести сервис в пятницу после 12:00?', CURRENT_TIMESTAMP),
+((SELECT id FROM maintenance_request WHERE description = 'Плановое сервисное обслуживание' LIMIT 1), 2, 'Да, записали на пятницу 13:00. Бригада приедет с расходниками.', CURRENT_TIMESTAMP);
 
 -- Журнал аудита
 INSERT INTO audit_log (action, table_name, record_id, old_values, new_values, changed_fields, performed_by_id, performed_at) VALUES

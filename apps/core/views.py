@@ -92,7 +92,10 @@ def _get_leasing_request_context(account):
 
 
 def home(request):
-    return render(request, 'core/home.html')
+    show_company_bind_prompt = bool(request.session.pop('show_company_bind_prompt', False))
+    return render(request, 'core/home.html', {
+        'show_company_bind_prompt': show_company_bind_prompt,
+    })
 
 
 def leasing(request):

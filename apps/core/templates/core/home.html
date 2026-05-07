@@ -3,6 +3,74 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<style>
+.company-bind-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 1200;
+    padding: 1rem;
+}
+.company-bind-card {
+    width: 100%;
+    max-width: 540px;
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+    padding: 1.25rem 1.25rem 1rem;
+}
+.company-bind-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.company-bind-text {
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 1rem;
+}
+.company-bind-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.company-bind-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+.company-bind-btn.primary {
+    background: var(--green-500);
+    color: #fff;
+}
+.company-bind-btn.primary:hover { background: var(--green-600); }
+.company-bind-btn.ghost {
+    background: var(--green-50);
+    color: var(--green-700);
+}
+.company-bind-toast {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: 340px;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #166534;
+    border: 1px solid #86efac;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    z-index: 1201;
+}
+.company-bind-toast[hidden] { display: none; }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -110,4 +178,38 @@
             </details>
         </div>
     </section>
+
+    {% if show_company_bind_prompt %}
+    <div id="company-bind-modal" class="company-bind-modal" role="dialog" aria-modal="true" aria-labelledby="company-bind-title">
+        <div class="company-bind-card">
+            <div id="company-bind-title" class="company-bind-title">Хотите привязать вашу компанию к профилю?</div>
+            <p class="company-bind-text">Без нее нельзя будет взять в лизинг технику.</p>
+            <div class="company-bind-actions">
+                <button type="button" class="company-bind-btn ghost" id="company-bind-later">Позже</button>
+                <a href="{% url 'accounts:profile' %}?need_company=1" class="company-bind-btn primary">Привязать</a>
+            </div>
+        </div>
+    </div>
+    <div id="company-bind-toast" class="company-bind-toast" hidden>
+        Привязать компанию вы всегда можете на странице профиля.
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if show_company_bind_prompt %}
+<script>
+  (function () {
+    const modal = document.getElementById('company-bind-modal');
+    const laterBtn = document.getElementById('company-bind-later');
+    const toast = document.getElementById('company-bind-toast');
+    if (!modal || !laterBtn || !toast) return;
+    laterBtn.addEventListener('click', function () {
+      modal.remove();
+      toast.hidden = false;
+      window.setTimeout(function () { toast.hidden = true; }, 5000);
+    });
+  })();
+</script>
+{% endif %}
 {% endblock %}

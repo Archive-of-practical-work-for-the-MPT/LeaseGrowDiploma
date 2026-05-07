@@ -78,6 +78,7 @@ def register_view(request):
             phone=form.cleaned_data.get('phone', '').strip() or '',
         )
         request.session['account_id'] = account.id
+        request.session['show_company_bind_prompt'] = True
         messages.success(
             request, 'Регистрация прошла успешно. Добро пожаловать!')
         return redirect('core:home')

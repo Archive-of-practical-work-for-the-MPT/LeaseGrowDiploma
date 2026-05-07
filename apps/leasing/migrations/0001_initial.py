@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'сообщение чата',
                 'verbose_name_plural': 'сообщения чата',
                 'db_table': 'chat_message',
-                'ordering': ['created_at'],
+                'ordering': ['created_at', 'id'],
             },
         ),
         migrations.CreateModel(
@@ -128,7 +128,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'сообщение чата ТО',
                 'verbose_name_plural': 'сообщения чата ТО',
                 'db_table': 'maintenance_chat_message',
-                'ordering': ['created_at'],
+                'ordering': ['created_at', 'id'],
             },
         ),
         migrations.CreateModel(

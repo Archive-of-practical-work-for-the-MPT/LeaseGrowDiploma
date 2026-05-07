@@ -90,7 +90,7 @@ def maintenance_chat_thread(request, pk):
             return redirect('chat:maintenance_thread', pk=maint_req.id)
 
     messages_list = maint_req.messages.select_related(
-        'sender', 'sender__profile').all()
+        'sender', 'sender__profile').order_by('created_at', 'id')
     is_manager = account.role and account.role.name in ('manager', 'admin')
 
     return render(request, 'leasing/maintenance_chat_thread.html', {

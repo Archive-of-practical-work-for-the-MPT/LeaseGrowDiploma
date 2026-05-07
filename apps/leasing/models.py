@@ -202,7 +202,7 @@ class MaintenanceChatMessage(models.Model):
         db_table = 'maintenance_chat_message'
         verbose_name = 'сообщение чата ТО'
         verbose_name_plural = 'сообщения чата ТО'
-        ordering = ['created_at']
+        ordering = ['created_at', 'id']
 
     def __str__(self):
         return f'{self.sender.username}: {self.text[:50]}...'
@@ -268,7 +268,7 @@ class ChatMessage(models.Model):
         db_table = 'chat_message'
         verbose_name = 'сообщение чата'
         verbose_name_plural = 'сообщения чата'
-        ordering = ['created_at']
+        ordering = ['created_at', 'id']
 
     def __str__(self):
         return f'{self.sender.username}: {self.text[:50]}...'

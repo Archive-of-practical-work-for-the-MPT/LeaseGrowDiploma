@@ -120,7 +120,7 @@ def chat_thread(request, request_id):
             return redirect('chat:thread', request_id=lease_req.id)
 
     messages_list = lease_req.messages.select_related(
-        'sender', 'sender__profile').all()
+        'sender', 'sender__profile').order_by('created_at', 'id')
     is_manager = account.role and account.role.name in ('manager', 'admin')
     related_contract = LeaseContract.objects.filter(
         lease_request=lease_req).first()

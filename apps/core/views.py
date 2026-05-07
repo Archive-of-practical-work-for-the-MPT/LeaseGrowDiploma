@@ -481,41 +481,135 @@ def contract_download_docx(request, pk):
 
     try:
         from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from docx.shared import Pt, Cm
     except ImportError:
         messages.error(request, 'Для выгрузки в Word установите пакет python-docx.')
         return redirect('core:my_equipment')
 
     doc = Document()
-    doc.add_heading(f'Договор лизинга {contract.contract_number}', level=1)
-    doc.add_paragraph(f'Дата выгрузки: {timezone.localtime().strftime("%d.%m.%Y %H:%M")}')
+    section = doc.sections[0]
+    section.top_margin = Cm(2)
+    section.bottom_margin = Cm(2)
+    section.left_margin = Cm(2)
+    section.right_margin = Cm(2)
+
+    style = doc.styles['Normal']
+    style.font.name = 'Times New Roman'
+    style.font.size = Pt(12)
+
+    title = doc.add_paragraph()
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = title.add_run(f'ДОГОВОР ЛИЗИНГА № {contract.contract_number}')
+    run.bold = True
+    run.font.size = Pt(14)
+
+    city_date = doc.add_paragraph()
+    city_date.paragraph_format.space_before = Pt(6)
+    city_date.paragraph_format.space_after = Pt(6)
+    city_date.add_run(
+        f'г. Москва{" " * 18}'
+        f'{timezone.localtime().strftime("%d.%m.%Y")}'
+    )
 
     manufacturer = getattr(contract.equipment, 'manufacturer', None)
     equipment_text = f'{contract.equipment.name} ({contract.equipment.model})'
     if manufacturer:
         equipment_text += f', {manufacturer.name}'
-
-    details = [
-        ('Номер договора', contract.contract_number),
-        ('Компания (арендатор)', contract.company.name),
-        ('ИНН компании', contract.company.inn),
-        ('Техника', equipment_text),
-        ('Статус договора', contract.get_status_display()),
-        ('Период действия', f'{contract.start_date:%d.%m.%Y} - {contract.end_date:%d.%m.%Y}'),
-        ('Срок лизинга', f'{contract.lease_term_months} мес.'),
-        ('Общая сумма договора', f'{contract.total_amount:.2f} RUB'),
-        ('Ежемесячный платеж', f'{contract.monthly_payment:.2f} RUB'),
-        ('День ежемесячного платежа', f'{contract.payment_day}-е число'),
-    ]
-    if contract.advance_payment is not None:
-        details.append(('Авансовый платеж', f'{contract.advance_payment:.2f} RUB'))
-    for label, value in details:
-        doc.add_paragraph(f'{label}: {value}')
-
-    doc.add_heading('Условие о штрафе', level=2)
-    doc.add_paragraph(
-        'При просрочке ежемесячного платежа начисляется штраф в размере '
-        '0.1% в день от суммы платежа за каждый день просрочки.'
+    lessor = 'ООО «LeaseGrow»'
+    lessee = contract.company.name
+    period = f'{contract.start_date:%d.%m.%Y} - {contract.end_date:%d.%m.%Y}'
+    advance_text = (
+        f'{contract.advance_payment:.2f} руб.'
+        if contract.advance_payment is not None else 'не предусмотрен'
     )
+
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        f'{lessor}, именуемое в дальнейшем «Лизингодатель», с одной стороны, и '
+        f'{lessee} (ИНН {contract.company.inn}), именуемое в дальнейшем «Лизингополучатель», '
+        f'с другой стороны, совместно именуемые «Стороны», заключили настоящий договор '
+        f'о нижеследующем:'
+    )
+
+    h1 = doc.add_paragraph()
+    h1.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    h1_run = h1.add_run('1. Предмет договора')
+    h1_run.bold = True
+
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        f'1.1. Лизингодатель передает Лизингополучателю во временное владение и пользование '
+        f'предмет лизинга: {equipment_text}.'
+    )
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        f'1.2. Срок лизинга: {contract.lease_term_months} мес., период действия договора: {period}.'
+    )
+
+    h2 = doc.add_paragraph()
+    h2_run = h2.add_run('2. Финансовые условия')
+    h2_run.bold = True
+
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        f'2.1. Общая сумма договора: {contract.total_amount:.2f} руб. '
+        f'Ежемесячный платеж: {contract.monthly_payment:.2f} руб., '
+        f'срок внесения — до {contract.payment_day}-го числа каждого месяца.'
+    )
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(f'2.2. Авансовый платеж: {advance_text}.')
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        '2.3. При просрочке ежемесячного платежа начисляется штраф в размере '
+        '0,1% в день от суммы просроченного платежа за каждый календарный день просрочки.'
+    )
+
+    h3 = doc.add_paragraph()
+    h3_run = h3.add_run('3. Права и обязанности сторон')
+    h3_run.bold = True
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        '3.1. Лизингополучатель обязуется использовать предмет лизинга по назначению, '
+        'своевременно вносить платежи и обеспечивать сохранность имущества.'
+    )
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        '3.2. Лизингодатель обязуется передать предмет лизинга в исправном состоянии и '
+        'обеспечить документальное сопровождение сделки.'
+    )
+
+    h4 = doc.add_paragraph()
+    h4_run = h4.add_run('4. Заключительные положения')
+    h4_run.bold = True
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        '4.1. Настоящий договор вступает в силу с даты его подписания сторонами '
+        'и действует до полного исполнения обязательств.'
+    )
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Cm(1.25)
+    p.add_run(
+        '4.2. Споры и разногласия разрешаются путем переговоров, а при недостижении '
+        'согласия — в судебном порядке в соответствии с законодательством РФ.'
+    )
+
+    doc.add_paragraph('')
+    sign_table = doc.add_table(rows=2, cols=2)
+    sign_table.style = 'Table Grid'
+    sign_table.cell(0, 0).text = 'Лизингодатель'
+    sign_table.cell(0, 1).text = 'Лизингополучатель'
+    sign_table.cell(1, 0).text = 'ООО «LeaseGrow»\n\n_________________/_____________/'
+    sign_table.cell(1, 1).text = f'{lessee}\n\n_________________/_____________/'
 
     buffer = BytesIO()
     doc.save(buffer)

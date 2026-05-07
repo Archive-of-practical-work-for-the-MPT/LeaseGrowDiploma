@@ -5,12 +5,13 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.db.models import Q
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Max
 
 from django.utils import timezone
 from decimal import Decimal, InvalidOperation
 from uuid import uuid4
-from datetime import timedelta
+from datetime import timedelta, date
+import calendar
 import json
 
 from apps.catalog.models import Equipment, EquipmentCategory, Manufacturer
@@ -49,6 +50,92 @@ def _can_create_leasing_request(account):
         return False
     role_name = getattr(getattr(account, 'role', None), 'name', '')
     return role_name not in ('admin', 'manager')
+
+
+def _first_day_next_month(dt: date) -> date:
+    if dt.month == 12:
+        return date(dt.year + 1, 1, 1)
+    return date(dt.year, dt.month + 1, 1)
+
+
+def _month_due_date(year: int, month: int, payment_day: int) -> date:
+    max_day = calendar.monthrange(year, month)[1]
+    safe_day = min(max(payment_day or 1, 1), max_day)
+    return date(year, month, safe_day)
+
+
+def _sync_contract_payment_schedule(contract, today=None):
+    """
+    Автогенерация графика: для каждого месяца активного договора
+    существует pending-платеж, если в этом месяце еще не было оплаты.
+    """
+    if contract.status not in ('active', 'completed') or not contract.signed_at:
+        return
+
+    today = today or timezone.localdate()
+    start_month = date(contract.start_date.year, contract.start_date.month, 1)
+    end_month = date(today.year, today.month, 1)
+    if start_month > end_month:
+        return
+
+    schedules = list(
+        PaymentSchedule.objects.filter(contract=contract).order_by('due_date', 'id')
+    )
+    paid_months = {
+        (ps.due_date.year, ps.due_date.month)
+        for ps in schedules
+        if ps.status == 'paid'
+    }
+
+    pending_by_month = {}
+    duplicate_pending_ids = []
+    for ps in schedules:
+        if ps.status != 'pending':
+            continue
+        key = (ps.due_date.year, ps.due_date.month)
+        if key in pending_by_month:
+            duplicate_pending_ids.append(ps.id)
+        else:
+            pending_by_month[key] = ps
+
+    if duplicate_pending_ids:
+        PaymentSchedule.objects.filter(id__in=duplicate_pending_ids).delete()
+
+    max_number = PaymentSchedule.objects.filter(contract=contract).aggregate(
+        max_number=Max('payment_number')
+    )['max_number'] or 0
+    next_payment_number = max_number + 1
+    to_create = []
+    to_delete_ids = []
+
+    cursor_month = start_month
+    while cursor_month <= end_month:
+        key = (cursor_month.year, cursor_month.month)
+        existing_pending = pending_by_month.get(key)
+
+        if key in paid_months:
+            if existing_pending:
+                to_delete_ids.append(existing_pending.id)
+        elif not existing_pending:
+            to_create.append(
+                PaymentSchedule(
+                    contract=contract,
+                    payment_number=next_payment_number,
+                    due_date=_month_due_date(
+                        cursor_month.year, cursor_month.month, contract.payment_day
+                    ),
+                    amount=contract.monthly_payment,
+                    status='pending',
+                )
+            )
+            next_payment_number += 1
+
+        cursor_month = _first_day_next_month(cursor_month)
+
+    if to_delete_ids:
+        PaymentSchedule.objects.filter(id__in=to_delete_ids).delete()
+    if to_create:
+        PaymentSchedule.objects.bulk_create(to_create)
 
 
 def _get_leasing_request_context(account):
@@ -295,6 +382,8 @@ def my_equipment(request):
 
     contracts = list(contracts)
     for contract in contracts:
+        _sync_contract_payment_schedule(contract)
+    for contract in contracts:
         image_urls = getattr(contract.equipment, 'images_urls', []) or []
         contract.preview_image_url = _extract_first_image_url(image_urls)
 
@@ -358,6 +447,7 @@ def contract_pay(request, pk):
         messages.error(request, 'Нет доступа.')
         return redirect('core:my_equipment')
 
+    _sync_contract_payment_schedule(contract)
     pending_qs = contract.payment_schedule.filter(status='pending').order_by('due_date')
     payments = list(pending_qs)
 

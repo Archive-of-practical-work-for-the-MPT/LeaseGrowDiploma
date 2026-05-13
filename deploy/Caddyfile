@@ -1,0 +1,7 @@
+# TLS (Let's Encrypt) выдаётся автоматически, если A/AAAA записи домена указывают на этот сервер
+# и порты 80/443 доступны из интернета.
+
+leasegrow.ru, www.leasegrow.ru {
+	encode gzip zstd
+	reverse_proxy web:8000
+}

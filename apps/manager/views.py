@@ -158,6 +158,55 @@ def _build_export_data():
     return rows
 
 
+def _reportlab_cyrillic_font_name():
+    """Имя шрифта ReportLab с кириллицей; регистрирует TTF при первом вызове."""
+    import os
+
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    reg_name = 'LeaseGrowUnicode'
+    if reg_name in pdfmetrics.getRegisteredFontNames():
+        return reg_name
+
+    def try_register(path):
+        if not path or not os.path.isfile(path):
+            return False
+        low = path.lower()
+        if not (low.endswith('.ttf') or low.endswith('.otf')):
+            return False
+        try:
+            pdfmetrics.registerFont(TTFont(reg_name, path))
+            return True
+        except Exception:
+            return False
+
+    try:
+        from matplotlib.font_manager import FontProperties, findfont
+
+        path = findfont(FontProperties(family='DejaVu Sans'))
+        if try_register(path):
+            return reg_name
+    except Exception:
+        pass
+
+    for path in (
+        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        '/usr/share/fonts/TTF/DejaVuSans.ttf',
+        '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+    ):
+        if try_register(path):
+            return reg_name
+
+    if os.name == 'nt':
+        fonts_dir = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts')
+        for fn in ('arial.ttf', 'segoeui.ttf', 'calibri.ttf'):
+            if try_register(os.path.join(fonts_dir, fn)):
+                return reg_name
+
+    return 'Helvetica'
+
+
 class StatisticsExportExcelView(ManagerRequiredMixin, View):
     """Экспорт статистики в Excel."""
 
@@ -284,25 +333,13 @@ class StatisticsExportPdfView(ManagerRequiredMixin, View):
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.lib.units import cm
             from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-            from reportlab.pdfbase import pdfmetrics
-            from reportlab.pdfbase.ttfonts import TTFont
         except ImportError:
             return HttpResponse(
                 'Для PDF-экспорта установите reportlab: pip install reportlab',
                 status=500,
             )
 
-        import os
-        font_name = 'Helvetica'
-        if os.name == 'nt':
-            fonts_dir = os.path.join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts')
-            arial_path = os.path.join(fonts_dir, 'arial.ttf')
-            if os.path.exists(arial_path):
-                try:
-                    pdfmetrics.registerFont(TTFont('Arial', arial_path))
-                    font_name = 'Arial'
-                except Exception:
-                    pass
+        font_name = _reportlab_cyrillic_font_name()
 
         response = HttpResponse(content_type='application/pdf')
         filename = f'leasegrow_statistics_{timezone.now().strftime("%Y%m%d_%H%M%S")}.pdf'

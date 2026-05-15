@@ -1,0 +1,28 @@
+{# Уведомление о cookies: показ только при отсутствии записи в localStorage #}
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-labelledby="cookie-banner-title" hidden>
+    <div id="cookie-banner-title" class="cookie-banner-title">Файлы cookie</div>
+    <p class="cookie-banner-text">
+        Мы используем cookie и похожие технологии для работы сайта, сессии входа и запоминания настроек.
+        Продолжая пользоваться сайтом, вы соглашаетесь с
+        <a href="{% url 'core:privacy' %}">политикой конфиденциальности</a>.
+    </p>
+    <button type="button" class="cookie-banner-btn" id="cookie-banner-accept">Понятно</button>
+</div>
+<script>
+(function () {
+    var KEY = 'leasegrow-cookie-consent';
+    var banner = document.getElementById('cookie-banner');
+    var btn = document.getElementById('cookie-banner-accept');
+    if (!banner || !btn) return;
+    try {
+        if (localStorage.getItem(KEY) === '1') return;
+    } catch (e) {
+        return;
+    }
+    banner.hidden = false;
+    btn.addEventListener('click', function () {
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        banner.hidden = true;
+    });
+})();
+</script>

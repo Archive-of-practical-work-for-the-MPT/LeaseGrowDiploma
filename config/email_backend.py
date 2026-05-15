@@ -15,6 +15,10 @@ class FallbackSMTPEmailBackend(SMTPEmailBackend):
         try:
             return super().open()
         except Exception:
+            # Если соединение уже создано (например, ошибка после connect/login),
+            # базовый open() при повторном вызове сразу вернёт False и fallback
+            # к другому порту не выполнится — сбрасываем «битое» соединение.
+            self.close()
             fallback_port = getattr(settings, "EMAIL_FALLBACK_PORT", None)
             if not fallback_port or int(fallback_port) == int(self.port):
                 raise

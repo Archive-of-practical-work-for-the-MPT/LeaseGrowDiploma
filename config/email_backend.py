@@ -15,6 +15,8 @@ class FallbackSMTPEmailBackend(SMTPEmailBackend):
         try:
             return super().open()
         except Exception:
+            # Сбросить частичное соединение, иначе повторный open() вернёт False и fallback не откроется.
+            self.close()
             fallback_port = getattr(settings, "EMAIL_FALLBACK_PORT", None)
             if not fallback_port or int(fallback_port) == int(self.port):
                 raise

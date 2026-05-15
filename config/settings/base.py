@@ -102,6 +102,7 @@ EMAIL_HOST = env('EMAIL_HOST', default='smtp.yandex.ru')
 EMAIL_PORT = env.int('EMAIL_PORT', default=465)
 EMAIL_FALLBACK_PORT = env.int('EMAIL_FALLBACK_PORT', default=2587)
 EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=30)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env(

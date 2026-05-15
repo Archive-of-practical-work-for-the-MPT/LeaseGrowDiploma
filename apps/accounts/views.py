@@ -1,9 +1,10 @@
+import logging
 import os
 import subprocess
 import tempfile
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -27,6 +28,8 @@ from .forms import (
 PASSWORD_RESET_TOKEN_MAX_AGE = 60 * 60
 EMAIL_VERIFICATION_TOKEN_MAX_AGE = 60 * 60
 EMAIL_VERIFICATION_RESEND_COOLDOWN = timedelta(minutes=3)
+
+logger = logging.getLogger(__name__)
 
 
 def get_current_account(request):
@@ -146,15 +149,35 @@ def register_view(request):
                     passport_series=form.cleaned_data.get('passport_series', '').strip(),
                     passport_number=form.cleaned_data.get('passport_number', '').strip(),
                 )
+        except IntegrityError:
+            logger.warning('register IntegrityError (race on unique email/username)')
+            messages.error(
+                request,
+                'Пользователь с таким email или логином уже зарегистрирован. Попробуйте войти.',
+            )
+        except Exception:
+            logger.exception('register: ошибка сохранения аккаунта в БД')
+            messages.error(
+                request,
+                'Не удалось сохранить регистрацию. Попробуйте снова.',
+            )
+        else:
+            try:
                 _send_registration_verification(request, account)
+            except Exception:
+                logger.exception('register: не удалось отправить письмо подтверждения')
+                request.session['pending_verification_account_id'] = account.id
+                request.session.pop('email_verification_sent_at', None)
+                request.session.modified = True
+                messages.warning(
+                    request,
+                    'Аккаунт создан, но письмо не удалось отправить. '
+                    'На следующей странице нажмите «Отправить письмо снова» или повторите позже.',
+                )
+                return redirect('accounts:verify_email')
             messages.success(
                 request, 'Регистрация почти завершена: подтвердите email по ссылке из письма.')
             return redirect('accounts:verify_email')
-        except Exception:
-            messages.error(
-                request,
-                'Не удалось отправить письмо подтверждения. Аккаунт не был сохранен, попробуйте снова.',
-            )
     return render(request, 'accounts/auth/register.html', {'form': form})
 
 

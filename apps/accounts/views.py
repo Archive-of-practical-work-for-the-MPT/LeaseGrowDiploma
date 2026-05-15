@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import tempfile
+import time
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.db import transaction, IntegrityError
@@ -28,6 +29,8 @@ from .forms import (
 PASSWORD_RESET_TOKEN_MAX_AGE = 60 * 60
 EMAIL_VERIFICATION_TOKEN_MAX_AGE = 60 * 60
 EMAIL_VERIFICATION_RESEND_COOLDOWN = timedelta(minutes=3)
+VERIFICATION_EMAIL_SEND_ATTEMPTS = 3
+VERIFICATION_EMAIL_RETRY_SLEEP_SEC = 0.75
 
 logger = logging.getLogger(__name__)
 
@@ -72,16 +75,31 @@ def _send_verification_link_email(account, verify_url):
         'accounts/emails/email_verification.html',
         {'username': account.username, 'verify_url': verify_url},
     )
-    email = EmailMultiAlternatives(
-        subject=subject,
-        body=message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[account.email],
-    )
-    email.attach_alternative(html_message, 'text/html')
-    email.send(
-        fail_silently=False,
-    )
+    last_error = None
+    for attempt in range(VERIFICATION_EMAIL_SEND_ATTEMPTS):
+        try:
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[account.email],
+            )
+            email.attach_alternative(html_message, 'text/html')
+            email.send(fail_silently=False)
+            return
+        except Exception as exc:
+            last_error = exc
+            if attempt + 1 >= VERIFICATION_EMAIL_SEND_ATTEMPTS:
+                break
+            logger.warning(
+                'Письмо подтверждения: попытка %s/%s не удалась: %s',
+                attempt + 1,
+                VERIFICATION_EMAIL_SEND_ATTEMPTS,
+                exc,
+            )
+            time.sleep(VERIFICATION_EMAIL_RETRY_SLEEP_SEC * (attempt + 1))
+    if last_error:
+        raise last_error
 
 
 def _send_registration_verification(request, account):
@@ -172,7 +190,7 @@ def register_view(request):
                 messages.warning(
                     request,
                     'Аккаунт создан, но письмо не удалось отправить. '
-                    'На следующей странице нажмите «Отправить письмо снова» или повторите позже.',
+                    'На странице подтверждения email нажмите «Отправить повторно» или попробуйте позже.',
                 )
                 return redirect('accounts:verify_email')
             messages.success(
@@ -258,7 +276,15 @@ def resend_verification_code_view(request):
         except ValueError:
             request.session.pop('email_verification_sent_at', None)
 
-    _send_registration_verification(request, account)
+    try:
+        _send_registration_verification(request, account)
+    except Exception:
+        logger.exception('resend: не удалось отправить письмо подтверждения')
+        messages.error(
+            request,
+            'Не удалось отправить письмо. Попробуйте позже или обратитесь в поддержку.',
+        )
+        return redirect('accounts:verify_email')
     messages.success(request, 'Письмо с кнопкой подтверждения отправлено повторно.')
     return redirect('accounts:verify_email')
 
